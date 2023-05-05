@@ -13,7 +13,7 @@ services:
     networks:
       - ft_transcendence
     hostname: frontend
-  
+
   backend:
     build: requirements/back
     container_name: back
@@ -26,14 +26,18 @@ services:
     hostname: back
     command: bash -c "npx prisma migrate deploy ;
              npm run start"
+    environment:
+      - DATABASE_URL=postgres://postgres:test@database:5432/nest
 
   database:
     image: postgres:13
     ports:
-      - "5434:5432"
+      - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=test
       - POSTGRES_DB=nest
     networks:
       - ft_transcendence
+    volumes: 
+      - ./requirements/db:/var/lib/postgresql/data
