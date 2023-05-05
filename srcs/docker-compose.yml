@@ -1,0 +1,39 @@
+version: '3.9'
+
+networks:
+  ft_transcendence:
+    driver: bridge
+
+services:
+  frontend:
+    build: requirements/front
+    container_name: front
+    ports:
+      - "3000:3000"
+    networks:
+      - ft_transcendence
+    hostname: frontend
+  
+  backend:
+    build: requirements/back
+    container_name: back
+    ports:
+      - "8080:8080"
+    networks:
+      - ft_transcendence
+    depends_on:
+      - database
+    hostname: back
+    command: bash -c "npx prisma migrate deploy ;
+             npm run start"
+
+  database:
+    image: postgres:13
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=nest
+    networks:
+      - ft_transcendence

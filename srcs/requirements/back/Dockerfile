@@ -1,0 +1,23 @@
+# Utiliser une image Node.js LTS (Long Term Support) comme base
+FROM node:14
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers package.json et package-lock.json
+COPY package*.json ./
+
+# Installer les dépendances
+RUN npm ci
+
+# Copier le reste des fichiers du projet
+COPY . .
+
+# Compiler l'application
+RUN npm run build
+
+# Exposer le port sur lequel l'application sera accessible
+EXPOSE 8080
+
+# Démarrer l'application
+CMD ["npm", "run", "start"]
