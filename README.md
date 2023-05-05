@@ -13,7 +13,6 @@ Le projet est structuré de la manière suivante :
         ├── back
         |   |── package.json
         │   ├── prisma
-        │   ├── README.md
         │   ├── src
         └── front
             ├── package.json
