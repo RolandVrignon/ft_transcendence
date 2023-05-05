@@ -10,13 +10,15 @@ Le projet est structuré de la manière suivante :
 └── srcs
     ├── docker-compose.yml
     └── requirements
+        |
         ├── back
         |   |── package.json
         │   ├── prisma
         │   ├── src
-        └── front
-            ├── package.json
-            └── src
+        ├── front
+        |   ├── package.json
+        |   └── src
+        └── db
 ```
 
 ## Prérequis
