@@ -15,10 +15,10 @@ Le projet est structuré de la manière suivante :
         |   |── package.json
         │   ├── prisma
         │   ├── src
-        ├── front
-        |   ├── package.json
-        |   └── src
-        └── db
+        └── front
+            ├── package.json
+            └── src
+
 ```
 
 ## Prérequis
