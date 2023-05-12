@@ -24,8 +24,16 @@ services:
     depends_on:
       - database
     hostname: back
-    command: bash -c "npx prisma migrate deploy ;
-             npm run start"
+    command: >
+      /bin/bash -c "
+      while ! nc -z database 5432;
+      do
+        echo 'Waiting for the PostgreSQL Server'
+        sleep 1
+      done;
+      echo 'PostgreSQL Server is up - executing command';
+      npx prisma migrate deploy && npm run start
+      "
     environment:
       - DATABASE_URL=postgres://postgres:test@database:5432/nest
 
@@ -40,4 +48,7 @@ services:
     networks:
       - ft_transcendence
     volumes: 
-      - ./requirements/db:/var/lib/postgresql/data
+      - dbdata:/var/lib/postgresql/data
+
+volumes:
+  dbdata:
