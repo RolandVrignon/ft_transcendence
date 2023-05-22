@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y netcat
 COPY . .
 
 # Compiler l'application
-RUN npm run build
+RUN npm install webpack --save-dev; \
+		npm run build
 
 # Exposer le port sur lequel l'application sera accessible
 EXPOSE 8080
