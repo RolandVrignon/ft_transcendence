@@ -7,6 +7,16 @@ all:
 db:
 	docker-compose -f $(COMPOSE_PATH) up -d database
 
+front:
+	docker-compose -f $(COMPOSE_PATH) down
+	docker rmi -f srcs-frontend
+	docker-compose --file srcs/docker-compose.yml up --build
+
+back:
+	docker-compose -f $(COMPOSE_PATH) down
+	docker rmi -f srcs-backend
+	docker-compose --file srcs/docker-compose.yml up --build
+
 down:
 	pm2 delete all 
 	docker-compose -f $(COMPOSE_PATH) down
@@ -21,3 +31,5 @@ fclean:
 re:
 	make fclean 
 	make all
+
+.PHONY: all db front back down clean fclean re
