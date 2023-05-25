@@ -10,11 +10,13 @@ db:
 front:
 	docker-compose -f $(COMPOSE_PATH) down
 	docker rmi -f srcs-frontend
+	docker build -t srcs-frontend srcs/requirements/front/.
 	docker-compose --file srcs/docker-compose.yml up --build
 
 back:
 	docker-compose -f $(COMPOSE_PATH) down
 	docker rmi -f srcs-backend
+	docker build -t srcs-frontend srcs/requirements/back/.
 	docker-compose --file srcs/docker-compose.yml up --build
 
 down:
