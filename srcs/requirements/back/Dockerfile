@@ -1,28 +1,22 @@
-# Utiliser une image Node.js LTS (Long Term Support) comme base
-FROM node:14
+FROM debian:buster
 
-# Définir le répertoire de travail
+RUN apt update
+RUN echo yes | apt upgrade
+
+RUN echo yes | apt install nodejs npm openssl curl netcat
+
+RUN openssl req -newkey rsa:4096 -nodes -keyout /etc/ssl/private/backend.key -x509 -days 365 -out /etc/ssl/certs/backend.cert -subj "/C=FR/ST=France/L=Paris/O=42 Paris/OU=Student/CN=localhost/emailAddress=oboutarf@student.42.fr"
+
 WORKDIR /app
-
-# Copier les fichiers package.json et package-lock.json
 COPY package*.json ./
-
-# Installer les dépendances
-RUN npm ci
-
-
-# Install netcat for our wait-for-it script
-RUN apt-get update && apt-get install -y netcat
-
-# Copier le reste des fichiers du projet
 COPY . .
-
-# Compiler l'application
+RUN npm install -g n
+RUN n 14
+RUN npm install
+RUN npm ci
 RUN npm install webpack --save-dev; \
 		npm run build
-
-# Exposer le port sur lequel l'application sera accessible
 EXPOSE 8080
 
-# Démarrer l'application
 CMD ["npm", "run", "start"]
+

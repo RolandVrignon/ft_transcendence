@@ -39,6 +39,7 @@ const Login: React.FC = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <button onClick={handleLogin}>Login</button>
+      <a href="https://localhost:8080/connect/api">Connect</a>
     </div>
   );
 };
