@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Res, Req, Get } from '@nestjs/common';
-import { LoginDto } from './login.dto';
+import { Controller, Post, Body, Res, Req, Get } from '@nestjs/common'
+import { LoginDto } from './login.dto'
 import { Response, Request } from 'express'
-import axios from 'axios';
+import axios from 'axios'
+import { PrismaClient } from '@prisma/client'
 
 @Controller('auth')
 export class AuthController {
@@ -52,42 +53,70 @@ export class ConnectController {
 }
 
 async function exchangeTokenForAccessCode(token: string)  {
-			const qs = require('qs');
-			try	{
-			let url = 'https://api.intra.42.fr/oauth/token';
-			const requestBody = {
-				grant_type: 'authorization_code',
-				client_id: process.env.CLIENT_ID,
-				client_secret: process.env.CLIENT_SECRET,
-				code: token,
-				redirect_uri: 'https://localhost:8080/connect/api'
-			};
-			const config = {
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				}
-			};
-			let res = await axios.post(url, qs.stringify(requestBody), config);
-			console.log(res);
-			const accessToken = res.data.access_token;
-			url = process.env.TOKEN_INFO_URL;
-			res = await axios.get(url, {
-				headers: { 'Authorization': `Bearer ${accessToken}`	}
-				}
-			)
-			let resource_owner_id = res.data.resource_owner_id;
-			url = "https://api.intra.42.fr/v2/users" + "/" + resource_owner_id;
-			res = await axios.get(url, {
-				headers: { 'Authorization': `Bearer ${accessToken}`	}
-				}
-			)
-			console.log(res);
-			} 
-			catch (error)	{
-				console.error('Request error:', error);
+	const qs = require('qs');
+	try	{
+		let url = 'https://api.intra.42.fr/oauth/token';
+		const requestBody = {
+			grant_type: 'authorization_code',
+			client_id: process.env.CLIENT_ID,
+			client_secret: process.env.CLIENT_SECRET,
+			code: token,
+			redirect_uri: 'https://localhost:8080/connect/api'
+		};
+		const config = {
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
 			}
+		};
+		let res = await axios.post(url, qs.stringify(requestBody), config);
+		const accessToken = res.data.access_token;
+		url = process.env.TOKEN_INFO_URL;
+		res = await axios.get(url, {
+			headers: { 'Authorization': `Bearer ${accessToken}`	}
+			}
+		)
+		let resource_owner_id = res.data.resource_owner_id;
+		url = "https://api.intra.42.fr/v2/users" + "/" + resource_owner_id;
+		res = await axios.get(url, {
+			headers: { 'Authorization': `Bearer ${accessToken}`
+		}
+		})
+		console.log(res);
+		const	prisma = new PrismaClient();
+		let	user = await prisma.user.findUnique({
+			where: {
+			  id: res.data.id,
+			},
+		});
+		if (user)
+			throw ("app: backend: user already in database, need redirection to landpage.");
+		user = await prisma.user.create({
+			data: {
+				id: res.data.id,
+				email: res.data.email,
+				login: res.data.login,
+				lastName: res.data.last_name,
+				firstName: res.data.first_name,
+				imageLink: res.data.image.link
+			}
+		})
+		// id: 109075,
+		// email: 'oboutarf@student.42.fr',
+		// login: 'oboutarf',
+		// first_name: 'Oscar',
+		// last_name: 'Boutarfa',
+		// usual_full_name: 'Oscar Boutarfa',
+		// usual_first_name: null,
+		// url: 'https://api.intra.42.fr/v2/users/oboutarf',
+		// phone: 'hidden',
+		// displayname: 'Oscar Boutarfa',
+		// kind: 'student',
+		// image: {
+		//   link: 'https://cdn.intra.42.fr/users/fe72a4a3bdfb4fd06220cff656fdc35c/oboutarf.JPG',
+		//   versions: [Object]
+		// },
+	}
+	catch (error)	{
+		console.log(error);
+	}
 }
-
-// async function getUserData(accessCode: string)  {
-// (void)accessCode;
-// }
