@@ -1,11 +1,12 @@
 import './App.scss';
-// import Welcome from './components/Welcome/Welcome';
-import Login from './components/Login/Login';
+import SideButton from './components/SideButton/SideButton';
+import StandardBox from './components/StandardBox/StandardBox';
 
 function App() {
   return (
     <div className="App">
-      <Login />
+      <SideButton />
+      <StandardBox />
     </div>
   );
 }
