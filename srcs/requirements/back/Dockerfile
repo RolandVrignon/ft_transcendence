@@ -10,7 +10,6 @@ COPY package*.json ./
 # Installer les dépendances
 RUN npm ci
 
-
 # Install netcat for our wait-for-it script
 RUN apt-get update && apt-get install -y netcat
 
