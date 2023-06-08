@@ -1,0 +1,17 @@
+$background-color_1: var(--white);
+
+.side-button {
+	align-items: flex-end;
+	background-color: $background-color_1;
+	display: flex;
+	height: 40px;
+	padding: 7px;
+	width: 40px;
+}
+.menu {
+	height: 25px;
+	margin-left: 1px;
+	object-fit: cover;
+	width: 25px;
+}
+

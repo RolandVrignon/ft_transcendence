@@ -1,12 +1,12 @@
 import './App.scss';
-import SideButton from './components/SideButton/SideButton';
 import StandardBox from './components/StandardBox/StandardBox';
+import TitleBlock from './components/TitleBlock/TitleBlock';
 
 function App() {
   return (
     <div className="App">
-      <SideButton />
       <StandardBox />
+	  <TitleBlock />
     </div>
   );
 }

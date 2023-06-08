@@ -1,0 +1,38 @@
+$border-color_1: var(--black);
+
+@import "https://fonts.googleapis.com/css?family=Iceberg :400";
+
+.valign-text-middle {
+	flex-direction: column;
+	justify-content: center;
+}
+.title-block {
+	display: flex;
+	height: 29px;
+	min-width: 180px;
+}
+.overlap-group {
+	margin-top: -1px;
+	position: relative;
+	width: 180px;
+}
+.background {
+	border: 1px solid;
+	border-color: $border-color_1;
+	border-radius: 10px;
+	height: 30px;
+	left: 0;
+	position: absolute;
+	top: 2px;
+	width: 180px;
+}
+.title {
+	left: 0;
+	letter-spacing: 0;
+	line-height: normal;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 180px;
+}
+

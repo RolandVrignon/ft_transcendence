@@ -1,0 +1,65 @@
+$background-color_1: var(--white) border: 1px solid;
+$border-color_1: var(--black);
+
+@import "https://fonts.googleapis.com/css?family=Iceberg :400";
+.valign-text-middle {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.match-history {
+	align-items: flex-start;
+	display: flex;
+	min-width: 330px;
+}
+.overlap-group1 {
+	height: 29px;
+	position: relative;
+	width: 330px;
+}
+.separator {
+	background-image: url(separator.svg);
+	background-position: 50% 50%;
+	background-size: cover;
+	height: 1px;
+	left: 0;
+	position: absolute;
+	top: 15px;
+	width: 330px;
+}
+.stats {
+	align-items: flex-start;
+	display: flex;
+	height: 29px;
+	left: 75px;
+	min-width: 180px;
+	position: absolute;
+	top: 0;
+}
+.overlap-group {
+	height: 32px;
+	margin-top: -1px;
+	position: relative;
+	width: 180px;
+}
+.background {
+	background-color: $background-color_1;
+	border-color: $border-color_1;
+	border-radius: 1px;
+	height: 30px;
+	left: 0;
+	position: absolute;
+	top: 2px;
+	width: 180px;
+}
+.title {
+	height: 29px;
+	left: 0;
+	letter-spacing: 0;
+	line-height: normal;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 180px;
+}
+
