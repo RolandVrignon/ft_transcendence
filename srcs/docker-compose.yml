@@ -3,7 +3,7 @@ version: '3.9'
 services:
 
   frontend:
-    hostname: frontend
+    hostname: front
     depends_on:
       - backend
     container_name: front
@@ -16,7 +16,7 @@ services:
       - ft_transcendence
 
   backend:
-    hostname: backend
+    hostname: back
     container_name: back
     env_file:
       - .env

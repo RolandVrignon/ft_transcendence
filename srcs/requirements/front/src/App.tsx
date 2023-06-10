@@ -1,6 +1,4 @@
-import './App.scss';
-// import Welcome from './components/Welcome/Welcome';
-import Login from './components/Login/Login';
+import Login from './components/Login';
 
 function App() {
   return (
