@@ -1,12 +1,10 @@
 import './App.scss';
-import StandardBox from './components/StandardBox/StandardBox';
-import TitleBlock from './components/TitleBlock/TitleBlock';
+import SolidFrame from './components/SolidFrame/SolidFrame';
 
 function App() {
   return (
     <div className="App">
-      <StandardBox />
-	  <TitleBlock />
+	  <SolidFrame borderColor="blue" backgroundColor="magenta" width="200px" height="200px" borderRadius="15px" borderThickness="1px" />
     </div>
   );
 }

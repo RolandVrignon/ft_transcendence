@@ -1,0 +1,23 @@
+@import "https://fonts.googleapis.com/css?family=Iceberg :400";
+
+.solid-frame {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	background-color: var(--white);
+	border: 1px solid;
+	border-color: var(--black);
+	border-radius: 10px;
+	height:780px;
+	width: 340px;
+	text-align: center;
+}
+
+.text-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate( -50%, 50% );
+	font-size: 16px;
+	font-family: Iceberg;
+}
