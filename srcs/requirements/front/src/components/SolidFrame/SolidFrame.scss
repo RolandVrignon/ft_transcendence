@@ -1,3 +1,5 @@
+//@import url('https://fonts.googleapis.com/css2?family=Iceberg&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Iceland&display=swap');
 
 .solid-frame {
 	// Defining position and alignment
@@ -6,17 +8,11 @@
   align-items: center;
   box-sizing: border-box;
 
-  // By default, assume the SolidFrame takes up the full width of its container
-  width: 100%;
-
-  // Apply different styles at different screen sizes using media queries
-  @media (min-width: 600px) { // for screens wider than 600px
-    width: 80%;
-  }
-	
-  @media (min-width: 900px) { // for screens wider than 900px
-    width: 60%;
-  }
+  // By default, assume SolidFrame is the main responsive frame
+	position: relative;
+	margin: 5px;
+  width: calc(97vw - 10px);
+	height: calc(98vh - 10px);
 }
 
 .text-content {
@@ -25,15 +21,16 @@
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 16px;
-  font-family: Arial, sans-serif;
+  font-family: 'Iceland';
+	font-weight: bold;
   text-align: center;
   
   // Adjust font size based on screen size
-  @media (min-width: 600px) {
-    font-size: 18px;
+  @media (min-width: 600px) { // for screens wider than 600px
+    font-size: 48px;
   }
 
-  @media (min-width: 900px) {
-    font-size: 20px;
+  @media (min-width: 900px) { // for screens wider than 900px
+    font-size: 72px;
   }
 }

@@ -19,8 +19,8 @@ function SolidFrame({
     backgroundColor = 'transparent',
     borderRadius = '10px',
     borderWidth = '1px',
-    width = '100px',
-    height = '100px',
+    width,
+    height,
   }: SolidFrameProps) {
 
   return (
