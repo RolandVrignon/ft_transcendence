@@ -5,6 +5,7 @@ type SolidFrameProps = {
   className?: string;
   txt_1?: string;
   txt_2?: string;
+	fontSize?: string;
   borderColor?: string;
   backgroundColor?: string;
   borderRadius?: string;
@@ -18,6 +19,7 @@ function SolidFrame({
     className,
     txt_1,
     txt_2,
+		fontSize= '32px',
     borderColor = 'black',
     backgroundColor = 'transparent',
     borderRadius = '10px',
@@ -42,10 +44,10 @@ function SolidFrame({
     >
 		{children}	
 			<span className="text-content">
-				<span className='grey'>
+				<span className='grey' style={{fontSize: fontSize}}>
 				  {txt_1}
 				</span>
-				<span className='black'>
+				<span className='black' style={{fontSize: fontSize}}>
 				  {txt_2}
 				</span>
 			</span>

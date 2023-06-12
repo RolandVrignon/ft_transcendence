@@ -24,9 +24,10 @@ const SideBar: React.FC = () => {
 				className="Title"
 				borderColor="transparent"
 				width="100%"
-				height="100px"
+				height="200px"
 				txt_1="The Great "
 				txt_2="Pong Show"
+				fontSize="64px"
 			/>
 			<SolidFrame
 				className="Login"
