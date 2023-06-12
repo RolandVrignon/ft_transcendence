@@ -4,13 +4,9 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // const httpsOptions = {
-  //   key: fs.readFileSync('/etc/ssl/private/key.pem'),
-  //   cert: fs.readFileSync('/etc/ssl/certs/cert.pem'),
-  // };
-  // const app = await NestFactory.create(AppModule, {
-  //   httpsOptions,
-  // });
+  app.enableCors({
+    origin: 'http://localhost:3000',
+  });
   await app.listen(8080);
 }
 
