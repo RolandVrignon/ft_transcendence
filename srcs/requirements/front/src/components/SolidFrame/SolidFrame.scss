@@ -3,37 +3,37 @@
 
 .solid-frame {
 	// Defining position and alignment
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	flex-direction: column;
-  box-sizing: border-box;
-
-  // By default, assume SolidFrame is the main responsive frame
+	box-sizing: border-box;
+	
+	// By default, assume SolidFrame is the main responsive frame
 	position: relative;
 	margin: 5px;
-  width: calc(97vw - 10px);
-	height: calc(98vh - 10px);
+	width: calc(100vw - 10px);
+	height: calc(100vh - 10px);
 }
 
 .text-content {
-  font-family: 'Iceland';
-  font-size: 16px;
+	font-family: 'Iceland';
+	font-size: 16px;
 	font-weight: bold;
-  text-align: center;
+	text-align: center;
 	.grey {
 		color: grey;
 	}
 	.black {
 		color: black;
 	}
-  
-  // Adjust font size based on screen size
-  @media (min-width: 600px) { // for screens wider than 600px
-    font-size: 32px;
-  }
 
-  @media (min-width: 900px) { // for screens wider than 900px
-    font-size: 64px;
-  }
+	// Adjust font size based on screen size
+	@media (min-width: 600px) { // for screens wider than 600px
+		font-size: 32px;
+	}
+
+	@media (min-width: 900px) { // for screens wider than 900px
+		font-size: 64px;
+	}
 }
