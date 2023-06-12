@@ -11,6 +11,7 @@ type SolidFrameProps = {
   borderWidth?: string;
   width?: string | number; // Allow numbers for percentages
   height?: string | number; // Allow numbers for percentages
+	children?: React.ReactNode;
 };
 
 function SolidFrame({
@@ -23,11 +24,12 @@ function SolidFrame({
     borderWidth = '1px',
     width,
     height,
+		children
   }: SolidFrameProps) {
 
   return (
     <div
-      className={`solid-frame ${className && " " + className}`}
+      className={`solid-frame ${className}`}
       style={{
         borderColor, 
         backgroundColor, 
@@ -38,6 +40,7 @@ function SolidFrame({
         height: typeof height === 'number' ? `${height}%` : height, 
       }}
     >
+		{children}	
 			<span className="text-content">
 				<span className='grey'>
 				  {txt_1}

@@ -6,6 +6,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+	flex-direction: column;
   box-sizing: border-box;
 
   // By default, assume SolidFrame is the main responsive frame
@@ -16,19 +17,12 @@
 }
 
 .text-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 16px;
   font-family: 'Iceland';
+  font-size: 16px;
 	font-weight: bold;
   text-align: center;
 	.grey {
 		color: grey;
-	}
-	.blue {
-		color: blue;
 	}
 	.black {
 		color: black;
@@ -36,10 +30,10 @@
   
   // Adjust font size based on screen size
   @media (min-width: 600px) { // for screens wider than 600px
-    font-size: 48px;
+    font-size: 32px;
   }
 
   @media (min-width: 900px) { // for screens wider than 900px
-    font-size: 72px;
+    font-size: 64px;
   }
 }
