@@ -2,46 +2,45 @@ import React from "react";
 import "./SolidFrame.scss";
 
 type SolidFrameProps = {
-	className?: string;
-	borderThickness: string;
-	borderColor: string;
-	backgroundColor: string;
-	width: string;
-	height: string;
-	borderRadius: string;
-	txt?: string;
+  className?: string;
+  txt?: string;
+  borderColor?: string;
+  backgroundColor?: string;
+  borderRadius?: string;
+  borderWidth?: string;
+  width?: string | number; // Allow numbers for percentages
+  height?: string | number; // Allow numbers for percentages
 };
 
-function SolidFrame(props: SolidFrameProps) {
-	const {
-		className,
-		borderThickness,
-		borderColor,
-		backgroundColor,
-		width,
-		height,
-		borderRadius,
-		txt,
-	} = props;
+function SolidFrame({
+    className,
+    txt,
+    borderColor = 'black',
+    backgroundColor = 'transparent',
+    borderRadius = '10px',
+    borderWidth = '1px',
+    width = '100px',
+    height = '100px',
+  }: SolidFrameProps) {
 
-	return (
-		<div
-			className={`solid-frame ${className}`}
-			style={{
-				borderColor,
-				backgroundColor,
-				width,
-				height,
-				borderRadius,
-				borderWidth: borderThickness,
-				borderStyle: 'solid'
-			}}
-		>
-			<span className='text-content'>
-				{txt}
-			</span>
-		</div>
-	);
+  return (
+    <div
+      className={`solid-frame ${className && " " + className}`}
+      style={{
+        borderColor, 
+        backgroundColor, 
+        borderRadius, 
+        borderWidth,
+        borderStyle: 'solid',
+        width: typeof width === 'number' ? `${width}%` : width, 
+        height: typeof height === 'number' ? `${height}%` : height, 
+      }}
+    >
+      <span className='text-content'>
+        {txt}
+      </span>
+    </div>
+  );
 }
 
 export default SolidFrame;
