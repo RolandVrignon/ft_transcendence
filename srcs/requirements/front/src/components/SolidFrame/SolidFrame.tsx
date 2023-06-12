@@ -3,7 +3,8 @@ import "./SolidFrame.scss";
 
 type SolidFrameProps = {
   className?: string;
-  txt?: string;
+  txt_1?: string;
+  txt_2?: string;
   borderColor?: string;
   backgroundColor?: string;
   borderRadius?: string;
@@ -14,7 +15,8 @@ type SolidFrameProps = {
 
 function SolidFrame({
     className,
-    txt,
+    txt_1,
+    txt_2,
     borderColor = 'black',
     backgroundColor = 'transparent',
     borderRadius = '10px',
@@ -36,9 +38,14 @@ function SolidFrame({
         height: typeof height === 'number' ? `${height}%` : height, 
       }}
     >
-      <span className='text-content'>
-        {txt}
-      </span>
+			<span className="text-content">
+				<span className='grey'>
+				  {txt_1}
+				</span>
+				<span className='black'>
+				  {txt_2}
+				</span>
+			</span>
     </div>
   );
 }

@@ -24,6 +24,15 @@
   font-family: 'Iceland';
 	font-weight: bold;
   text-align: center;
+	.grey {
+		color: grey;
+	}
+	.blue {
+		color: blue;
+	}
+	.black {
+		color: black;
+	}
   
   // Adjust font size based on screen size
   @media (min-width: 600px) { // for screens wider than 600px
