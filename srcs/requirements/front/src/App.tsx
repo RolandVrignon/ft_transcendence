@@ -10,7 +10,7 @@ function App() {
 		<div className="App">
 			<SolidFrame >
 				<Title txt1={variable} txt2=" Chat-name wehfkwe" />
-					<SolidFrame className="chat-box" backgroundColor="grey" >
+					<SolidFrame frameClass="chat-box" backgroundColor="grey" >
 						<MsgBox msg="blabla" backgroundColor="white" className="send" />
 					</SolidFrame>
 			</SolidFrame>

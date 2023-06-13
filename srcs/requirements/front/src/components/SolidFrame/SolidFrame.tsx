@@ -2,7 +2,7 @@ import React from "react";
 import "./SolidFrame.scss";
 
 type SolidFrameProps = {
-	className?: string;
+	frameClass?: string;
 	txt1?: string;
 	txt2?: string;
 	fontSize?: string;
@@ -17,7 +17,7 @@ type SolidFrameProps = {
 };
 
 function SolidFrame({
-		className,
+		frameClass,
 		txt1,
 		txt2,
 		fontSize= '32px',
@@ -33,7 +33,7 @@ function SolidFrame({
 
 	return (
 		<div
-			className={`solid-frame ${className}`}
+			className={`solid-frame ${frameClass}`}
 			style={{
 				borderColor,
 				backgroundColor,

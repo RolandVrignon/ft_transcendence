@@ -4,12 +4,12 @@ import SolidFrame from '../SolidFrame/SolidFrame'
 const SideBar: React.FC = () => {
 	return (
 		<SolidFrame
-			className="SideBar"
+			frameClass="SideBar"
 			backgroundColor="transparent"
 			width="300px"
 		>
 			<SolidFrame
-				className="PongShow"
+				frameClass="PongShow"
 				borderColor="transparent"
 				width="100%"
 				height="200px"
@@ -18,28 +18,28 @@ const SideBar: React.FC = () => {
 				fontSize="64px"
 			/>
 			<SolidFrame
-				className="Login"
+				frameClass="Login"
 				borderColor="transparent"
 				width="100%"
 				height="100px"
 				txt2="Login"
 			/>
 			<SolidFrame
-				className="Game"
+				frameClass="Game"
 				borderColor="transparent"
 				width="100%"
 				height="100px"
 				txt2="Pong Game"
 			/>
 			<SolidFrame
-				className="Chat"
+				frameClass="Chat"
 				borderColor="transparent"
 				width="100%"
 				height="100px"
 				txt2="Chat"
 			/>
 			<SolidFrame
-				className="Logout"
+				frameClass="Logout"
 				borderColor="transparent"
 				width="100%"
 				height="100px"

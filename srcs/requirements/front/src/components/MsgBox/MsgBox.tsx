@@ -15,7 +15,7 @@ const MsgBox: React.FC<MsgBoxProps> = ({
 	}) => {
 	return (
 	<SolidFrame
-		className={className}
+		frameClass={className}
 		backgroundColor={backgroundColor}
 		fontSize="12px"
 		height="95%"

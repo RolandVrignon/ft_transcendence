@@ -19,7 +19,7 @@ const Title: React.FC<TitleProps> = ({
 			let width = Math.max(txt1.length, (txt2 ? txt2.length : 0))*fontSizeInt/2;
 		return (
 			<SolidFrame
-				className="title"
+				frameClass="title"
 				backgroundColor="white"
 				height= {height}
 				width={width}
