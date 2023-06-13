@@ -8,6 +8,7 @@ function App() {
 		let variable = "Chat:";
 	return (
 		<div className="App">
+			<SideBar />
 			<SolidFrame >
 				<Title txt1={variable} txt2=" Chat-name wehfkwe" />
 					<SolidFrame frameClass="chat-box" backgroundColor="grey" >

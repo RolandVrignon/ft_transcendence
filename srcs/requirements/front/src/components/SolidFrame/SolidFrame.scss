@@ -4,10 +4,7 @@
 //local variables
 $margin: 15px;
 
-.chat-box {
-	width: calc(100vw - 100px);
-}
-
+// Define frame style
 .solid-frame {
 	// Defining position and alignment
 	display: flex;
@@ -27,6 +24,7 @@ $margin: 15px;
 	width: 99%;
 }
 
+// Define text style
 .text-content {
 	font-family: 'Iceland';
 	font-size: 16px;

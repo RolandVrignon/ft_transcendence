@@ -3,8 +3,6 @@ import "./SolidFrame.scss";
 
 type SolidFrameProps = {
 	frameClass?: string;
-	txt1?: string;
-	txt2?: string;
 	fontSize?: string;
 	borderColor?: string;
 	backgroundColor?: string;
@@ -12,14 +10,15 @@ type SolidFrameProps = {
 	borderWidth?: string;
 	width?: string | number; // Allow numbers for percentages
 	height?: string | number; // Allow numbers for percentages
+	txtClass?: string;
+	txt1?: string;
+	txt2?: string;
 	children?: React.ReactNode;
 	link?: string;
 };
 
 function SolidFrame({
 		frameClass,
-		txt1,
-		txt2,
 		fontSize= '32px',
 		borderColor = 'black',
 		backgroundColor = 'transparent',
@@ -27,8 +26,11 @@ function SolidFrame({
 		borderWidth = '1px',
 		width,
 		height,
+		txtClass,
+		txt1,
+		txt2,
+		link,
 		children,
-		link
 	}: SolidFrameProps) {
 
 	return (
@@ -45,7 +47,7 @@ function SolidFrame({
 			}}
 		>
 		{children}
-			<div className="text-content">
+			<div className={`text-content ${txtClass}`}>
 				<p>
 					<span className='color1' style={{fontSize: fontSize}}>
 						{txt1}
