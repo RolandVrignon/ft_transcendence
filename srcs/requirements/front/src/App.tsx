@@ -4,13 +4,14 @@ import SideBar from './components/SideBar/SideBar'
 import Title from './components/Title/Title'
 
 function App() {
-  return (
+		let variable = "Chat:";
+	return (
 		<div className="App">
-				<SolidFrame >
-					<Title txt_1="Title: " txt_2="subtitle" />
-				</SolidFrame>
+			<SolidFrame >
+				<Title txt1={variable} txt2=" Chat-name wehfkwe" />
+			</SolidFrame>
 		</div>
-  );
+	);
 }
 
 export default App;

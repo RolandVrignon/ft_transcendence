@@ -3,8 +3,8 @@ import "./SolidFrame.scss";
 
 type SolidFrameProps = {
 	className?: string;
-	txt_1?: string;
-	txt_2?: string;
+	txt1?: string;
+	txt2?: string;
 	fontSize?: string;
 	borderColor?: string;
 	backgroundColor?: string;
@@ -18,8 +18,8 @@ type SolidFrameProps = {
 
 function SolidFrame({
 		className,
-		txt_1,
-		txt_2,
+		txt1,
+		txt2,
 		fontSize= '32px',
 		borderColor = 'black',
 		backgroundColor = 'transparent',
@@ -40,24 +40,26 @@ function SolidFrame({
 				borderRadius,
 				borderWidth,
 				borderStyle: 'solid',
-				width: (typeof width === 'number') ? `${width}%` : width,
-				height: (typeof height === 'number') ? `${height}%` : height,
+				width: (typeof width === 'number') ? `${width}px` : width,
+				height: (typeof height === 'number') ? `${height}px` : height,
 			}}
 		>
 		{children}
-			<span className="text-content">
-				<span className='color1' style={{fontSize: fontSize}}>
-					<p>{txt_1}</p>
-				</span>
+			<div className="text-content">
+				<p>
+					<span className='color1' style={{fontSize: fontSize}}>
+						{txt1}
+					</span>
+				</p>
 				<span className='color2' style={{fontSize: fontSize}}>
 				{link ? (
-						<a href={link}>{txt_2}</a>
+						<a href={link}>{txt2}</a>
 					) : (
-						<p>{txt_2}</p>
+						<p>{txt2}</p>
 					)
 				}
 				</span>
-			</span>
+			</div>
 		</div>
 	);
 }

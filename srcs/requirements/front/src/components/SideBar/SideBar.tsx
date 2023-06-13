@@ -13,8 +13,8 @@ const SideBar: React.FC = () => {
 				borderColor="transparent"
 				width="100%"
 				height="200px"
-				txt_1="The Great "
-				txt_2="Pong Show"
+				txt1="The Great "
+				txt2="Pong Show"
 				fontSize="64px"
 			/>
 			<SolidFrame
@@ -22,28 +22,28 @@ const SideBar: React.FC = () => {
 				borderColor="transparent"
 				width="100%"
 				height="100px"
-				txt_2="Login"
+				txt2="Login"
 			/>
 			<SolidFrame
 				className="Game"
 				borderColor="transparent"
 				width="100%"
 				height="100px"
-				txt_2="Pong Game"
+				txt2="Pong Game"
 			/>
 			<SolidFrame
 				className="Chat"
 				borderColor="transparent"
 				width="100%"
 				height="100px"
-				txt_2="Chat"
+				txt2="Chat"
 			/>
 			<SolidFrame
 				className="Logout"
 				borderColor="transparent"
 				width="100%"
 				height="100px"
-				txt_2="Logout"
+				txt2="Logout"
 			/>
 		</SolidFrame>
 	);

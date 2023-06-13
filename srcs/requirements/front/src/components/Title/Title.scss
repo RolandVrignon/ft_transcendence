@@ -1,10 +1,15 @@
 
 .title {
+	position: absolute;
+	top: -25px;
+
+}
+
+.text-content {
 	font-family: 'Calibri';
-	font-size: 25px;
+	font-size: 10px;
 	font-weight: bold;
 	text-align: center;
-	white-space: nowrap;
 	.color1 {
 		color: black;
 	}
