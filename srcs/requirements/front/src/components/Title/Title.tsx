@@ -20,6 +20,7 @@ const Title: React.FC<TitleProps> = ({
 		return (
 			<SolidFrame
 				frameClass="title"
+				txtClass="text-title"
 				backgroundColor="white"
 				height= {height}
 				width={width}

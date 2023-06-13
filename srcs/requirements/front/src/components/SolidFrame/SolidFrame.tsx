@@ -57,7 +57,7 @@ function SolidFrame({
 				{link ? (
 						<a href={link}>{txt2}</a>
 					) : (
-						<p>{txt2}</p>
+						<>{txt2}</>
 					)
 				}
 				</span>
