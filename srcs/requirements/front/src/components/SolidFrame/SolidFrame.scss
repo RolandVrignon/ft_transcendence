@@ -1,6 +1,9 @@
 //@import url('https://fonts.googleapis.com/css2?family=Iceberg&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Iceland&display=swap');
 
+//local variables
+$margin: 15px;
+
 .solid-frame {
 	// Defining position and alignment
 	display: flex;
@@ -11,9 +14,9 @@
 	
 	// By default, assume SolidFrame is the main responsive frame
 	position: relative;
-	margin: 5px;
-	width: calc(100vw - 10px);
-	height: calc(100vh - 10px);
+	margin: $margin;
+	width: calc(100vw - 2 * #{$margin});
+	height: calc(100vh - 2 * #{$margin});
 }
 
 .text-content {

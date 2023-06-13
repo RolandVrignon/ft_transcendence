@@ -47,7 +47,7 @@ function SolidFrame({
 		{children}
 			<span className="text-content">
 				<span className='grey' style={{fontSize: fontSize}}>
-					{txt_1}
+					<p>{txt_1}</p>
 				</span>
 				<span className='black' style={{fontSize: fontSize}}>
 				{link ? (
@@ -56,7 +56,6 @@ function SolidFrame({
 						<p>{txt_2}</p>
 					)
 				}
-					{txt_2}
 				</span>
 			</span>
 		</div>

@@ -5,7 +5,7 @@ import SideBar from './components/SideBar/SideBar'
 function App() {
   return (
 		<div className="App">
-				<SolidFrame />
+				<SideBar />
 		</div>
   );
 }

@@ -1,27 +1,15 @@
 import React from "react";
 import SolidFrame from '../SolidFrame/SolidFrame'
 
-/*
-type SideBarProps = {
-	// No specific props 	
-	className: string;
-	LoginFrame: string;
-	GameFrame: string;
-	ChatFrame: string;
-	LogoutFrame: string;
-};
-*/
-
 const SideBar: React.FC = () => {
 	return (
 		<SolidFrame
 			className="SideBar"
 			backgroundColor="transparent"
 			width="300px"
-			height="99%"
 		>
 			<SolidFrame
-				className="Title"
+				className="PongShow"
 				borderColor="transparent"
 				width="100%"
 				height="200px"
