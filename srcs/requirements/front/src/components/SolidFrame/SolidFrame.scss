@@ -4,6 +4,10 @@
 //local variables
 $margin: 15px;
 
+.chat-box {
+	width: calc(100vw - 100px);
+}
+
 .solid-frame {
 	// Defining position and alignment
 	display: flex;
@@ -17,6 +21,10 @@ $margin: 15px;
 	margin: $margin;
 	width: calc(100vw - 2 * #{$margin});
 	height: calc(100vh - 2 * #{$margin});
+}
+
+.chat-box {
+	width: 99%;
 }
 
 .text-content {
