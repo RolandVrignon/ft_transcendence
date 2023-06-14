@@ -21,7 +21,8 @@ $margin: 15px;
 }
 
 .chat-box {
-	width: 99%;
+	width: 100.3%;
+	align-items: bottom;
 }
 
 // Define text style
@@ -30,10 +31,10 @@ $margin: 15px;
 	font-size: 16px;
 	font-weight: bold;
 	text-align: center;
-	&.color1 {
+	.color1 {
 		color: grey;
 	}
-	&.color2 {
+	.color2 {
 		color: black;
 	}
 	white-space: nowrap;

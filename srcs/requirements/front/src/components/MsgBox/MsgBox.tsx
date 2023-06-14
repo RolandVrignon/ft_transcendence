@@ -3,23 +3,24 @@ import SolidFrame from '../SolidFrame/SolidFrame'
 import "./MsgBox.scss"
 
 type MsgBoxProps = {
-	className: string;
-	backgroundColor: string;
+	frameClass: string;
+	backgroundColor?: string;
 	msg?: string;
 };
 
 const MsgBox: React.FC<MsgBoxProps> = ({
-	className,
+	frameClass,
 	backgroundColor,
 	msg
 	}) => {
 	return (
 	<SolidFrame
-		frameClass={className}
+		frameClass={frameClass}
 		backgroundColor={backgroundColor}
-		fontSize="12px"
 		height="95%"
 		width="95%"
+		txtClass="text-msg"
+		//fontSize="12px"
 		txt1={msg}
 	/>
 	);

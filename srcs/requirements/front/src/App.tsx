@@ -10,9 +10,11 @@ function App() {
 		<div className="App">
 			<SideBar />
 			<SolidFrame >
-				<Title txt1={variable} txt2=" Chat-name wehfkwe" />
-					<SolidFrame height="60%" frameClass="chat-box" backgroundColor="grey" >
-						<MsgBox msg="blabla" backgroundColor="white" className="send" />
+				<Title txt1={variable} txt2="some chat chanel" />
+					<SolidFrame height="80%" frameClass="chat-box" >
+						<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+						<MsgBox frameClass="rcv-frame" msg="Here a received message !"/>
+						<MsgBox frameClass="send-frame" msg="Here a sent message !"/>
 					</SolidFrame>
 			</SolidFrame>
 		</div>

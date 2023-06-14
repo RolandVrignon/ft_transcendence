@@ -1,1 +1,32 @@
 
+.write-frame {
+	background-color: #FFFFFF !important;
+
+}
+
+.send-frame {
+	background-color: #EAEAEA !important;
+
+}
+
+.rcv-frame {
+	background-color: #FFF0BD !important;
+
+}
+
+.system-frame{
+	overflow: auto;
+	background-color: #C3E2E1 !important;
+}
+
+.text-msg {
+	font-family: 'Calibri';
+	font-weight: normal;
+	text-align: left;
+	.color1 {
+		color: black;
+	}
+	.color2 {
+		color: grey;
+	}
+}

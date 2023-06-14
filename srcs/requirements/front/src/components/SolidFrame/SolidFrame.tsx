@@ -48,19 +48,17 @@ function SolidFrame({
 		>
 		{children}
 			<div className={`text-content ${txtClass}`}>
-				<p>
-					<span className='color1' style={{fontSize: fontSize}}>
-						{txt1}
-					</span>
+				<p className='color1' style={{fontSize: fontSize}}>
+					{txt1}
 				</p>
-				<span className='color2' style={{fontSize: fontSize}}>
-				{link ? (
-						<a href={link}>{txt2}</a>
-					) : (
-						<>{txt2}</>
-					)
-				}
-				</span>
+				<p className='color2' style={{fontSize: fontSize}}>
+					{link ? (
+							<a href={link}>{txt2}</a>
+						) : (
+							<>{txt2}</>
+						)
+					}
+				</p>
 			</div>
 		</div>
 	);
