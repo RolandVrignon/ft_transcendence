@@ -4,20 +4,29 @@ import { Response, Request } from 'express'
 import axios from 'axios'
 import {AxiosResponse} from 'axios'
 import prisma from './prisma.client'
-
+import { access } from 'fs'
 
 @Controller('callback')
 export class ConnectController {
-  @Get('handleUserStatus')	async handleCodeCallback(@Res() res: Response, @Req() req: Request) {
-	  try {
-			const code = req.query.code as string;
-			const createResponse = await processAuthentificationCenter(code)
-			res.status(200).json(createResponse.data);
+	@Post('log')	async getUserInfo(@Res() res: Response, @Req() req: Request) {
+		try	{
+			const accessToken = await exchangeCodeForToken(req.body.code)
+			const userID = await askUserID(accessToken)
+			const userData = await fetchUserData42(accessToken, userID)
+			const userDataState = await askDataBaseForCreation(userData.id)
+			const authType = true
+			const resState = 'OK: Add more information'
+			const data = {
+				apiData: userData,
+				dbData: userDataState
+			}
+			res.status(200).json(data)
 		}
-		catch (error) {
-			console.log('app: backend: error in token exchange', error);
+		catch (err)	{
+			console.log(err)
 		}
 	}
+
 	@Post('createUser')	async pushUserInfoInDataBase(@Res() res: Response, @Req() req: Request) {
 		try {
 			console.log('app-back: pushing the user in the db')
@@ -41,7 +50,7 @@ export class ConnectController {
 	}
 }
 
-async	function	ExchangeCodeForToken(access_code: string)	{
+async	function	exchangeCodeForToken(access_code: string)	{
 	try	{
 		const qs = require('qs');
 		let url = process.env.CODE_FOR_TOKEN;
@@ -52,10 +61,9 @@ async	function	ExchangeCodeForToken(access_code: string)	{
 			code: access_code,
 			redirect_uri: process.env.URL_API_CONTROLLER
 		};
-		let res = await axios.post(url, qs.stringify(requestBody));
-		const accessToken = res.data.access_token;
-		console.log('app-back: access token has been fetched, going to exchange with /api42.')
-		return accessToken;
+		let res = await axios.post(url, qs.stringify(requestBody))
+		const accessToken = res.data.access_token
+		return accessToken
 	}
 	catch (err)	{
 		console.log(err)
@@ -68,47 +76,25 @@ async	function	askUserID(accessToken: string)	{
 		headers: { 'Authorization' : `Bearer ${accessToken}`
 	}})
 	const resourceOwnerId = res.data.resource_owner_id;
-	console.log('app-back: user id has been fetched.')
 	return resourceOwnerId;
 }
 
 
-async	function	fetchUserData42(resourceOwnerId: string, accessToken: string)	{
+async	function	fetchUserData42(accessToken: string, resourceOwnerId: string)	{
 	const url = process.env.USER_INFO_42URL + "/" + resourceOwnerId;
 	const res = await axios.get(url, {
 		headers: {
 			'Authorization' : `Bearer ${accessToken}`
 		}
 	})
-	console.log('app-back: user data has been fetched.')
-	return res;
+	return res.data;
 }
 
-async function	askDataBaseForCreation(userId: number) : Promise<boolean>	{
+async function	askDataBaseForCreation(userId: number) : Promise<object>	{
 	const	user = await prisma.user.findUnique({
 		where: {
 			id: userId,
 		},
 	})
-	if (user)
-	{
-		console.log('app-back: user already exists. Redirection to home.')
-		return false;
-	}
-	console.log('app-back: user does not exist, going to create it.')
-	return true;
-}
-
-async function processAuthentificationCenter(access_code: string)  {
-	try	{
-		const 	accessToken = await ExchangeCodeForToken(access_code);
-		const 	resourceOwnerId = await askUserID(accessToken);
-		let 	res = await fetchUserData42(resourceOwnerId, accessToken);
-		if (await askDataBaseForCreation(res.data.id) == false)
-			return res.data.id = -42, res;
-		return res;
-	}
-	catch (err)	{
-		console.log(err);
-	}
+	return user
 }
