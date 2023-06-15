@@ -19,7 +19,6 @@ type SolidFrameProps = {
 
 function SolidFrame({
 		frameClass,
-		fontSize= '32px',
 		borderColor = 'black',
 		backgroundColor = 'transparent',
 		borderRadius = '10px',
@@ -27,6 +26,7 @@ function SolidFrame({
 		width,
 		height,
 		txtClass,
+		fontSize= '32px',
 		txt1,
 		txt2,
 		link,

@@ -5,7 +5,7 @@ import './SideBar.scss'
 const SideBar: React.FC = () => {
 	return (
 		<SolidFrame
-			frameClass="SideBar"
+			frameClass="side-frame"
 			backgroundColor="transparent"
 			width="300px"
 		>

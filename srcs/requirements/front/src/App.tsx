@@ -10,11 +10,36 @@ function App() {
 		let subtitle= "Some chanel chat !"
 	return (
 		<div className="App">
-			<SideBar />
 				<MainPage title={title} subtitle={subtitle} >
 					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
-					<MsgBox frameClass="rcv-frame" msg="Here a received message !"/>
-					<MsgBox frameClass="rcv-frame" msg="Here a received message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="system-frame" msg="Here a system message !"/>
+					<MsgBox frameClass="receive-frame" msg="Here a received message !"/>
+					<MsgBox frameClass="receive-frame" msg="Here a received message !"/>
 					<MsgBox frameClass="send-frame" msg="Here a sent message !"/>
 				</MainPage>
 		</div>

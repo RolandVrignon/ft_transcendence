@@ -1,5 +1,21 @@
 
+.window-frame {
+	flex-direction: row;
+	overflow: auto;
+}
+
 .main-frame {
-	padding-top: 45px;
+	position: relative;
 	align-items: left;
+}
+
+.delimiter-frame{
+	position: relative;
+	padding-top: 100px;
+	height: calc(92vh);
+	align-items: right;
+	bottom: -38px;
+	overflow: auto;
+	padding-top: 100px;
+
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import SideBar from "../SideBar/SideBar";
 import SolidFrame from '../SolidFrame/SolidFrame'
 import Title from '../Title/Title'
 import './MainPage.scss'
@@ -15,11 +16,16 @@ const MainPage: React.FC<MainPageProps> = ({
 	children,
 	}) => {
 	return (
-	<SolidFrame
-		frameClass="main-frame"
-	>
-		<Title txt1={title} txt2={subtitle} />
-		{children}
+	<SolidFrame frameClass="window-frame" > 
+		<SideBar />
+		<SolidFrame
+			frameClass="main-frame"
+		>
+			<Title txt1={title} txt2={subtitle} />
+				<SolidFrame frameClass="delimiter-frame" borderColor="blue">
+					{children}
+				</SolidFrame>
+		</SolidFrame>
 	</SolidFrame>
 	);
 };
