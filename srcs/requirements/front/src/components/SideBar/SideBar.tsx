@@ -10,7 +10,7 @@ const SideBar: React.FC = () => {
 			width="300px"
 		>
 			<SolidFrame
-				frameClass="PongShow"
+				frameClass="logo-frame"
 				borderColor="transparent"
 				width="100%"
 				height="200px"
@@ -20,7 +20,7 @@ const SideBar: React.FC = () => {
 				fontSize="64px"
 			/>
 			<SolidFrame
-				frameClass="Login"
+				frameClass="content-frame"
 				borderColor="transparent"
 				width="100%"
 				height="100px"
@@ -44,7 +44,7 @@ const SideBar: React.FC = () => {
 				txt2="Chat"
 			/>
 			<SolidFrame
-				frameClass="Logout"
+				frameClass="content-frame"
 				borderColor="transparent"
 				width="100%"
 				height="100px"
