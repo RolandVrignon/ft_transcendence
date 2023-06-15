@@ -1,13 +1,13 @@
 
 .write-frame {
 	background-color: #FFFFFF !important;
-	align-items: left;
+	align-items: flex-start;
 
 }
 
 .send-frame {
 	background-color: #EAEAEA !important;
-	align-items: right !important;
+	align-items: flex-start;
 
 }
 
@@ -16,18 +16,20 @@
 
 	position: relative;
 	right: 0;
-	align-items: right;
+	align-items: flex-start;
 
 }
 
 .system-frame{
 	background-color: #C3E2E1 !important;
+	align-items: flex-start;
 }
 
 .text-msg {
 	font-family: 'Calibri';
 	font-weight: normal;
 	text-align: left;
+	margin-left: 10px;
 	.color1 {
 		color: black;
 	}

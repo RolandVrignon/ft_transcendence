@@ -1,5 +1,6 @@
 
 .window-frame {
+	display: flex;
 	flex-direction: row;
 	overflow: visible;
 	align-items: right;
@@ -8,10 +9,9 @@
 }
 
 .main-frame {
-	position: relative;
-	width: calc(100vw - 300px);
+	flex-grow: 0.5;
 	align-items: left;
-	overflow: auto;
+	overflow: visible;
 }
 
 .delimiter-frame{
@@ -19,7 +19,6 @@
 	height: calc(90vh);
 	padding-top: 100px;
 	bottom: -38px;
-	align-items: right;
 	overflow: auto;
 
 }
