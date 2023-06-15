@@ -1,5 +1,6 @@
 import React from "react";
 import SolidFrame from '../SolidFrame/SolidFrame'
+import './SideBar.scss'
 
 const SideBar: React.FC = () => {
 	return (
@@ -13,6 +14,7 @@ const SideBar: React.FC = () => {
 				borderColor="transparent"
 				width="100%"
 				height="200px"
+				txtClass="text-logo"
 				txt1="The Great "
 				txt2="Pong Show"
 				fontSize="64px"
@@ -22,6 +24,7 @@ const SideBar: React.FC = () => {
 				borderColor="transparent"
 				width="100%"
 				height="100px"
+				txtClass="text-side"
 				txt2="Login"
 			/>
 			<SolidFrame
@@ -29,6 +32,7 @@ const SideBar: React.FC = () => {
 				borderColor="transparent"
 				width="100%"
 				height="100px"
+				txtClass="text-side"
 				txt2="Pong Game"
 			/>
 			<SolidFrame
@@ -36,6 +40,7 @@ const SideBar: React.FC = () => {
 				borderColor="transparent"
 				width="100%"
 				height="100px"
+				txtClass="text-side"
 				txt2="Chat"
 			/>
 			<SolidFrame
@@ -43,6 +48,7 @@ const SideBar: React.FC = () => {
 				borderColor="transparent"
 				width="100%"
 				height="100px"
+				txtClass="text-side"
 				txt2="Logout"
 			/>
 		</SolidFrame>

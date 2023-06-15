@@ -17,6 +17,7 @@ const Title: React.FC<TitleProps> = ({
 			let height = (typeof txt2 === "undefined") ? (fontSizeInt + 6) : 2*(fontSizeInt + 6);
 		// Define the width depending on the text length
 			let width = Math.max(txt1.length, (txt2 ? txt2.length : 0))*fontSizeInt/2;
+			width = width < 150 ? 150 : width;
 		return (
 			<SolidFrame
 				frameClass="title"
