@@ -11,11 +11,14 @@ function Login() {
     last_name: string
   }
 
-  const [showSubscribeForm, setSubscribeForm] = useState(false)
   const [userLogged, setUserLogged] = useState(false)
   const [userApiData, setUserApiData] = useState<UserApiData | null>(null)
   const [userDbData, setUserDbData] = useState(null)
   const [attemptLogin, setAttemptLogin] = useState(false)
+  const [doubleAuth, setDoubleAuth] = useState('')
+  const [dOptAuth, setDOptAuth] = useState('')
+  const [userName, setUserName] = useState('')
+
 
   async function askDataBaseForCreation(code: string) {
     const checkUserStateURL = 'http://localhost:8080/callback/log'
@@ -26,6 +29,9 @@ function Login() {
         code,
       }
     },)
+    if (res.data.dbData)
+      setDOptAuth(res.data.dbData.doubleAuth)
+
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
@@ -55,31 +61,51 @@ function Login() {
     }
   }
 
-  async function pushUserinDataBase(e: React.FormEvent<HTMLFormElement>) {
+  async function pushUserinDataBase(e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault()
-    const form = e.target as HTMLFormElement
-    const userName = form.elements.namedItem('username') as HTMLInputElement
-    const doubleAuth = form.elements.namedItem('doubleAuth') as HTMLInputElement
     console.log(userName)
     console.log(doubleAuth)
+    const addUserURL = 'http://localhost:8080/callback/add'
+    const res = await axios({
+      url: addUserURL,
+      method: 'POST',
+      data: {
+        apiData: userApiData,
+        username: userName,
+        doubleAuth: doubleAuth
+      }
+    })
+    console.log(res)
   }
 
   if (!userLogged)
     renderer = <div><button onClick={attemptConnect}>Connect</button></div>
+  else if (userLogged && userDbData && dOptAuth == 'on') {
+    renderer = (
+      <div>
+        app: User logged but has 2FA security setting, awaiting for Twilios services.
+      </div>
+    )
+  }
   else if (userLogged && userApiData && !userDbData)  {
     renderer = (
       <div>
         User Logged, Apply design please, Your Welcome {userApiData.first_name}
         <form onSubmit={(e) => pushUserinDataBase(e)}>
-          <input type='text' name='username' required />Choose username<br/>
-          <input type='checkbox' name='doubleAuth' />Do you want double authentificiation '2FA' enabled?<br/>
+          <input onChange={(event) => {setUserName(event.target.value)}} type='text' name='username' required />Choose username<br/>
+          <input onChange={(event) => {setDoubleAuth(event.target.value)}} type='checkbox' name='doubleAuth' />Do you want double authentificiation '2FA' enabled?<br/>
           <button type='submit'>Submit</button>
         </form>
       </div>
     )
   }
   else
-    renderer = null
+    renderer = (
+      <div>
+        User {userApiData?.first_name} fully logged can be redirected to home.
+      </div>
+    )
+
   return renderer
 };
 

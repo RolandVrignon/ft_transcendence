@@ -1,10 +1,7 @@
 import { Controller, Post, Body, Res, Req, Get } from '@nestjs/common'
-import { LoginDto } from './login.dto'
 import { Response, Request } from 'express'
 import axios from 'axios'
-import {AxiosResponse} from 'axios'
 import prisma from './prisma.client'
-import { access } from 'fs'
 
 @Controller('callback')
 export class ConnectController {
@@ -27,26 +24,30 @@ export class ConnectController {
 		}
 	}
 
-	@Post('createUser')	async pushUserInfoInDataBase(@Res() res: Response, @Req() req: Request) {
-		try {
-			console.log('app-back: pushing the user in the db')
-			const user = await prisma.user.create({
-				data: {
-					id: req.body.foo.id,
-					username: req.body.username,
-					email: req.body.foo.email,
-					login: req.body.foo.login,
-					lastName: req.body.foo.last_name,
-					firstName: req.body.foo.first_name,
-					imageLink: req.body.foo.image.link,
-					doubleAuth: req.body.option2FA
-				}
-			})
-			res.status(201).json();
-		}
-		catch (err)	{
-			console.log(err)
-		}
+	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
+		console.log(req.body)
+		const user = await prisma.user.create({
+			data: {
+				id: req.body.apiData.id,
+				username: req.body.username,
+				email: req.body.apiData.email,
+				login: req.body.apiData.login,
+				lastName: req.body.apiData.last_name,
+				firstName: req.body.apiData.first_name,
+				imageLink: req.body.apiData.image.link,
+				doubleAuth: req.body.doubleAuth
+			}
+		})
+		res.status(201).json()
+	}
+
+	@Get('secure-auth')	async	makeDoubleAuth()	{
+		const accountSid = "ACc2cc90588853eb0ba0e7ec3b51cefb4e";
+		const authToken = process.env.TWILIO_AUTH_TOKEN;
+		const client = require("twilio")(accountSid, authToken);
+		client.messages
+		.create({ body: "Hello from Twilio", from: "+14027266662", to: "+33762614154" })
+			.then(message => console.log(message.sid));
 	}
 }
 
