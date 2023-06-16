@@ -16,7 +16,9 @@ const MainPage: React.FC<MainPageProps> = ({
 	children,
 	}) => {
 	return (
-	<SolidFrame frameClass="window-frame" borderColor="red" > 
+	<SolidFrame
+		frameClass="window-frame"
+		borderColor="red" > 
 			<SideBar />
 			<SolidFrame
 				frameClass="main-frame"
