@@ -18,7 +18,8 @@ function Login() {
   const [doubleAuth, setDoubleAuth] = useState('')
   const [dOptAuth, setDOptAuth] = useState('')
   const [userName, setUserName] = useState('')
-
+  const [check2FA, setcheck2FA] = useState(false)
+  const [token2FA, setToken2FA] = useState('')
 
   async function askDataBaseForCreation(code: string) {
     const checkUserStateURL = 'http://localhost:8080/callback/log'
@@ -31,7 +32,6 @@ function Login() {
     },)
     if (res.data.dbData)
       setDOptAuth(res.data.dbData.doubleAuth)
-
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
@@ -75,25 +75,58 @@ function Login() {
         doubleAuth: doubleAuth
       }
     })
-    console.log(res)
+  }
+
+  async function  handle2FA() {
+    const handle2FAURL = 'http://localhost:8080/callback/secure'
+    const res = await axios({
+      method: 'GET',
+      url: handle2FAURL
+    })
+    setcheck2FA(true)
+  }
+
+  async function handle2FAVerif() {
+    const check2FAURL = 'http://localhost:8080/callback/verify-secure'
+    const check = await axios({
+      url: check2FAURL,
+      method: 'POST',
+      data: {
+        token: token2FA
+      }
+    })
+    if (check.data === 'approved') {
+      setcheck2FA(false)
+      setDOptAuth('')
+    }
+    else
+      console.log('bad password')
   }
 
   if (!userLogged)
     renderer = <div><button onClick={attemptConnect}>Connect</button></div>
+  else if (check2FA)  {
+    renderer = (
+      <div>
+        <input onChange={(event)=>{setToken2FA(event.target.value)}} type='text' required></input>
+        <button onClick={handle2FAVerif}> Verify code! </button>
+      </div>
+    )
+  }
   else if (userLogged && userDbData && dOptAuth == 'on') {
     renderer = (
       <div>
-        app: User logged but has 2FA security setting, awaiting for Twilios services.
+        <button onClick={handle2FA}>To make 2FA, press the button!</button>
       </div>
     )
   }
   else if (userLogged && userApiData && !userDbData)  {
     renderer = (
       <div>
-        User Logged, Apply design please, Your Welcome {userApiData.first_name}
+        User Logged, Apply design please, your welcome {userApiData.first_name}!
         <form onSubmit={(e) => pushUserinDataBase(e)}>
-          <input onChange={(event) => {setUserName(event.target.value)}} type='text' name='username' required />Choose username<br/>
-          <input onChange={(event) => {setDoubleAuth(event.target.value)}} type='checkbox' name='doubleAuth' />Do you want double authentificiation '2FA' enabled?<br/>
+          <input onChange={(event)=>{setUserName(event.target.value)}} type='text' required />Choose username<br/>
+          <input onChange={(event)=>{setDoubleAuth(event.target.value)}} type='checkbox' />Do you want double authentificiation '2FA' enabled?<br/>
           <button type='submit'>Submit</button>
         </form>
       </div>
@@ -109,4 +142,4 @@ function Login() {
   return renderer
 };
 
-export default Login;
+export default Login
