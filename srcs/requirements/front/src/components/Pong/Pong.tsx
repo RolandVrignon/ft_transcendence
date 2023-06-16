@@ -22,7 +22,8 @@ const Pong: React.FC<PongProps> = ({
 		<SolidFrame
 			frameClass="score-frame"
 		>
-			{/* some score, game... information */}
+			{/* some score, game... information
+			or more division*/}
 		</SolidFrame>
 	</SolidFrame>
 	);
