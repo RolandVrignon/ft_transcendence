@@ -48,6 +48,7 @@ $margin: 10px;
 	// Specify title style
 	.title-frame {
 		width: 100% !important;
+		margin: 0;
 		border-top-color: transparent !important;
 		border-left-color: transparent !important;
 		border-right-color: transparent !important;
@@ -55,7 +56,8 @@ $margin: 10px;
 	}
 	// Specify to children's MainPage to use remaining space
 	.content-frame {
-		flex-grow: 1;
+		margin:0;
 		width: 100%;
+		height: 100%;
 	}
 }

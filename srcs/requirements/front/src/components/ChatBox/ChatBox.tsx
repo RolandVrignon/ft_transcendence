@@ -1,6 +1,5 @@
 import React from "react";
 import SolidFrame from '../SolidFrame/SolidFrame'
-import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
 import SendButton from './Chat_SendButton.png'
 
@@ -14,13 +13,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 	return (
 	<SolidFrame 
 	frameClass="chat-box"
-	backgroundColor="white"
+	borderRadius="0px"
+	backgroundColor="red"
 	borderColor="transparent"
 		>
 		<SolidFrame 
 			frameClass="chat-frame"	
 			borderRadius="0px"
-			backgroundColor="white"
+			backgroundColor="blue"
 			borderColor="black"
 		>
 			{children} 
@@ -28,6 +28,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 		<SolidFrame
 			frameClass="write-frame"
 			borderRadius="0px"
+			backgroundColor="transparent"
 			borderColor="transparent"
 		>
 			<SolidFrame
