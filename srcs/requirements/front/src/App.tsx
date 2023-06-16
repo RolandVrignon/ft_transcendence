@@ -5,6 +5,7 @@ import MainPage from './components/MainPage/MainPage'
 import Title from './components/Title/Title'
 import MsgBox from './components/MsgBox/MsgBox';
 import ChatBox from './components/ChatBox/ChatBox';
+import Pong from './components/Pong/Pong'
 
 function App() {
 		let title = "Chat:";
@@ -12,7 +13,7 @@ function App() {
 	return (
 		<div className="App">
 				<MainPage title={title} subtitle={subtitle} >
-					<ChatBox />
+					<Pong />
 				</MainPage>
 		</div>
 	);
