@@ -5,12 +5,24 @@
 
 // ChatBox child style options
 .chat-frame {
-	background-color: red !important;
 	// Position of parent
 	// Dimensions of parent
 	height: 75%;
 }
 
 .write-frame {
+	// Parent dimensions
+	// Children position
 	height: 25%;
+	display: flex;
+	flex-direction: row;
+}
+
+.write-pad{
+	width: 85%;
+	height: 85%;
+}
+
+img {
+
 }

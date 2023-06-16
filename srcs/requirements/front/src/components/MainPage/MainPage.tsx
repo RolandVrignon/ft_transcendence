@@ -25,8 +25,8 @@ const MainPage: React.FC<MainPageProps> = ({
 					<SolidFrame 
 						frameClass="content-frame"
 						borderRadius="0px"
-						borderColor="blue"
-						backgroundColor="blue">
+						borderColor="transparent"
+						backgroundColor="transparent">
 							{children}
 					</SolidFrame>
 			</SolidFrame>
