@@ -15,21 +15,20 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 	<SolidFrame 
 	frameClass="chat-box"
 	backgroundColor="white"
-	borderColor="white"
+	borderColor="transparent"
 		>
 		<SolidFrame 
 			frameClass="chat-frame"	
 			borderRadius="0px"
-			borderColor= "red"
-			backgroundColor="red"
+			backgroundColor="white"
+			borderColor="black"
 		>
-			{children}
+			{children} 
 		</SolidFrame>
 		<SolidFrame
 			frameClass="write-frame"
 			borderRadius="0px"
-			borderColor="turquoise"
-			backgroundColor="turquoise"
+			borderColor="transparent"
 		>
 			<SolidFrame
 				frameClass="write-pad"
