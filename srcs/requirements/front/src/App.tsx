@@ -9,8 +9,8 @@ import Pong from './components/Pong/Pong'
 import Profil from './components/Profil/Profil';
 
 function App() {
-		let title = "Profil";
-		let subtitle= "Some chanel chat !"
+		let title = "Profil:";
+		let subtitle= " ft_user"
 	return (
 		<div className="App">
 				<MainPage title={title} >

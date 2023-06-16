@@ -22,7 +22,7 @@ function SolidFrame({
 		borderColor = 'black',
 		backgroundColor = 'transparent',
 		borderRadius = '0px',
-		borderWidth = '1px',
+		borderWidth = '0px',
 		width,
 		height,
 		txtClass,
