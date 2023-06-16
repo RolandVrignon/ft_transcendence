@@ -27,13 +27,13 @@ const Profil: React.FC<ProfilProps> = ({
 			frameClass="info-frame"
 			borderColor="blue"
 		>
-			<Title txt1="Stats" />
+			<Title txt1="Stats" borderWidth="1px"/>
 		</SolidFrame>
 		<SolidFrame
 			frameClass="info-frame"
 			borderColor="red"
 		>
-			<Title txt1="Match history" />
+			<Title txt1="Match history" borderWidth="1px"/>
 		</SolidFrame>
 	</SolidFrame>
 			);

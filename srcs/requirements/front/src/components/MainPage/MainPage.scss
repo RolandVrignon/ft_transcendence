@@ -21,7 +21,7 @@ $margin: 10px;
 // Side bar
 .side-frame{
 	// Dimensions of the frame
-	height: calc(100vh - 2 * #{$margin});
+	height: calc(99.8vh - 2 * #{$margin});
 	// Position of the frame
 	// Dimensions of the content
 	// Position of the content
@@ -31,7 +31,7 @@ $margin: 10px;
 // Right bos with all the menu
 .main-frame {
 	// Dimensions of the frame
-	height: calc(100vh - 2 * #{$margin});
+	height: calc(99.8vh - 2 * #{$margin});
 	min-width: 300px;
 	flex-grow: 1;
 	// Position of the frame
@@ -45,14 +45,6 @@ $margin: 10px;
 	justify-content: center;
 	align-items: center;
 	overflow: hidden;
-	// Specify title style
-	.title-frame {
-		width: 100% !important;
-		border-top-color: transparent !important;
-		border-left-color: transparent !important;
-		border-right-color: transparent !important;
-		// Position of the frame
-	}
 	// Specify to children's MainPage to use remaining space
 	.content-frame {
 		flex-grow: 1;

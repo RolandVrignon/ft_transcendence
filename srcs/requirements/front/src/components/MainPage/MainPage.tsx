@@ -23,7 +23,7 @@ const MainPage: React.FC<MainPageProps> = ({
 			<SolidFrame
 				frameClass="main-frame"
 			>
-					<Title txt1={title} txt2={subtitle} />
+					<Title borderWidth="1px" txt1={title} txt2={subtitle} />
 					<SolidFrame 
 						frameClass="content-frame"
 					>

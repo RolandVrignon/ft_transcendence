@@ -5,11 +5,13 @@ import "./Title.scss"
 type TitleProps = {
 	txt1: string;
 	txt2?: string;
+	borderWidth?: string;
 };
 
 const Title: React.FC<TitleProps> = ({
 	txt1,
 	txt2,
+	borderWidth,
 	}) => {
 		// Define the height depending on text
 			let fontSize = "32px";
@@ -21,6 +23,7 @@ const Title: React.FC<TitleProps> = ({
 		return (
 			<SolidFrame
 				frameClass="title-frame"
+				borderWidth={borderWidth}
 				txtClass="text-title"
 				backgroundColor="white"
 				height= {height}
