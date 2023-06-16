@@ -17,15 +17,13 @@ const MainPage: React.FC<MainPageProps> = ({
 	}) => {
 	return (
 	<SolidFrame frameClass="window-frame" borderColor="red" > 
-		<SideBar />
-		<SolidFrame
-			frameClass="main-frame"
-		>
-			<Title txt1={title} txt2={subtitle} />
-				<SolidFrame frameClass="delimiter-frame" borderColor="blue">
-					{children}
-				</SolidFrame>
-		</SolidFrame>
+			<SideBar />
+			<SolidFrame
+				frameClass="main-frame"
+			>
+					<Title txt1={title} txt2={subtitle} />
+						{children}
+			</SolidFrame>
 	</SolidFrame>
 	);
 };
