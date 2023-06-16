@@ -13,7 +13,17 @@ const Pong: React.FC<PongProps> = ({
 	<SolidFrame
 		frameClass="pong-frame"	
 	>
-		{children}
+		<SolidFrame
+			frameClass="arena-frame"
+			borderColor="black"
+		>
+			{children}
+		</SolidFrame>
+		<SolidFrame
+			frameClass="score-frame"
+		>
+			{/* some score, game... information */}
+		</SolidFrame>
 	</SolidFrame>
 	);
 };
