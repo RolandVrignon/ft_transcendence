@@ -8,11 +8,11 @@ import ChatBox from './components/ChatBox/ChatBox';
 import Pong from './components/Pong/Pong'
 
 function App() {
-		let title = "Chat:";
+		let title = "Profil";
 		let subtitle= "Some chanel chat !"
 	return (
 		<div className="App">
-				<MainPage title={title} subtitle={subtitle} >
+				<MainPage title={title} >
 					<Pong />
 				</MainPage>
 		</div>

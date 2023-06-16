@@ -16,6 +16,7 @@ const Pong: React.FC<PongProps> = ({
 		<SolidFrame
 			frameClass="arena-frame"
 			borderColor="black"
+			borderWidth="1px"
 		>
 			{children}
 		</SolidFrame>

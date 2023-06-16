@@ -25,7 +25,7 @@ const SideBar: React.FC = () => {
 				width="100%"
 				height="100px"
 				txtClass="text-side"
-				txt2="Login"
+				txt2="Profil"
 			/>
 			<SolidFrame
 				frameClass="menu-frame"
