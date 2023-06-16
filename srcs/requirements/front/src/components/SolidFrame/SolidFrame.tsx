@@ -21,7 +21,7 @@ function SolidFrame({
 		frameClass,
 		borderColor = 'black',
 		backgroundColor = 'transparent',
-		borderRadius = '10px',
+		borderRadius = '0px',
 		borderWidth = '1px',
 		width,
 		height,

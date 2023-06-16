@@ -26,9 +26,7 @@ const MainPage: React.FC<MainPageProps> = ({
 					<Title txt1={title} txt2={subtitle} />
 					<SolidFrame 
 						frameClass="content-frame"
-						borderRadius="0px"
-						borderColor="transparent"
-						backgroundColor="transparent">
+					>
 							{children}
 					</SolidFrame>
 			</SolidFrame>
