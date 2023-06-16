@@ -15,6 +15,7 @@ $margin: 10px;
 	flex-direction: row;
 	justify-content: left;
 	overflow-x: auto;
+	overflow-y: auto;
 }
 
 // Side bar
@@ -37,49 +38,24 @@ $margin: 10px;
 	position: relative;
 	margin: #{$margin};
 	// Dimensions of the content
+	box-sizing: border-box;
 	// Position of the content
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	overflow: hidden;
+	// Specify title style
+	.title-frame {
+		width: 100% !important;
+		border-top-color: transparent !important;
+		border-left-color: transparent !important;
+		border-right-color: transparent !important;
+		// Position of the frame
+	}
+	// Specify to children's MainPage to use remaining space
+	.content-frame {
+		flex-grow: 1;
+		width: 100%;
+	}
 }
-
-.title-frame {
-	width: 100% !important;
-	border-top-color: transparent !important;
-	border-left-color: transparent !important;
-	border-right-color: transparent !important;
-	// Position of the frame
-	position: absolute;
-	top: 0px;
-	left: 0;
-	right: 0;
-	margin: auto;
-}
-
-.delimiter-frame{
-	// Dimensions	of the frame
-	width: 98%;
-	// Position of the frame
-	position: relative;
-}
-
-/*
-// Define frame style
-.solid-frame {
-	// Defining position and alignment
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	box-sizing: border-box;
-	
-	// By default, assume SolidFrame is the main responsive frame
-	position: relative;
-	margin: $margin;
-	width: calc(100vw - 2 * #{$margin});
-	height: calc(100vh - 2 * #{$margin});
-}
-*/
-

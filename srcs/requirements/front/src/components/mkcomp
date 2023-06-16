@@ -10,3 +10,4 @@ else
 	touch ${NAME}/${NAME}.scss
 fi
 
+echo 'import React from "react";' > ${NAME}/${NAME}.tsx
