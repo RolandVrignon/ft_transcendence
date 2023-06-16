@@ -6,6 +6,7 @@ import Title from './components/Title/Title'
 import MsgBox from './components/MsgBox/MsgBox';
 import ChatBox from './components/ChatBox/ChatBox';
 import Pong from './components/Pong/Pong'
+import Profil from './components/Profil/Profil';
 
 function App() {
 		let title = "Profil";
@@ -13,7 +14,7 @@ function App() {
 	return (
 		<div className="App">
 				<MainPage title={title} >
-					<Pong />
+					<Profil />
 				</MainPage>
 		</div>
 	);
