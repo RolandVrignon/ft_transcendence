@@ -2,23 +2,22 @@
 .window-frame {
 	display: flex;
 	flex-direction: row;
-	overflow: visible;
 	align-items: right;
 	justify-content: left;
 	margin-left: 0px;
 }
 
 .main-frame {
-	flex-grow: 0.5;
+	flex: 1;
+	box-sizing: border-box;
 	align-items: left;
-	overflow: visible;
 }
 
 .delimiter-frame{
 	position: relative;
+	box-sizing: border-box;
 	height: calc(90vh);
 	padding-top: 100px;
 	bottom: -38px;
-	overflow: auto;
 
 }
