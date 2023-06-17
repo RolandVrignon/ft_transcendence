@@ -1,9 +1,9 @@
-import { Controller, Post, Body, Res, Req, Get } from '@nestjs/common'
+import { Controller, Post, Get, Res, Req } from '@nestjs/common'
 import { Response, Request } from 'express'
-import axios from 'axios'
+import sendGrid from './sendgrid.service'
+import totp from './totp.service'
 import prisma from './prisma.client'
-import twilio from './twilio.service'
-import redisClient from './redis.service'
+import axios from 'axios'
 
 @Controller('callback')
 export class ConnectController {
@@ -23,7 +23,6 @@ export class ConnectController {
 			console.log(err)
 		}
 	}
-
 	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
 		const user = await prisma.user.create({
 			data: {
@@ -39,53 +38,47 @@ export class ConnectController {
 		})
 		res.status(201).json()
 	}
-
-	@Get('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
-		// twilio.verify.v2.services(process.env.TWILIO_TRANSCENDANCE_SERV)
-		// 	.verifications
-		// 	.create({to: 'osc.boutarfa@gmail.com', channel: 'email'})
-		// 	res.status(200).json()
+	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
-			const sendGrid = require('@sendgrid/mail')
-			sendGrid.setApiKey(process.env.SENDGRID_API_KEY)
-			const msg = {
-				to: 'osc.boutarfa@gmail.com',
-				from: 'oscar.boutarfa@proton.me',
-				subject: 'Test Email',
-				text: 'This is a test email sent using SendGrid.',
-				html: '<p>This is a test email sent using <b>SendGrid</b>.</p>'
+			const secureTkn = totp.generate()
+			const mail = {
+				to: req.body.info.email,
+				from: process.env.SENDER_SEND_GRID_MAIL,
+				subject: '2FA verification from transcendance.team',
+				text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn}`
 			}
-			sendGrid.send(msg)
-			const tokenId = '1'
-			const tokenValue = 'salut'
-			redisClient.on('connect', () => {
-				console.log('Connected to Redis');
+			sendGrid.send(mail)
+			await prisma.token2FA.create({
+				data: {
+					id: req.body.info.id,
+					value: secureTkn
+				}
 			})
-			await redisClient.connect()
-			await redisClient.set(tokenId, tokenValue)
-			await redisClient.disconnect()
+			res.status(200).json()
 		}
 		catch (err)	{
 			console.log(err)
 		}
 	}
-
 	@Post('verify-secure')	async verifyDoubleAuthToken(@Res() res: Response, @Req() req: Request)	{
-		// twilio.verify.v2.services(process.env.TWILIO_TRANSCENDANCE_SERV)
-		// 	.verificationChecks
-		// 	.create({to: 'osc.boutarfa@gmail.com', code: req.body.token})
-		// 	.then(verification_check => {
-		// 		res.status(201).json(verification_check.status)
-		// 		return verification_check.status
-		// })
-		await redisClient.connect();
-		const value = await redisClient.get('1')
-		if (value === 'salut')
-			console.log('YESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
-		res.status(200).json('approved')
-		await redisClient.disconnect()
+		const	verif = await prisma.token2FA.findUnique({
+			where: {
+				id: req.body.id
+			}
+		})
+		if (verif.value === req.body.token)	{
+			res.status(201).json('approved')
+			await prisma.token2FA.delete({
+				where: {
+				id: req.body.id
+				}
+			})
+		}
+		else
+			res.status(401).json('pending')
 	}
 }
+
 
 async	function	exchangeCodeForToken(access_code: string)	{
 	try	{
@@ -123,7 +116,6 @@ async	function	fetchUserData42(accessToken: string, resourceOwnerId: string)	{
 			'Authorization' : `Bearer ${accessToken}`
 		}
 	})
-	console.log(res.data.phone)
 	return res.data;
 }
 

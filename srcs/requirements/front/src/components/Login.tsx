@@ -80,8 +80,11 @@ function Login() {
   async function  handle2FA() {
     const handle2FAURL = 'http://localhost:8080/callback/secure'
     const res = await axios({
-      method: 'GET',
-      url: handle2FAURL
+      url: handle2FAURL,
+      method: 'POST',
+      data : {
+        info: userApiData
+      }
     })
     setcheck2FA(true)
   }
@@ -92,6 +95,7 @@ function Login() {
       url: check2FAURL,
       method: 'POST',
       data: {
+        id: userApiData?.id,
         token: token2FA
       }
     })

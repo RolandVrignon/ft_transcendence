@@ -20,3 +20,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Token2FA {
+  id          Int     @unique
+  value       String
+}
