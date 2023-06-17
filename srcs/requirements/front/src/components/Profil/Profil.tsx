@@ -25,7 +25,7 @@ const Profil: React.FC<ProfilProps> = ({
 			frameClass="info-frame"
 			borderColor="orange"
 			borderWidth="1px"
-			txt1="User name ?"
+			txt1={username}
 		>
 		</SolidFrame>
 		<SolidFrame
@@ -42,7 +42,8 @@ const Profil: React.FC<ProfilProps> = ({
 				frameClass="history-frame"
 				borderColor="blue"
 				borderWidth="1px"
-				txtClass="text-match-history"
+				txtClass="text-data-profil"
+				fontSize="24px"
 				txt1={stats}
 			/>
 		</SolidFrame>
@@ -60,7 +61,8 @@ const Profil: React.FC<ProfilProps> = ({
 				frameClass="history-frame"
 				borderColor="turquoise"
 				borderWidth="1px"
-				txtClass="text-match-history"
+				txtClass="text-data-profil"
+				fontSize="24px"
 				txt1={matchHistory}
 			/>
 		</SolidFrame>
