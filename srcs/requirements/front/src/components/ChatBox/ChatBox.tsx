@@ -22,7 +22,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 			borderColor="black"
 			borderWidth="1px"
 		>
-			{children} 
+			{children}
 		</SolidFrame>
 		<SolidFrame
 			frameClass="write-frame"

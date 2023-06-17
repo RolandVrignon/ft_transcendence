@@ -8,16 +8,13 @@ type MainPageProps = {
 	title: string;
 	subtitle?: string;
 	children?: React.ReactNode;
-};
+}
 
-const MainPage: React.FC<MainPageProps> = ({
-	title,
-	subtitle,
-	children,
-	}) => {
+const MainPage: React.FC<MainPageProps> = ({title, subtitle, children}) => {
 	return (
 		<SolidFrame
 			frameClass="window-frame"
+			backgroundColor="red"
 			borderColor="red" > 
 				<SideBar />
 				<SolidFrame

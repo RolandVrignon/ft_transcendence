@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Dispatch, SetStateAction } from 'react'
 import axios from 'axios'
 
@@ -8,7 +9,8 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ authState }) => {
-  let renderer
+  let renderer = null
+  const navigate = useNavigate()
 
   interface UserApiData {
     id: number,
@@ -57,7 +59,7 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 
   async function attemptConnect() {
     try {
-      const logURL = 'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a672fd80ce2f029d5ff47b1c3f7f409fbe73cafcedb7f3b4cf7e8efc39f22a00&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Flogin&response_type=code'
+      const logURL = 'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a672fd80ce2f029d5ff47b1c3f7f409fbe73cafcedb7f3b4cf7e8efc39f22a00&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&response_type=code'
       window.location.href = logURL
       setAttemptLogin(true)
     }
@@ -142,8 +144,7 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else
   {
-    window.history.replaceState({}, '', '/')
-    renderer = null
+    navigate('/home')
     authState(true)
   }
 
