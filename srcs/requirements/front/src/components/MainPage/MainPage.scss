@@ -1,0 +1,53 @@
+//local variables
+$margin: 10px;
+
+.window-frame {
+	// Dimensions of the frame
+	width: 100vw;
+	height: 100vh;
+	// Position of the frame
+	position: relative;
+	margin: 0px;
+	// Dimension of the content
+	box-sizing: border-box;
+	// Position of the content
+	display: flex;
+	flex-direction: row;
+	justify-content: left;
+	overflow-x: auto;
+	overflow-y: auto;
+}
+
+// Side bar
+.side-frame{
+	// Dimensions of the frame
+	height: calc(99.8vh - 2 * #{$margin});
+	// Position of the frame
+	// Dimensions of the content
+	// Position of the content
+	margin: #{$margin};
+}
+
+// Right bos with all the menu
+.main-frame {
+	// Dimensions of the frame
+	height: calc(99.8vh - 2 * #{$margin});
+	min-width: 300px;
+	flex-grow: 1;
+	// Position of the frame
+	position: relative;
+	margin: #{$margin};
+	// Dimensions of the content
+	box-sizing: border-box;
+	// Position of the content
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	// Specify to children's MainPage to use remaining space
+	.content-frame {
+		flex-grow: 1;
+		width: 100%;
+	}
+}

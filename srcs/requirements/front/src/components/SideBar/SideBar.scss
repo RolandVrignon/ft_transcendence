@@ -1,0 +1,21 @@
+//local variables
+$margin: 5px;
+
+	//white-space: nowrap;
+.side-frame {
+	// Dimensions of the frame
+	height: calc(100vh - 2 * #{$margin});
+	// Position of the frame
+	// Position of the content
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.text-logo {
+	text-align: center;
+}
+
+.text-menu {
+	text-align: center;
+}

@@ -1,8 +1,9 @@
-FROM node:14-alpine as build
+FROM node:16-alpine as build
 
 WORKDIR /app
 RUN npm install -g npm
-# Copier le reste des fichiers du projet
+RUN npm install node-sass
+
 COPY . .
 RUN npm run build
 
@@ -19,8 +20,6 @@ WORKDIR /app
 COPY --from=build /app/build /app
 
 EXPOSE 3000
-
-RUN	npm install -g nodemon
 
 # CMD ["serve", "-s", "/app", "--ssl-cert", "/etc/ssl/certs/certificate.cert", "--ssl-key", "/etc/ssl/private/key.key", "--listen", "3000"]
 CMD ["serve", "-s", "/app", "--listen", "3000"]

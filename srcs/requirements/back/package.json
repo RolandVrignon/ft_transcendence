@@ -26,6 +26,7 @@
     "@sendgrid/mail": "^7.7.0",
     "axios": "^1.4.0",
     "jsonwebtoken": "^9.0.0",
+    "node-sass": "^7.0.3",
     "nodemailer": "^6.9.3",
     "otpauth": "^9.1.2",
     "redis": "^4.6.7",
