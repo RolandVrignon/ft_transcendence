@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 import React from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import axios from 'axios'
 
-function Login() {
+interface LoginProps {
+  authState: Dispatch<SetStateAction<boolean>>;
+}
+
+const Login: React.FC<LoginProps> = ({ authState }) => {
   let renderer
 
   interface UserApiData {
@@ -27,7 +32,7 @@ function Login() {
       url: checkUserStateURL,
       method: 'POST',
       data: {
-        code,
+        code
       }
     },)
     if (res.data.dbData)
@@ -48,7 +53,7 @@ function Login() {
       catch (err) {
           console.log(err)
       }
-  }, [attemptLogin]);
+  }, [attemptLogin])
 
   async function attemptConnect() {
     try {
@@ -63,8 +68,6 @@ function Login() {
 
   async function pushUserinDataBase(e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault()
-    console.log(userName)
-    console.log(doubleAuth)
     const addUserURL = 'http://localhost:8080/callback/add'
     const res = await axios({
       url: addUserURL,
@@ -75,6 +78,7 @@ function Login() {
         doubleAuth: doubleAuth
       }
     })
+    setUserDbData(res.data)
   }
 
   async function  handle2FA() {
@@ -137,13 +141,13 @@ function Login() {
     )
   }
   else
-    renderer = (
-      <div>
-        User {userApiData?.first_name} fully logged can be redirected to home.
-      </div>
-    )
+  {
+    window.history.replaceState({}, '', '/')
+    renderer = null
+    authState(true)
+  }
 
   return renderer
-};
+}
 
 export default Login
