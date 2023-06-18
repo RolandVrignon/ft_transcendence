@@ -4,24 +4,13 @@
 //local variables
 $margin: 15px;
 
-/*
-// Define frame style
 .solid-frame {
-	// Defining position and alignment
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	box-sizing: border-box;
-	
-	// By default, assume SolidFrame is the main responsive frame
-	position: relative;
-	margin: $margin;
-	width: calc(100vw - 2 * #{$margin});
-	height: calc(100vh - 2 * #{$margin});
-}
-*/
-.solid-frame {
+	border-style: dotted;
+	background-color: white;
+	border-color: black;
+	border-radius: 0px;
+	border-width: 1px;
+
 }
 
 // Define text style

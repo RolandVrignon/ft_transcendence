@@ -38,11 +38,6 @@ function SolidFrame({
 		<div
 			className={`solid-frame ${frameClass}`}
 			style={{
-				borderColor,
-				backgroundColor,
-				borderRadius,
-				borderWidth,
-				borderStyle: 'solid',
 				width: (typeof width === 'number') ? `${width}px` : width,
 				height: (typeof height === 'number') ? `${height}px` : height,
 			}}
