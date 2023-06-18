@@ -14,7 +14,7 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 
   interface UserApiData {
     id: number,
-    first_name: string
+    first_name: string,
     last_name: string
   }
 
@@ -144,7 +144,7 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else
   {
-    navigate('/home')
+    navigate('/profil')
     authState(true)
   }
 

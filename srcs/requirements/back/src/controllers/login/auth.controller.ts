@@ -40,7 +40,6 @@ export class ConnectController {
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
-			console.log(req.body.info.email)
 			const secureTkn = totp.generate()
 			const mail = {
 				to: req.body.info.email,
