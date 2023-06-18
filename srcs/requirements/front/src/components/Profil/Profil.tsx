@@ -45,6 +45,7 @@ const Profil: React.FC<ProfilProps> = ({
 				fontSize="24px"
 				txt1={stats}
 			/>
+			{children}
 		</SolidFrame>
 		<SolidFrame
 			frameClass="info-frame"
@@ -63,6 +64,7 @@ const Profil: React.FC<ProfilProps> = ({
 				fontSize="24px"
 				txt1={matchHistory}
 			/>
+			{children}
 		</SolidFrame>
 	</SolidFrame>
 			);

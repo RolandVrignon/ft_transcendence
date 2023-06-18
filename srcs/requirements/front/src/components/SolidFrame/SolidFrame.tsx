@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from 'react-router-dom';
 import "./SolidFrame.scss";
 
 type SolidFrameProps = {
@@ -53,7 +54,7 @@ function SolidFrame({
 				</p>
 				<p className='color2' style={{fontSize: fontSize}}>
 					{link ? (
-							<a href={link}>{txt2}</a>
+							<NavLink to={link}>{txt2}</NavLink>
 						) : (
 							<>{txt2}</>
 						)
