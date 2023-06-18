@@ -26,6 +26,7 @@ const SideBar: React.FC = () => {
 				height="100px"
 				txtClass="text-side"
 				txt2="Profil"
+				link="/Profil"
 			/>
 			<SolidFrame
 				frameClass="menu-frame"
@@ -34,6 +35,7 @@ const SideBar: React.FC = () => {
 				height="100px"
 				txtClass="text-side"
 				txt2="Pong Game"
+				link="/Pong"
 			/>
 			<SolidFrame
 				frameClass="menu-frame"
@@ -42,6 +44,7 @@ const SideBar: React.FC = () => {
 				height="100px"
 				txtClass="text-side"
 				txt2="Chat"
+				link="/Chat"
 			/>
 			<SolidFrame
 				frameClass="menu-frame"
@@ -50,6 +53,7 @@ const SideBar: React.FC = () => {
 				height="100px"
 				txtClass="text-side"
 				txt2="Logout"
+				link="/Logout"
 			/>
 		</SolidFrame>
 	);
