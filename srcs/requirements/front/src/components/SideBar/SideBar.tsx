@@ -15,8 +15,8 @@ const SideBar: React.FC = () => {
 				width="100%"
 				height="200px"
 				txtClass="text-logo"
-				txt1="The Great "
-				txt2="Pong Show"
+				txt1="Simple"
+				txt2="Pong"
 				fontSize="64px"
 			/>
 			<SolidFrame
