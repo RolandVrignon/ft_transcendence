@@ -31,7 +31,7 @@ const MainPage: React.FC<MainPageProps> = ({
 					frameClass="main-frame"
 				>
 						<Title
-							borderWidth="1px" 
+							borderWidth="0px" 
 							borderRadius="20px"
 							txt1={title} 
 							txt2={subtitle}

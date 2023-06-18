@@ -17,7 +17,7 @@ const SideBar: React.FC = () => {
 				txtClass="text-logo"
 				txt1="Simple"
 				txt2="Pong"
-				fontSize="64px"
+				fontSize="48px"
 			/>
 			<SolidFrame
 				frameClass="menu-frame"

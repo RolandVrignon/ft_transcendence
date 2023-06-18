@@ -27,7 +27,7 @@ function SolidFrame({
 		width,
 		height,
 		txtClass,
-		fontSize= '40px',
+		fontSize= '24px',
 		txt1,
 		txt2,
 		link,

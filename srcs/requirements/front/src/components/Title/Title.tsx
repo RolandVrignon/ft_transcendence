@@ -16,7 +16,7 @@ const Title: React.FC<TitleProps> = ({
 	borderRadius,
 	}) => {
 		// Define the height depending on text
-			let fontSize = "32px";
+			let fontSize = "20px";
 			let fontSizeInt = parseInt(fontSize, 10);
 			let height = (typeof txt2 === "undefined") ? (fontSizeInt + 6) : 2*(fontSizeInt + 6);
 		// Define the width depending on the text length
@@ -28,9 +28,7 @@ const Title: React.FC<TitleProps> = ({
 				borderWidth={borderWidth}
 				borderRadius={borderRadius}
 				txtClass="text-title"
-				backgroundColor="white"
 				height= {height}
-				width={width}
 				fontSize={fontSize}
 				txt1={txt1}
 				txt2={txt2}
