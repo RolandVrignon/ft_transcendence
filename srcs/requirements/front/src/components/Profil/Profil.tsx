@@ -31,12 +31,11 @@ const Profil: React.FC<ProfilProps> = ({
 		<SolidFrame
 			frameClass="info-frame"
 			borderColor="red"
-			borderWidth="1px"
 		>
 			<Title
 				txt1="Stats"
 				borderWidth="1px"
-				borderRadius="10px"
+				borderRadius="20px"
 			/>
 			<SolidFrame
 				frameClass="history-frame"
@@ -50,12 +49,11 @@ const Profil: React.FC<ProfilProps> = ({
 		<SolidFrame
 			frameClass="info-frame"
 			borderColor="red"
-			borderWidth="1px"
 		>
 			<Title
 				txt1="Match history" 
 				borderWidth="1px"
-				borderRadius="10px"
+				borderRadius="20px"
 			/>
 			<SolidFrame
 				frameClass="history-frame"

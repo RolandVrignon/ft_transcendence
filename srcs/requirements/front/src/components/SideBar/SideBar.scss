@@ -12,10 +12,24 @@ $margin: 5px;
 	justify-content: center;
 }
 
-.text-logo {
-	text-align: center;
+.logo-frame {
+	display: flex;
 }
 
-.text-menu {
+.text-logo {
 	text-align: center;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+}
+
+.menu-frame {
+	display: flex;
+}
+
+.text-side {
+	text-align: center;
+	top: 0;
+	bottom: 0;
+	margin: auto;
 }

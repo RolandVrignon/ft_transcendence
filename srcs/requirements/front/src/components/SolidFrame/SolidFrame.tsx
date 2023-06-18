@@ -3,7 +3,6 @@ import "./SolidFrame.scss";
 
 type SolidFrameProps = {
 	frameClass?: string;
-	fontSize?: string;
 	borderColor?: string;
 	backgroundColor?: string;
 	borderRadius?: string;
@@ -11,6 +10,7 @@ type SolidFrameProps = {
 	width?: string | number; // Allow numbers for percentages
 	height?: string | number; // Allow numbers for percentages
 	txtClass?: string;
+	fontSize?: string;
 	txt1?: string;
 	txt2?: string;
 	children?: React.ReactNode;
