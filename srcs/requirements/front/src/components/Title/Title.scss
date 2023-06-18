@@ -1,6 +1,6 @@
 
 .title-frame {
-	width: 100%;
+	// Dimensions in tsx file
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -8,7 +8,6 @@
 
 .text-title {
 	font-size: 18px;
-	font-family: 'Arcade';
 	text-align: center;
 	.color1 {
 		color: black;

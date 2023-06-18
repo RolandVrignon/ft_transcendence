@@ -27,8 +27,6 @@ const MainPage: React.FC<MainPageProps> = ({
 				<SideBar />
 				<SolidFrame frameClass="main-frame"	>
 						<Title
-							borderWidth="0px" 
-							borderRadius="20px"
 							txt1={title} 
 							txt2={subtitle}
 						/>

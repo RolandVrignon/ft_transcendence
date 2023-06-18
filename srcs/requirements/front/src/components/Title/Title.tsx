@@ -5,18 +5,14 @@ import "./Title.scss"
 type TitleProps = {
 	txt1: string;
 	txt2?: string;
-	borderWidth?: string;
-	borderRadius?: string;
 };
 
 const Title: React.FC<TitleProps> = ({
 	txt1,
 	txt2,
-	borderWidth,
-	borderRadius,
 	}) => {
 		// Define the height depending on text
-			let fontSize = "20px";
+			let fontSize = "25px";
 			let fontSizeInt = parseInt(fontSize, 10);
 			let height = (typeof txt2 === "undefined") ? (fontSizeInt + 6) : 2*(fontSizeInt + 6);
 		// Define the width depending on the text length
@@ -27,6 +23,7 @@ const Title: React.FC<TitleProps> = ({
 				frameClass="title-frame"
 				txtClass="text-title"
 				height= {height}
+				width="100%"
 				txt1={txt1}
 				txt2={txt2}
 			/>
