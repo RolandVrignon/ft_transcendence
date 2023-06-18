@@ -13,26 +13,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 	}) => {
 	return (
 	<SolidFrame 
-	frameClass="chat-box"
-	backgroundColor="white"
-		>
-		<SolidFrame 
-			frameClass="chat-frame"	
-			backgroundColor="white"
-			borderColor="black"
-			borderWidth="1px"
-		>
+		frameClass="chat-box"
+	>
+		<SolidFrame frameClass="chat-frame"	>
 			{children} 
 		</SolidFrame>
-		<SolidFrame
-			frameClass="write-frame"
-		>
-			<SolidFrame
-				frameClass="write-pad"
-				borderColor="black"
-				borderWidth="1px"
-			>
-			</SolidFrame>
+		<SolidFrame frameClass="write-frame" >
+			<SolidFrame frameClass="write-pad" />
 			< img src={SendButton} />
 		</SolidFrame>
 	</SolidFrame>

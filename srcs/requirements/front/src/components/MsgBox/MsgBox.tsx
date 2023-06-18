@@ -4,17 +4,15 @@ import "./MsgBox.scss"
 
 type MsgBoxProps = {
 	frameClass: string;
-	backgroundColor?: string;
 	msg: string;
 };
 
 const MsgBox: React.FC<MsgBoxProps> = ({
 	frameClass,
-	backgroundColor,
 	msg
 	}) => {
 		// Define the height depending on text
-			let fontSize = "24px";
+			let fontSize = "14px";
 			let fontSizeInt = parseInt(fontSize, 10);
 			let height = (typeof msg === "undefined") ? (fontSizeInt + 6) : 2*(fontSizeInt + 6);
 		// Define the width depending on the text length
@@ -31,11 +29,9 @@ const MsgBox: React.FC<MsgBoxProps> = ({
 	return (
 	<SolidFrame
 		frameClass={frameClass}
-		backgroundColor={backgroundColor}
 		height={height}
 		width={width}
 		txtClass="text-msg"
-		fontSize={fontSize}
 		txt1={msg}
 	/>
 	);

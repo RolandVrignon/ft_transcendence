@@ -6,22 +6,18 @@ const SideBar: React.FC = () => {
 	return (
 		<SolidFrame
 			frameClass="side-frame"
-			backgroundColor="transparent"
 			width="300px"
 		>
 			<SolidFrame
 				frameClass="logo-frame"
-				borderColor="transparent"
 				width="100%"
 				height="200px"
 				txtClass="text-logo"
 				txt1="Simple"
 				txt2="Pong"
-				fontSize="48px"
 			/>
 			<SolidFrame
 				frameClass="menu-frame"
-				borderColor="transparent"
 				width="100%"
 				height="100px"
 				txtClass="text-side"
@@ -30,7 +26,6 @@ const SideBar: React.FC = () => {
 			/>
 			<SolidFrame
 				frameClass="menu-frame"
-				borderColor="transparent"
 				width="100%"
 				height="100px"
 				txtClass="text-side"
@@ -39,7 +34,6 @@ const SideBar: React.FC = () => {
 			/>
 			<SolidFrame
 				frameClass="menu-frame"
-				borderColor="transparent"
 				width="100%"
 				height="100px"
 				txtClass="text-side"
@@ -48,7 +42,6 @@ const SideBar: React.FC = () => {
 			/>
 			<SolidFrame
 				frameClass="menu-frame"
-				borderColor="transparent"
 				width="100%"
 				height="100px"
 				txtClass="text-side"

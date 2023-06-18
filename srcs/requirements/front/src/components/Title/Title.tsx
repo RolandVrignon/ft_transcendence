@@ -25,11 +25,8 @@ const Title: React.FC<TitleProps> = ({
 		return (
 			<SolidFrame
 				frameClass="title-frame"
-				borderWidth={borderWidth}
-				borderRadius={borderRadius}
 				txtClass="text-title"
 				height= {height}
-				fontSize={fontSize}
 				txt1={txt1}
 				txt2={txt2}
 			/>

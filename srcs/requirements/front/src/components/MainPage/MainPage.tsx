@@ -23,22 +23,16 @@ const MainPage: React.FC<MainPageProps> = ({
 	}) => {
 	return (
 	<Router>
-		<SolidFrame
-			frameClass="window-frame"
-			borderColor="red" > 
+		<SolidFrame frameClass="window-frame" > 
 				<SideBar />
-				<SolidFrame
-					frameClass="main-frame"
-				>
+				<SolidFrame frameClass="main-frame"	>
 						<Title
 							borderWidth="0px" 
 							borderRadius="20px"
 							txt1={title} 
 							txt2={subtitle}
 						/>
-						<SolidFrame 
-							frameClass="content-frame"
-						>
+						<SolidFrame frameClass="content-frame" >
 						<Routes>
 							<Route path="/Profil" element={<Profil />} />
 							<Route path="/Pong" element={<Pong />} />

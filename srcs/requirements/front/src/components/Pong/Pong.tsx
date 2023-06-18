@@ -10,14 +10,8 @@ const Pong: React.FC<PongProps> = ({
 	children,
 	}) => {
 	return (
-	<SolidFrame
-		frameClass="pong-frame"	
-	>
-		<SolidFrame
-			frameClass="arena-frame"
-			borderColor="black"
-			borderWidth="1px"
-		>
+	<SolidFrame frameClass="pong-frame"	>
+		<SolidFrame frameClass="arena-frame" >
 			{children}
 		</SolidFrame>
 		<SolidFrame

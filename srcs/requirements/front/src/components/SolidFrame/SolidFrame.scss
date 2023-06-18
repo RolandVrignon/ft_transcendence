@@ -5,8 +5,9 @@
 $margin: 15px;
 
 .solid-frame {
-	border-style: dotted;
 	background-color: white;
+
+	border-style: dotted;
 	border-color: black;
 	border-radius: 0px;
 	border-width: 1px;
@@ -17,7 +18,6 @@ $margin: 15px;
 .text-content {
 	font-family: 'Arcade';
 	font-size: 16px;
-	font-weight: bold;
 	text-align: center;
 	.color1 {
 		color: grey;
