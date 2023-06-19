@@ -1,51 +1,59 @@
-import React from "react";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import SolidFrame from '../SolidFrame/SolidFrame';
 import SideBar from "../SideBar/SideBar";
-import SolidFrame from '../SolidFrame/SolidFrame'
-import Title from '../Title/Title'
-import Pong from '../Pong/Pong'
-import Login from '../Login'
-import ChatBox from '../ChatBox/ChatBox'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Title from '../Title/Title';
+import './MainPage.scss';
 
-import Profil from '../Profil/Profil'
-import './MainPage.scss'
-import { useState } from 'react'
+import MsgBox from '../MsgBox/MsgBox';
+import ChatBox from '../ChatBox/ChatBox';
+import Pong from '../Pong/Pong';
+import Profil from '../Profil/Profil';
 
-type MainPageProps = {
-	title?: string; // test a remettre
-	subtitle?: string;
-	children?: React.ReactNode;
-}
+// This is the new component that will be rendered within the Router
+const ProfilTitle: React.FC = () => {
+  const location = useLocation();
 
-const MainPage: React.FC<MainPageProps> = ({children}) => {
-	const	[componentContentMainFrame, setComponentContentMainFrame] = useState(children)
-	const	[authState, setAuthState] = useState(false)
+  const getTitle = () => {
+    switch(location.pathname) {
+      case '/Profil':
+        return 'Profile';
+      case '/Pong':
+        return 'Pong';
+      case '/Chat':
+        return 'Chat';
+      default:
+        return 'Main';
+    }
+  }
 
-	return (
-			<SolidFrame
-				frameClass="window-frame"
-				borderColor="red" >
-					<SideBar />
-					<SolidFrame frameClass="main-frame" >
-						<Title
-							borderWidth="1px"
-							borderRadius="20px"
-							txt1={'The Pong Game Show'}
-							txt2={'Supradelicious!'}
-						/>
-						<SolidFrame frameClass="content-frame">
-							{componentContentMainFrame}
-						</SolidFrame>
-					</SolidFrame>
-			</SolidFrame>
-	)
-}
+  return (
+    <SolidFrame frameClass="main-frame">
+      <Title
+        frameClass="main-title-frame"
+        txtClass="text-main-title"
+        txt2={getTitle()}
+      />
+      <SolidFrame frameClass="content-frame">
+        <Routes>
+          <Route path="/Profil" element={<Profil />} />
+          <Route path="/Pong" element={<Pong />} />
+          <Route path="/Chat" element={<ChatBox />} />
+        </Routes>
+      </SolidFrame>
+    </SolidFrame>
+  );
+};
 
-	{/* <Routes>
-		<Route path="/" element={<Login authState={setAuthState}/>} />
-		<Route path='/Profil' element={<Profil />} />
-		<Route path='/Pong' element={<Pong />} />
-		<Route path='/Chat' element={<ChatBox />} />
-	</ Routes> */}
+const MainPage: React.FC = () => {
+  return (
+    <Router>
+      <SolidFrame frameClass="window-frame"> 
+        <SideBar />
+        <ProfilTitle />
+      </SolidFrame>
+    </Router>
+  );
+};
 
-export default MainPage
+export default MainPage;

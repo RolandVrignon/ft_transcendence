@@ -1,21 +1,26 @@
-//local variables
-$margin: 5px;
 
 	//white-space: nowrap;
 .side-frame {
-	// Dimensions of the frame
-	height: calc(100vh - 2 * #{$margin});
-	// Position of the frame
-	// Position of the content
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
+	height: 100%;
+	width: 350px;
+	min-width: 350px;
+}
+
+.logo-frame {
+	height: 200px;
+	width: 100%;
 }
 
 .text-logo {
+	font-size: 48px;
 	text-align: center;
 }
 
-.text-menu {
+.menu-frame {
+	height: 100px;
+}
+
+.text-side {
+	font-size: 32px;
 	text-align: center;
 }

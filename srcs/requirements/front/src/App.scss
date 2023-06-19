@@ -1,5 +1,6 @@
 @import './_variables.scss';
 @import './_responsive.scss';
+@import './fonts/PublicPixel-z84yD.ttf';
 
 .App {
   margin: 0px;
@@ -9,7 +10,18 @@
   height: 100%;
 }
 
+@font-face {
+	font-family: 'Arcade';
+	src: url( ./fonts/PublicPixel-z84yD.ttf ) format('truetype')
+}
+
 p {
 	padding: 0px;
 	margin: 0px;
+}
+
+// To stylize NavLink that render a <a> ... </a>
+a {
+	text-decoration: none;
+	color: inherit;
 }

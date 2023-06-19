@@ -1,93 +1,37 @@
 
-// .chat-box {
-// 	height: 100%;
-// }
+.chat-box {
+	height: 100%;
+}
 
-// // ChatBox child style options
-// .chat-frame {
-// 	// Position of parent
-// 	// Dimensions of parent
-// 	height: 75%;
-// }
+// ChatBox child style options
+.chat-frame {
+	height: 75%;
 
-// .write-frame {
-// 	// Parent dimensions
-// 	// Children position
-// 	height: 25%;
-// 	display: flex;
-// 	flex-direction: row;
-// 	justify-content: center;
-// 	align-items: center
-// }
+	border-width: 1px;
+}
 
-// .write-pad{
-// 	width: 100%;
-// 	height: 85%;
-// 	max-width: 600px;
-// }
+.write-frame {
+	height: 25%;
+}
 
-// $size: 30px;
-// img {
-// 	width: #{$size};
-// 	height: #{$size};
-// }
-.chat {
-	padding: 20px;
-	height: 100vh;
-  }
-  
-  .chat-container {
+.write-pad{
+	border-width: 1px;
+
+	width: 100%;
+
 	display: flex;
-	flex-direction: column;
-	height: 95%;
-  }
-  
-  .messages-container {
-	overflow: auto;
-	flex: 1;
-  }
-  
-  .join-section,
-  .create-section {
-	margin-bottom: 20px;
-  }
-  
-  .name-input {
-	margin-bottom: 10px;
-  }
-  
-  h2 {
-	font-size: 18px;
-	margin-bottom: 10px;
-  }
-  
-  form {
-	display: flex;
-	flex-direction: column;
-  }
-  
-  label {
-	margin-bottom: 5px;
-  }
-  
-  input[type="text"],
-  input[type="password"] {
-	margin-bottom: 10px;
-  }
-  
-  button {
-	background-color: #4caf50;
-	color: white;
-	border: none;
-	padding: 8px 16px;
-	text-align: center;
-	text-decoration: none;
-	display: inline-block;
-	font-size: 14px;
-	cursor: pointer;
-  }
-  
-  button[type="submit"] {
-	margin-top: 10px;
-  }
-  
+	flex-grow: 1;
+}
+
+.send-frame {
+	border-width: 1px;
+	width: 100%;
+	height: 18%;
+}
+
+.text-send {
+	font-size: 20px;
+	.color1 {
+		color: black;
+	}
+}

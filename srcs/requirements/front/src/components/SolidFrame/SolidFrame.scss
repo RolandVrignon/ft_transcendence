@@ -1,49 +1,47 @@
-//@import url('https://fonts.googleapis.com/css2?family=Iceberg&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Iceland&display=swap');
 
-//local variables
-$margin: 15px;
-
-/*
-// Define frame style
 .solid-frame {
-	// Defining position and alignment
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
+	background-color: black;
+
+	border-style: solid;
+	border-color: white;
+	border-radius: 0px;
+	border-width: 0px;
+
 	box-sizing: border-box;
-	
-	// By default, assume SolidFrame is the main responsive frame
+	height: 100%;
+	width: 100%;
+	overflow: auto;
+
 	position: relative;
-	margin: $margin;
-	width: calc(100vw - 2 * #{$margin});
-	height: calc(100vh - 2 * #{$margin});
-}
-*/
-.solid-frame {
+
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
 // Define text style
 .text-content {
-	font-family: 'Iceland';
+	font-family: 'Arcade';
 	font-size: 16px;
-	font-weight: bold;
 	text-align: center;
+
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
 	.color1 {
 		color: grey;
 	}
 	.color2 {
-		color: black;
+		color: white;
 	}
-	white-space: nowrap;
+	// white-space: nowrap;
 
 	// Adjust font size based on screen size
+	/*
 	@media (min-width: 600px) { // for screens wider than 600px
 		font-size: 32px;
 	}
-
-	@media (min-width: 900px) { // for screens wider than 900px
-		font-size: 64px;
-	}
+	*/
 }
