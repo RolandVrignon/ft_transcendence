@@ -2,18 +2,30 @@
 .profil-frame {
 	height: 100%;
 
-	.info-frame {
-		height:33%;
-		display: flex;
-		flex-direction: column;
-	}
+}
+
+.info-frame {
+	height:33%;
+	display: flex;
+	flex-direction: column;
 }
 
 .history-frame {
 	flex: 1;
 }
 
+.profil-title-frame {
+	border-width: 1px;
+}
+
+.text-profil-title {
+	font-size: 24px;
+
+	.color1 {
+		color: black;
+	}
+}
+
 .text-data-profil {
- font-family: 'Calibri';
- font-size: 16px !important;
+	// Style 
 }

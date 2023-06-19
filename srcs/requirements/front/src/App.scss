@@ -19,3 +19,9 @@ p {
 	padding: 0px;
 	margin: 0px;
 }
+
+// To stylize NavLink that render a <a> ... </a>
+a {
+	text-decoration: none;
+	color: inherit;
+}
