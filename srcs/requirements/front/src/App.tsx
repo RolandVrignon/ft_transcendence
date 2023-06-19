@@ -7,14 +7,14 @@ import MsgBox from './components/MsgBox/MsgBox';
 import ChatBox from './components/ChatBox/ChatBox';
 import Pong from './components/Pong/Pong'
 import Profil from './components/Profil/Profil';
+import Login from './components/Login/Login';
 
 function App() {
 		let title = "Chat";
 		let subtitle= "Some chat chanel !"
 	return (
 		<div className="App">
-				<MainPage title={title} subtitle={subtitle} >
-				</MainPage>
+				<MainPage title={title} subtitle={subtitle} />
 		</div>
 	);
 }
