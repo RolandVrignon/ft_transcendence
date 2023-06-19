@@ -1,40 +1,26 @@
 
 	//white-space: nowrap;
 .side-frame {
-	// Dimensions of the frame
 	height: 100%;
 	width: 350px;
 	min-width: 350px;
-	// Position of the frame
-	// Position of the content
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
 }
 
 .logo-frame {
 	height: 200px;
 	width: 100%;
-	display: flex;
 }
 
 .text-logo {
 	font-size: 48px;
 	text-align: center;
-	top: 0;
-	bottom: 0;
-	margin: auto;
 }
 
 .menu-frame {
 	height: 100px;
-	display: flex;
 }
 
 .text-side {
 	font-size: 24px;
 	text-align: center;
-	top: 0;
-	bottom: 0;
-	margin: auto;
 }
