@@ -27,6 +27,8 @@ const MainPage: React.FC<MainPageProps> = ({
 				<SideBar />
 				<SolidFrame frameClass="main-frame"	>
 						<Title
+							frameClass="main-title-frame"
+							txtClass="text-main-title"
 							txt1={title} 
 							txt2={subtitle}
 						/>
@@ -38,7 +40,6 @@ const MainPage: React.FC<MainPageProps> = ({
 							{/*<Route path="/Logout" component={Logout} />
 */}
 							</ Routes>
-								{children}
 						</SolidFrame>
 				</SolidFrame>
 		</SolidFrame>

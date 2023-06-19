@@ -3,11 +3,15 @@ import SolidFrame from '../SolidFrame/SolidFrame'
 import "./Title.scss"
 
 type TitleProps = {
+	frameClass?: string;
+	txtClass?: string;
 	txt1: string;
 	txt2?: string;
 };
 
 const Title: React.FC<TitleProps> = ({
+	frameClass = 'title-frame',
+	txtClass = 'text-title',
 	txt1,
 	txt2,
 	}) => {
@@ -20,8 +24,8 @@ const Title: React.FC<TitleProps> = ({
 			width = width < 150 ? 150 : width;
 		return (
 			<SolidFrame
-				frameClass="title-frame"
-				txtClass="text-title"
+				frameClass={frameClass}
+				txtClass={txtClass}
 				height= {height}
 				width="100%"
 				txt1={txt1}

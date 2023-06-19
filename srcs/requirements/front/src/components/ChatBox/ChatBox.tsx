@@ -24,9 +24,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 				txtClass="text-send"
 				txt1="send"
 			/>
-			{/*
-			< img src={SendButton} />
-			*/}
 		</SolidFrame>
 	</SolidFrame>
 	);

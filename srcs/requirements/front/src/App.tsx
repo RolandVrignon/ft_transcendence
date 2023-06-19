@@ -14,7 +14,6 @@ function App() {
 	return (
 		<div className="App">
 				<MainPage title={title} subtitle={subtitle} >
-					<ChatBox />
 				</MainPage>
 		</div>
 	);

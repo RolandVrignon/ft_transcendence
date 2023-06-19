@@ -49,3 +49,14 @@ $margin: 10px;
 		width: 100%;
 	}
 }
+
+.main-title-frame {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.text-main-title {
+	font-size: 24px;
+	text-align: center;
+}
