@@ -8,8 +8,6 @@ $margin: 10px;
 	// Position of the frame
 	position: relative;
 	margin: 0px;
-	// Dimension of the content
-	box-sizing: border-box;
 	// Position of the content
 	display: flex;
 	flex-direction: row;
@@ -21,8 +19,7 @@ $margin: 10px;
 // Side bar
 .side-frame{
 	// Dimensions of the frame
-	//height: calc(100% - 2 * #{$margin});
-	height: 100%;
+	height: calc(100% - 2 * #{$margin});
 	// Position of the frame
 	// Dimensions of the content
 	// Position of the content

@@ -5,8 +5,11 @@
 	border-style: solid;
 	border-color: black;
 	border-radius: 0px;
-	border-width: 1px;
+	border-width: 0px;
 
+	box-sizing: border-box;
+	height: 100%;
+	width: 100%;
 }
 
 // Define text style
@@ -14,6 +17,7 @@
 	font-family: 'Arcade';
 	font-size: 16px;
 	text-align: center;
+
 	.color1 {
 		color: grey;
 	}
