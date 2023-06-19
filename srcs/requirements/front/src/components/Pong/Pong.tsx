@@ -1,6 +1,7 @@
 import React from "react";
 import SolidFrame from "../SolidFrame/SolidFrame";
 import './Pong.scss'
+import PongGame from './PongGame'
 
 type PongProps = {
 	children?: React.ReactNode;
@@ -23,8 +24,7 @@ const Pong: React.FC<PongProps> = ({
 		<SolidFrame
 			frameClass="score-frame"
 		>
-			{/* some score, game... information
-			or more division*/}
+			 <PongGame />
 		</SolidFrame>
 	</SolidFrame>
 	);
