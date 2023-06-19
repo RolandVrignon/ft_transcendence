@@ -4,6 +4,7 @@ import "./SolidFrame.scss";
 
 type SolidFrameProps = {
 	frameClass?: string;
+	onClick?: () => void;
 	txtClass?: string;
 	txt1?: string;
 	txt2?: string;
@@ -13,6 +14,7 @@ type SolidFrameProps = {
 
 function SolidFrame({
 		frameClass,
+		onClick,
 		txtClass,
 		txt1,
 		txt2,
@@ -24,7 +26,7 @@ function SolidFrame({
 		<div className={`solid-frame ${frameClass}`} >
 		{children}
 			<div className={`text-content ${txtClass}`}>
-				<p className='color1' >
+				<p className='color1' onClick={onClick} >
 					{txt1}
 				</p>
 				<p className='color2' >

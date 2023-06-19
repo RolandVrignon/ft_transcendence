@@ -26,11 +26,15 @@
 .send-frame {
 	border-width: 1px;
 	width: 100%;
-	height: 15%;
+	height: 18%;
 }
 
 .text-send {
 	font-size: 20px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 	.color1 {
 		color: black;
 	}
