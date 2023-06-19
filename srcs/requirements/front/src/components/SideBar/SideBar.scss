@@ -1,10 +1,8 @@
-//local variables
-$margin: 5px;
 
 	//white-space: nowrap;
 .side-frame {
 	// Dimensions of the frame
-	height: calc(100vh - 2 * #{$margin});
+	height: 100%;
 	// Position of the frame
 	// Position of the content
 	display: flex;

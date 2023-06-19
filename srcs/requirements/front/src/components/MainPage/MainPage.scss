@@ -21,7 +21,8 @@ $margin: 10px;
 // Side bar
 .side-frame{
 	// Dimensions of the frame
-	height: calc(100% - 2 * #{$margin});
+	//height: calc(100% - 2 * #{$margin});
+	height: 100%;
 	// Position of the frame
 	// Dimensions of the content
 	// Position of the content
