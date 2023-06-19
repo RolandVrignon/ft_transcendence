@@ -12,7 +12,7 @@ const Login: React.FC<LoginProps> = ({
 	return (
 	<SolidFrame frameClass="login-frame"	>
 		<SolidFrame
-			frameClass="logo-frame"
+			frameClass="simple-pong-frame"
 			txtClass="text-logo"
 			txt2="Simple Pong"
 		/>
