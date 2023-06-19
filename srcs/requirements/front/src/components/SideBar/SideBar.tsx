@@ -4,10 +4,7 @@ import './SideBar.scss'
 
 const SideBar: React.FC = () => {
 	return (
-		<SolidFrame
-			frameClass="side-frame"
-			width="300px"
-		>
+		<SolidFrame frameClass="side-frame" >
 			<SolidFrame
 				frameClass="logo-frame"
 				txtClass="text-logo"

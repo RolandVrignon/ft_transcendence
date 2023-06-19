@@ -4,8 +4,6 @@ import "./SolidFrame.scss";
 
 type SolidFrameProps = {
 	frameClass?: string;
-	width?: string | number; // Allow numbers for percentages
-	height?: string | number; // Allow numbers for percentages
 	txtClass?: string;
 	txt1?: string;
 	txt2?: string;
@@ -15,8 +13,6 @@ type SolidFrameProps = {
 
 function SolidFrame({
 		frameClass,
-		width,
-		height,
 		txtClass,
 		txt1,
 		txt2,
@@ -25,13 +21,7 @@ function SolidFrame({
 	}: SolidFrameProps) {
 
 	return (
-		<div
-			className={`solid-frame ${frameClass}`}
-			style={{
-				width: (typeof width === 'number') ? `${width}px` : width,
-				height: (typeof height === 'number') ? `${height}px` : height,
-			}}
-		>
+		<div className={`solid-frame ${frameClass}`} >
 		{children}
 			<div className={`text-content ${txtClass}`}>
 				<p className='color1' >

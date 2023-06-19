@@ -1,5 +1,6 @@
 //local variables
 $margin: 10px;
+$font-main-title-size: 18px;
 
 .window-frame {
 	// Dimensions of the frame
@@ -34,8 +35,6 @@ $margin: 10px;
 	// Position of the frame
 	position: relative;
 	margin: #{$margin};
-	// Dimensions of the content
-	box-sizing: border-box;
 	// Position of the content
 	display: flex;
 	flex-grow: 1;
@@ -51,11 +50,14 @@ $margin: 10px;
 }
 
 .main-title-frame {
+	border-width: 2px;
+
+	height: 100px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
 .text-main-title {
-	font-size: 24px;
+	font-size: $font-main-title-size;
 }
