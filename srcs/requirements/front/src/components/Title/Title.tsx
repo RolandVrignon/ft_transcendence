@@ -16,7 +16,7 @@ const Title: React.FC<TitleProps> = ({
 	txt2,
 	}) => {
 		// Define the height depending on text
-			let fontSize = "25px";
+			let fontSize = "24px";
 			let fontSizeInt = parseInt(fontSize, 10);
 			let height = (typeof txt2 === "undefined") ? (fontSizeInt + 6) : 2*(fontSizeInt + 6);
 		// Define the width depending on the text length
