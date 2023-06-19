@@ -16,7 +16,7 @@ FROM node:14-alpine
 # COPY ./https/key.key /etc/ssl/private/
 # COPY ./https/certificate.cert /etc/ssl/certs/
 # Installer le serveur HTTP simple (serve)
-RUN npm install -g serve speakeasy qrcode axios
+RUN npm install -g serve speakeasy qrcode axios python3
 RUN apk add --update --no-cache openssl
 # RUN openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -keyout /etc/ssl/private/key.pem -out /etc/ssl/certs/cert.pem -days 365
 

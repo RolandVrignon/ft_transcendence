@@ -1,13 +1,38 @@
-<<<<<<< HEAD
-// import React from "react";
-import SolidFrame from '../SolidFrame/SolidFrame'
 import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
 import React, { useState, useEffect, useRef } from 'react'
-import SendButton from './Chat_SendButton.png'
+// import SendButton from './Chat_SendButton.png'
 import { io } from 'socket.io-client'
+import SolidFrame from '../SolidFrame/SolidFrame'
+import './ChatBox.scss'
 
-const ChatBox = () => {
+// type ChatBoxProps = {
+// 	joined: boolean;
+// 	name: string;
+// 	setName: (name: string) => void;
+// 	chatName: string;
+// 	setChatName: (chatName: string) => void;
+// 	password: string;
+// 	setPassword: (password: string) => void;
+// 	join: () => void;
+// 	createChatName: string;
+// 	setCreateChatName: (chatName: string) => void;
+// 	createChatPassword: string;
+// 	setCreateChatPassword: (password: string) => void;
+// 	createChannel: () => void;
+// 	messages: any[];
+// 	typingDisplay: string;
+// 	messagesContainerRef: React.RefObject<any>;
+// 	messageText: string;
+// 	setMessageText: (text: string) => void;
+// 	sendMessage: () => void;
+// 	emitTyping: () => void;
+// 	children?: React.ReactNode;
+// };
+
+const ChatBox: React.FC = ({
+  }) => {
+
 	const messagesContainerRef = useRef<HTMLDivElement>(null);
 	const [socket, setSocket] = useState<any>(null);
 	const [messages, setMessages] = useState<any[]>([]);
@@ -99,8 +124,7 @@ const ChatBox = () => {
 		timeout = setTimeout(() => {
 			socket.emit('typing', { isTyping: false, chatName, password });
 		}, 2000);
-	};
-
+	};	  
 	if (!joined) {
 		return (
 			<div className="chat">
@@ -156,38 +180,34 @@ const ChatBox = () => {
 				</div>
 			</div>
 		</div>
-=======
-import React from "react";
-import SolidFrame from '../SolidFrame/SolidFrame'
-import MsgBox from '../MsgBox/MsgBox'
-import './ChatBox.scss'
-
-type ChatBoxProps = {
-	children?: React.ReactNode;	
-};
-
-const ChatBox: React.FC<ChatBoxProps> = ({
-	children,
-	}) => {
-	return (
-	<SolidFrame 
-		frameClass="chat-box"
-	>
-		<SolidFrame frameClass="chat-frame"	>
-			{children} 
-		</SolidFrame>
-		<SolidFrame frameClass="write-frame" >
-			<SolidFrame frameClass="write-pad" />
-			<SolidFrame
-				frameClass="send-frame"
-				onClick={() => console.log("send button was click")}
-				txtClass="text-send"
-				txt2="send"
-			/>
-		</SolidFrame>
-	</SolidFrame>
->>>>>>> uix2
-	);
-};
+)}
 
 export default ChatBox;
+
+// type ChatBoxProps = {
+// 	children?: React.ReactNode;	
+// };
+
+// const ChatBox: React.FC<ChatBoxProps> = ({
+// 	children,
+// 	}) => {
+// 	return (
+// 	<SolidFrame 
+// 		frameClass="chat-box"
+// 	>
+// 		<SolidFrame frameClass="chat-frame"	>
+// 			{children} 
+// 		</SolidFrame>
+// 		<SolidFrame frameClass="write-frame" >
+// 			<SolidFrame frameClass="write-pad" />
+// 			<SolidFrame
+// 				frameClass="send-frame"
+// 				onClick={() => console.log("send button was click")}
+// 				txtClass="text-send"
+// 				txt2="send"
+// 			/>
+// 		</SolidFrame>
+// 	</SolidFrame>
+// 	);
+// };
+

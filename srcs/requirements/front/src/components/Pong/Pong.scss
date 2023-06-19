@@ -1,12 +1,3 @@
-
-<<<<<<< HEAD
-.pong-frame {
-	height: 100%;
-
-	.arena-frame {
-		height: 80%;
-	}
-=======
 $arena-height: 75%;
 
 .pong-frame {
@@ -22,5 +13,4 @@ $arena-height: 75%;
 	height: calc(100% - #{$arena-height});
 	border-width: 1px;
 	border-color: black;
->>>>>>> uix2
 }
