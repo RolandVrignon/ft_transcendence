@@ -14,7 +14,7 @@ function App() {
 		let subtitle= "Some chat chanel !"
 	return (
 		<div className="App">
-				<MainPage title={title} subtitle={subtitle} />
+				<MainPage />
 		</div>
 	);
 }
