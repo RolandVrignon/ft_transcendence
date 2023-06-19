@@ -10,9 +10,11 @@ export default function PongGame() {
 
     // Connect to the socket server on component mount
     useEffect(() => {
+        console.log("UseEffect")
         if (!socket) {
-            const newSocket = io.connect('http://localhost:8080'); // Replace with your server address
-
+            const newSocket = io.connect('http://localhost:9090'); // Replace with your server address
+            setSocket(newSocket);
+            console.log(newSocket)
             newSocket.on('connect', () => setsessionState('connected'));
             newSocket.on('in-queue', () => setsessionState('in-queue'));
             newSocket.on('start-game', (playerIndex) => {
@@ -21,15 +23,13 @@ export default function PongGame() {
             });
             newSocket.on('connect_error', () => setsessionState('connection-failed'));
             newSocket.on('connect_timeout', () => setsessionState('connection-timeout'));
-            setSocket(newSocket);
 
             console.log("Created new socket")
         }
-
         return () => {
             // console.log("closing connection")
         }
-    }, [playerIndex, socket]);
+    }, []);
 
     const sketch = p5 => {
         const canvasWidth = 800;
@@ -88,30 +88,32 @@ export default function PongGame() {
         }
 
         p5.setup = () => {
-            // Your setup code here.
-            p5.createCanvas(canvasWidth, canvasHeight);
-            playerLeft = new Player(playerOffset + playerWidth);
-            playerRight = new Player(canvasWidth - playerOffset - playerWidth);
-            ball = new Ball();
-            console.log('setup called, socket: ', socket)
-            socket.on('update-game', (gameState) => {
-                // console.log("received gameState, left player: ", gameState.players[0].y, ", right player: ", gameState.players[1].y)
-                if (playerIndex === 1)
+            if (socket) {
+                // Your setup code here.
+                p5.createCanvas(canvasWidth, canvasHeight);
+                playerLeft = new Player(playerOffset + playerWidth);
+                playerRight = new Player(canvasWidth - playerOffset - playerWidth);
+                ball = new Ball();
+                console.log('setup called, socket: ', socket)
+                socket.on('update-game', (gameState) => {
+                    // console.log("received gameState, left player: ", gameState.players[0].y, ", right player: ", gameState.players[1].y)
+                    if (playerIndex === 1)
                     playerLeft.pos.y = gameState.players[0].y;
-                if (playerIndex === 0)
-                    playerRight.pos.y = gameState.players[1].y;
-                ball.pos.x = gameState.ball.pos.x;
-                ball.pos.y = gameState.ball.pos.y;
-                playerLeft.points = gameState.players[0].points
-                playerRight.points = gameState.players[1].points
-            });
-            socket.on('game-over', outcome => {
-                console.log("received 'game-over' event, won: ", outcome.won, ", reason: ", outcome.reason)
-                if (outcome.won)
+                    if (playerIndex === 0)
+                        playerRight.pos.y = gameState.players[1].y;
+                        ball.pos.x = gameState.ball.pos.x;
+                    ball.pos.y = gameState.ball.pos.y;
+                    playerLeft.points = gameState.players[0].points
+                    playerRight.points = gameState.players[1].points
+                });
+                socket.on('game-over', outcome => {
+                    console.log("received 'game-over' event, won: ", outcome.won, ", reason: ", outcome.reason)
+                    if (outcome.won)
                     setsessionState("VICTORY")
-                else
+                    else
                     setsessionState("DEFEAT")
-            })
+                })
+            }
         };
 
         function drawGame() {
@@ -120,9 +122,9 @@ export default function PongGame() {
             ball.draw();
  
             if (playerIndex === 0)
-                playerLeft.move(p5.UP_ARROW, p5.DOWN_ARROW);
+            playerLeft.move(p5.UP_ARROW, p5.DOWN_ARROW);
             else
-                playerRight.move(p5.UP_ARROW, p5.DOWN_ARROW);
+            playerRight.move(p5.UP_ARROW, p5.DOWN_ARROW);
 
             p5.textSize(32);
             p5.fill('black')

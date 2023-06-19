@@ -3,7 +3,7 @@
 // import Title from './components/Title/Title'
 import ChatBox from './components/ChatBox/ChatBox'
 import MainPage from './components/MainPage/MainPage'
-import Pong from './components/Pong/Pong'
+import PongGame from './components/Pong/PongGame'
 import Profil from './components/Profil/Profil'
 import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-dom'
 import Login from './components/Login'
@@ -13,7 +13,7 @@ import './App.scss'
 
 function App() {
 	const [authChecked, setAuthChecked] = useState(false)
-	console.log(AppContext)
+
 	return (
 		<div className="App">
 			<AppContext.Provider value={authChecked}>
@@ -21,7 +21,7 @@ function App() {
 					{authChecked ? (
 						<MainPage>
 							<Routes>
-								<Route path="/pong" element={<Pong />} />
+								<Route path="/pong" element={<PongGame />} />
 								<Route path="/profil" element={<Profil />} />
 								<Route path="/chat" element={<ChatBox />} />
 							</Routes>
@@ -33,6 +33,5 @@ function App() {
 		</div>
 	)
 }
-
 
 export default App

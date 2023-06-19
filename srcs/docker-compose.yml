@@ -24,6 +24,7 @@ services:
     depends_on:
       - database
     ports:
+      - "9090:9090"
       - "8080:8080"
     networks:
       - ft_transcendence
