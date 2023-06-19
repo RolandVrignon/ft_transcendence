@@ -10,6 +10,8 @@
 	box-sizing: border-box;
 	height: 100%;
 	width: 100%;
+
+	overflow: auto;
 }
 
 // Define text style
@@ -24,7 +26,7 @@
 	.color2 {
 		color: black;
 	}
-	white-space: nowrap;
+	// white-space: nowrap;
 
 	// Adjust font size based on screen size
 	/*

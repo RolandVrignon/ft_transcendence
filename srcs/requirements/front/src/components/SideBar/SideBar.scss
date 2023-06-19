@@ -3,7 +3,8 @@
 .side-frame {
 	// Dimensions of the frame
 	height: 100%;
-	width: 300px;
+	width: 350px;
+	min-width: 350px;
 	// Position of the frame
 	// Position of the content
 	display: flex;
