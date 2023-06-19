@@ -29,7 +29,7 @@ function SolidFrame({
 				<p className='color1' onClick={onClick} >
 					{txt1}
 				</p>
-				<p className='color2' >
+				<p className='color2' onClick={onClick} >
 					{link ? (
 							<NavLink to={link}>{txt2}</NavLink>
 						) : (

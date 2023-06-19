@@ -5,7 +5,7 @@ import "./Title.scss"
 type TitleProps = {
 	frameClass?: string;
 	txtClass?: string;
-	txt1: string;
+	txt1?: string;
 	txt2?: string;
 };
 

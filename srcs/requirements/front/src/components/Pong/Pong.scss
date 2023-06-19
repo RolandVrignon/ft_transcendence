@@ -1,14 +1,17 @@
 
+$arena-height: 75%;
+
 .pong-frame {
 	height: 100%;
 }
 
 .arena-frame {
-	height: 100%;
+	height: $arena-height;
 	border-width: 1px;
 }
 
 .score-frame {
+	height: calc(100% - #{$arena-height});
 	border-width: 1px;
-	border-color: blue;
+	border-color: black;
 }

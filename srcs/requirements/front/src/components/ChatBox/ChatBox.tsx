@@ -21,9 +21,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 			<SolidFrame frameClass="write-pad" />
 			<SolidFrame
 				frameClass="send-frame"
-				onClick={() => console.log(2)}
+				onClick={() => console.log("send button was click")}
 				txtClass="text-send"
-				txt1="send"
+				txt2="send"
 			/>
 		</SolidFrame>
 	</SolidFrame>

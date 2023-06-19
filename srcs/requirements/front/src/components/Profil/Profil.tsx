@@ -32,7 +32,7 @@ const Profil: React.FC<ProfilProps> = ({
 			<Title
 				frameClass="profil-title-frame"
 				txtClass="text-profil-title"
-				txt1="Stats"
+				txt2="Stats"
 			/>
 			<SolidFrame
 				frameClass="history-frame"
@@ -47,7 +47,7 @@ const Profil: React.FC<ProfilProps> = ({
 			<Title
 				frameClass="profil-title-frame"
 				txtClass="text-profil-title"
-				txt1="Match history" 
+				txt2="Match history" 
 			/>
 			<SolidFrame
 				frameClass="history-frame"
