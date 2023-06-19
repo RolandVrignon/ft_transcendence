@@ -20,7 +20,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 		</SolidFrame>
 		<SolidFrame frameClass="write-frame" >
 			<SolidFrame frameClass="write-pad" />
+			<SolidFrame
+				frameClass="send-frame"
+				txtClass="text-send"
+				txt1="send"
+			/>
+			{/*
 			< img src={SendButton} />
+			*/}
 		</SolidFrame>
 	</SolidFrame>
 	);
