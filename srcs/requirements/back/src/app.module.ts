@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaService } from './prisma.service';
-import { AuthController } from './controllers/login/auth.controller';
+import { ConnectController } from './controllers/login/auth.controller';
+import { MessagesModule } from './messages/messages.module';
+import { PongGateway } from './pong-gateway/pong-gateway.gateway';
+
 
 @Module({
-  imports: [],
-  controllers: [AppController, AuthController],
-  providers: [AppService, PrismaService],
+  imports: [MessagesModule],
+  controllers: [AppController, ConnectController],
+  providers: [AppService, PongGateway]
 })
+
 export class AppModule {}

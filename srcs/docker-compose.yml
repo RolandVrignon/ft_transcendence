@@ -1,54 +1,49 @@
 version: '3.9'
 
-networks:
-  ft_transcendence:
-    driver: bridge
-
 services:
+
   frontend:
-    build: requirements/front
+    hostname: front
+    depends_on:
+      - backend
     container_name: front
+    env_file:
+      - .env
+    build: requirements/front
     ports:
       - "3000:3000"
     networks:
       - ft_transcendence
-    hostname: frontend
 
   backend:
-    build: requirements/back
+    hostname: back
     container_name: back
+    env_file:
+      - .env
+    build: requirements/back
+    depends_on:
+      - database
     ports:
+      - "9090:9090"
       - "8080:8080"
     networks:
       - ft_transcendence
-    depends_on:
-      - database
-    hostname: back
-    command: >
-      /bin/bash -c "
-      while ! nc -z database 5432;
-      do
-        echo 'Waiting for the PostgreSQL Server'
-        sleep 1
-      done;
-      echo 'PostgreSQL Server is up - executing command';
-      npx prisma migrate deploy && npm run start
-      "
-    environment:
-      - DATABASE_URL=postgres://postgres:test@database:5432/nest
 
   database:
+    hostname: database
     image: postgres:13
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=test
-      - POSTGRES_DB=nest
+    env_file:
+      - .env
     networks:
       - ft_transcendence
-    volumes: 
+    volumes:
       - dbdata:/var/lib/postgresql/data
 
 volumes:
   dbdata:
+
+networks:
+  ft_transcendence:
+    driver: bridge

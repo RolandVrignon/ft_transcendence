@@ -1,28 +1,27 @@
-# Utiliser une image Node.js LTS (Long Term Support) comme base
-FROM node:14
+FROM debian:buster
 
-# Définir le répertoire de travail
+RUN apt update
+RUN apt upgrade -y
+RUN apt install npm curl netcat postgresql-client -y
+
+# COPY ./https/key.key /etc/ssl/private/
+# COPY ./https/certificate.cert /etc/ssl/certs/
+# RUN openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -keyout /etc/ssl/private/key.pem -out /etc/ssl/certs/cert.pem -days 365
+
 WORKDIR /app
-
-# Copier les fichiers package.json et package-lock.json
 COPY package*.json ./
-
-# Installer les dépendances
-RUN npm ci
-
-
-# Install netcat for our wait-for-it script
-RUN apt-get update && apt-get install -y netcat
-
-# Copier le reste des fichiers du projet
 COPY . .
 
-# Compiler l'application
-RUN npm install webpack --save-dev; \
-		npm run build
+RUN npm install -g n
+RUN n 14
+RUN npm install
 
-# Exposer le port sur lequel l'application sera accessible
+RUN	npm install webpack --save-dev \
+	&& npm install prisma --save-dev
+
+RUN npm run build
+RUN chmod 777 ./init_psql.sh
+
 EXPOSE 8080
 
-# Démarrer l'application
-CMD ["npm", "run", "start"]
+CMD ["sh", "./init_psql.sh"]
