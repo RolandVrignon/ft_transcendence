@@ -2,7 +2,6 @@ import React from "react";
 import SolidFrame from '../SolidFrame/SolidFrame'
 import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
-import SendButton from './Chat_SendButton.png'
 
 type ChatBoxProps = {
 	children?: React.ReactNode;	
