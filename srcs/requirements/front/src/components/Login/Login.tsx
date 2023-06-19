@@ -14,12 +14,13 @@ const Login: React.FC<LoginProps> = ({
 		<SolidFrame
 			frameClass="logo-frame"
 			txtClass="text-logo"
-			txt1="Simple Pong"
+			txt2="Simple Pong"
 		/>
 		<SolidFrame
 			frameClass="access-frame"
 			txtClass="text-access"
-			txt1="Get access"
+			// onClick={ () => function to log in }
+			txt2="Get access"
 		/>
 	</SolidFrame>
 	);
