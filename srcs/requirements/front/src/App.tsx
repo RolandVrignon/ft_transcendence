@@ -16,7 +16,7 @@ function App() {
 		let title = "Chat";
 		let subtitle= "Some chat chanel !"
 		const [authChecked, setAuthChecked] = useState(false)
-		let logged = 0;
+		let logged = 1;
 	return (
 		<div className="App">
 		{ logged ? (
