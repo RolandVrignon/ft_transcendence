@@ -6,12 +6,15 @@ $margin: 10px;
 	height: 100vh;
 	margin: 0px;
 	flex-direction: row;
+	justify-content: left;
 }
 
 // Side bar
 .side-frame{
+	border-width: 1px;
 	height: calc(100% - 2 * #{$margin});
 	min-height: 600px;
+	min-width: 300px;
 	margin: #{$margin};
 }
 
