@@ -132,6 +132,7 @@ const ChatBox: React.FC = ({
 					e.preventDefault();
 					join();
 				}}>
+					<SolidFrame frameClass="setting-frame" >
 						<label
 							className="text-content"
 						>
@@ -160,11 +161,13 @@ const ChatBox: React.FC = ({
 						>
 							Join room
 						</button>
+					</SolidFrame>
 				</form>
 				<form onSubmit={(e) => {
 					e.preventDefault();
 					createChannel();
 				}}>
+					<SolidFrame frameClass="setting-frame" >
 					<label
 						className="text-content"
 					>
@@ -176,13 +179,17 @@ const ChatBox: React.FC = ({
 					>
 						Create a channel (pass) :
 					</label>
-					<input value={createChatPassword} onChange={(e) => setCreateChatPassword(e.target.value)} type="password" />
+					<input
+						value={createChatPassword} 
+						onChange={(e) => setCreateChatPassword(e.target.value)}
+						type="password" />
 					<button
-						className="solid-frame button-frame text-content"
+						className="text-content"
 						type="submit"
 					>
 						Create room
 					</button>
+					</SolidFrame>
 				</form>
 			</SolidFrame>
 		);
