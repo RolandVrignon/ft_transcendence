@@ -11,9 +11,9 @@ export default function PongGame() {
     // Connect to the socket server on component mount
     useEffect(() => {
         console.log("UseEffect")
-        if (!socketRef.current) {
-            socketRef.current = io('http://localhost:9090');;
-            console.log(newSocket)
+        if (!socketRef.current || !socketRef.current.connected) {
+            socketRef.current = io('http://localhost:9090');
+            // console.log(newSocket)
             socketRef.current.on('connect', () => setsessionState('connected'));
             socketRef.current.on('in-queue', () => setsessionState('in-queue'));
             socketRef.current.on('start-game', (playerIndex) => {
@@ -26,7 +26,10 @@ export default function PongGame() {
             console.log("Created new socketRef.current")
         }
         return () => {
-            // console.log("closing connection")
+            if (socketRef.current) { 
+                console.log("Closing socket")
+                socketRef.current.disconnect()
+            }
         }
     }, []);
 
