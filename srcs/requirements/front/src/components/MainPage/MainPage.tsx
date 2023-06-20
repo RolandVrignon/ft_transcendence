@@ -5,7 +5,6 @@ import SideBar from "../SideBar/SideBar";
 import Title from '../Title/Title';
 import './MainPage.scss';
 
-import MsgBox from '../MsgBox/MsgBox';
 import ChatBox from '../ChatBox/ChatBox';
 import Pong from '../Pong/Pong';
 import Profil from '../Profil/Profil';
@@ -15,15 +14,15 @@ const Content: React.FC = () => {
   const location = useLocation();
 
   const getTitle = () => {
-    switch(location.pathname) {
-      case '/Profil':
-        return 'Profile';
-      case '/Pong':
-        return 'Pong';
-      case '/Chat':
-        return 'Chat';
-      default:
-        return 'Main';
+	switch(location.pathname) {
+		case '/Profil':
+			return 'Profile';
+		case '/Pong':
+			return 'Pong';
+		case '/Chat':
+			return 'Chat';
+		default:
+			return 'Chat';
     }
   }
 
@@ -36,8 +35,8 @@ const Content: React.FC = () => {
       />
       <SolidFrame frameClass="content-frame">
         <Routes>
-					{/* Set a default page */}
-          <Route path="/Chat" element={<ChatBox />} />
+					{/* Set a default route */}
+          <Route path="*" element={<ChatBox />} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil />} />
           <Route path="/Pong" element={<Pong />} />
