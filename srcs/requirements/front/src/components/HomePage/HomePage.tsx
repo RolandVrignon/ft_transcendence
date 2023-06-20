@@ -9,23 +9,12 @@ import GetAccess from '../GetAccess/GetAccess';
 import Login from '../Login/Login';
 
 type HomePageProps = {
-	authState?: boolean;
-	setAuthChecked?: Dispatch<SetStateAction<boolean>>;
 	children?: React.ReactNode;
 };
 
-const GetLogged: React.FC<Dispatch<SetStateAction<boolean>>> = () => {
-  const location = useLocation();
-
-  const getTitle = () => {
-		switch(location.pathname) {
-			case '/Login':
-				return 'Login';
-			default:
-				{/* Set a default page */}
-				return 'GetAccess';
-		}
-	}
+const HomePage: React.FC<HomePageProps> = ({
+	//children,
+	}) => {
 
 	return (
 		<SolidFrame frameClass="login-frame"	>
@@ -45,20 +34,6 @@ const GetLogged: React.FC<Dispatch<SetStateAction<boolean>>> = () => {
 				txt2="Get Access"
 			/>
 		</SolidFrame>
-	)
-}
-
-
-const HomePage: React.FC<HomePageProps> = ({
-	authState,
-	setAuthChecked,
-	//children,
-	}) => {
-
-	return (
-		<AppContext.Consumer value={{authState, setAuthChecked}} >
-			<GetLogged authState={setAuthChecked} />
-		</AppContext.Consumer>
 	);
 };
 
