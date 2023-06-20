@@ -128,68 +128,79 @@ const ChatBox: React.FC = ({
 	if (!joined) {
 		return (
 			<SolidFrame frameClass="chat-box" >
-				<form onSubmit={(e) => {
+				<form 
+					className="solid-frame user-frame"
+					onSubmit={(e) => {
 					e.preventDefault();
 					join();
 				}}>
-					<SolidFrame frameClass="setting-frame" >
 						<label
-							className="text-content"
+							className="solid-frame label-frame text-content text-label"
 						>
 							What's your name?
 						</label>
 						<input
+							className="solid-frame input-frame text-content text-input"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 						/>
-						<label className="text-content" >
+						<label
+							className="solid-frame label-frame text-content text-label"
+						>
 							Chat name:
 						</label>
-						<input value={chatName} onChange={(e) => setChatName(e.target.value)} />
+						<input
+							className="solid-frame input-frame text-content text-input"
+							value={chatName}
+							onChange={(e) => setChatName(e.target.value)} />
 						<label
-							className="text-content"
+							className="solid-frame label-frame text-content text-label"
 						>
 							Chat password:
 						</label>
 						<input
+							className="solid-frame input-frame text-content text-input"
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 							type="password" />
 						<button
-							className="text-content"
+							className="solid-frame button-frame text-content text-button"
 							type="submit"
 						>
 							Join room
 						</button>
-					</SolidFrame>
 				</form>
-				<form onSubmit={(e) => {
+				<form
+					className="solid-frame chan-frame"
+					onSubmit={(e) => {
 					e.preventDefault();
 					createChannel();
 				}}>
-					<SolidFrame frameClass="setting-frame" >
 					<label
-						className="text-content"
+						className="solid-frame label-frame text-content text-label"
 					>
 						Create a channel (name) :
 					</label>
-					<input value={createChatName} onChange={(e) => setCreateChatName(e.target.value)} />
+					<input
+						className="solid-frame input-frame text-content text-input"
+						value={createChatName}
+						onChange={(e) => setCreateChatName(e.target.value)} />
 					<label
-						className="text-content"
+						className="solid-frame label-frame text-content text-label"
 					>
 						Create a channel (pass) :
 					</label>
 					<input
+						className="solid-frame input-frame text-content text-input"
 						value={createChatPassword} 
 						onChange={(e) => setCreateChatPassword(e.target.value)}
 						type="password" />
 					<button
-						className="text-content"
+						className="solid-frame button-frame text-content text-button"
 						type="submit"
 					>
 						Create room
 					</button>
-					</SolidFrame>
 				</form>
 			</SolidFrame>
 		);

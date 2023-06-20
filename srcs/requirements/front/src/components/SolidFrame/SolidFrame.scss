@@ -1,9 +1,11 @@
+$back: black;
+$front: white;
 
 .solid-frame {
-	background-color: white;
+	background-color: $back;
 
 	border-style: solid;
-	border-color: black;
+	border-color: $front;
 	border-radius: 0px;
 	border-width: 0px;
 
@@ -30,11 +32,12 @@
 	-ms-user-select: none;
 	user-select: none;
 
+	color: $front;
 	.color1 {
 		color: grey;
 	}
 	.color2 {
-		color: black;
+		color: $front;
 	}
 	// white-space: nowrap;
 
