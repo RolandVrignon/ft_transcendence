@@ -59,7 +59,7 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 
   async function attemptConnect() {
     try {
-      const logURL = 'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a672fd80ce2f029d5ff47b1c3f7f409fbe73cafcedb7f3b4cf7e8efc39f22a00&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&response_type=code'
+      const logURL = 'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a672fd80ce2f029d5ff47b1c3f7f409fbe73cafcedb7f3b4cf7e8efc39f22a00&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2FLogin&response_type=code'
       window.location.href = logURL
       setAttemptLogin(true)
     }
