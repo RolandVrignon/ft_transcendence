@@ -19,7 +19,7 @@ import HomePage from './components/HomePage/HomePage';
 
 function App() {
 
-	const [authChecked, setAuthChecked] = useState(false)
+	const [authChecked, setAuthChecked] = useState(true)
 
 	return (
 		<div className="App">

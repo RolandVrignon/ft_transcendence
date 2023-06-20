@@ -9,6 +9,11 @@ $arena-height: 75%;
 	border-width: 1px;
 }
 
+.PongGame {
+	border-color: red; 
+	overflow: hidden;
+}
+
 .score-frame {
 	height: calc(100% - #{$arena-height});
 	border-width: 1px;

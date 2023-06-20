@@ -1,4 +1,4 @@
-import React, { useEffect, useState , useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ReactP5Wrapper } from "@p5-wrapper/react";
 import io from 'socket.io-client'; // Import the socket.io client
 
@@ -7,13 +7,13 @@ export default function PongGame() {
     const [ sessionState, setsessionState ] = useState(undefined)
     const socketRef = useRef(null)
     const [playerIndex, setPlayerIndex] = useState(null); // Store the player index, 0 = left, 1 = right
+    const parentRef = useRef();
 
     // Connect to the socket server on component mount
     useEffect(() => {
         console.log("UseEffect")
-        if (!socketRef.current || !socketRef.current.connected) {
-            socketRef.current = io('http://localhost:9090');
-            // console.log(newSocket)
+        if (!socketRef.current) {
+            socketRef.current = io('http://localhost:9090');;
             socketRef.current.on('connect', () => setsessionState('connected'));
             socketRef.current.on('in-queue', () => setsessionState('in-queue'));
             socketRef.current.on('start-game', (playerIndex) => {
@@ -26,20 +26,22 @@ export default function PongGame() {
             console.log("Created new socketRef.current")
         }
         return () => {
-            if (socketRef.current) { 
-                console.log("Closing socket")
-                socketRef.current.disconnect()
-            }
+            // console.log("closing connection")
         }
     }, []);
 
     const sketch = p5 => {
-        const canvasWidth = 800;
-        const canvasHeight = 600;
-        const playerWidth = 30;
-        const playerOffset = 10;
-        const playerHeight = 100;
-        const ballRadius = 15;
+        let canvasWidth;
+        let canvasHeight;
+        const playerWidthRatio = 0.0375; // proportion of canvas width
+        const playerOffsetRatio = 0.0125; // proportion of canvas width
+        const playerHeightRatio = 0.166666; // proportion of canvas height
+        const ballRadiusRatio = 0.025; // proportion of canvas width
+
+        let playerWidth;
+        let playerOffset;
+        let playerHeight;
+        let ballRadius;
 
         let playerLeft;
         let playerRight;
@@ -92,18 +94,26 @@ export default function PongGame() {
         p5.setup = () => {
             if (socketRef.current) {
                 // Your setup code here.
+                canvasWidth = Math.min(Math.min(parentRef.current.offsetWidth, parentRef.current.offsetWidth), 500);
+                canvasHeight = canvasWidth;
                 p5.createCanvas(canvasWidth, canvasHeight);
+
+                playerWidth = playerWidthRatio * canvasWidth;
+                playerOffset = playerOffsetRatio * canvasWidth;
+                playerHeight = playerHeightRatio * canvasHeight;
+                ballRadius = ballRadiusRatio * canvasWidth;
+
                 playerLeft = new Player(playerOffset + playerWidth);
                 playerRight = new Player(canvasWidth - playerOffset - playerWidth);
                 ball = new Ball();
+
                 console.log('setup called, socketRef.current: ', socketRef.current)
                 socketRef.current.on('update-game', (gameState) => {
-                    // console.log("received gameState, left player: ", gameState.players[0].y, ", right player: ", gameState.players[1].y)
                     if (playerIndex === 1)
                     playerLeft.pos.y = gameState.players[0].y;
                     if (playerIndex === 0)
                         playerRight.pos.y = gameState.players[1].y;
-                        ball.pos.x = gameState.ball.pos.x;
+                    ball.pos.x = gameState.ball.pos.x;
                     ball.pos.y = gameState.ball.pos.y;
                     playerLeft.points = gameState.players[0].points
                     playerRight.points = gameState.players[1].points
@@ -111,10 +121,27 @@ export default function PongGame() {
                 socketRef.current.on('game-over', outcome => {
                     console.log("received 'game-over' event, won: ", outcome.won, ", reason: ", outcome.reason)
                     if (outcome.won)
-                    setsessionState("VICTORY")
+                        setsessionState("VICTORY")
                     else
-                    setsessionState("DEFEAT")
+                        setsessionState("DEFEAT")
                 })
+            }
+        };
+
+        p5.windowResized = () => {
+            canvasWidth = Math.min(Math.min(parentRef.current.offsetWidth, parentRef.current.offsetWidth), 500);
+            canvasHeight = canvasWidth;
+            p5.resizeCanvas(canvasWidth, canvasHeight);
+
+            playerWidth = playerWidthRatio * canvasWidth;
+            playerOffset = playerOffsetRatio * canvasWidth;
+            playerHeight = playerHeightRatio * canvasHeight;
+            ballRadius = ballRadiusRatio * canvasWidth;
+
+            if (playerLeft && playerRight && ball) {
+                playerLeft = new Player(playerOffset + playerWidth);
+                playerRight = new Player(canvasWidth - playerOffset - playerWidth);
+                ball = new Ball();
             }
         };
 
@@ -153,6 +180,8 @@ export default function PongGame() {
     };
  
     return (
-        <ReactP5Wrapper sketch={sketch} />
+        <div ref={parentRef} style={{width: '100%', height: '100%'}}>
+            <ReactP5Wrapper sketch={sketch} />
+        </div>
     );
 }
