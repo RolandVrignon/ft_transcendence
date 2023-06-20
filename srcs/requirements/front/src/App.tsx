@@ -19,15 +19,15 @@ import HomePage from './components/HomePage/HomePage';
 
 function App() {
 
-	const [authChecked, setAuthChecked] = useState(true)
+	const [authChecked, setAuthChecked] = useState(false)
 
 	return (
 		<div className="App">
-			<AppContext.Provider value={authChecked} >
-				{ authChecked ? (
-					<MainPage />
-						) : 
-					<HomePage authState={setAuthChecked} />
+			<AppContext.Provider value={([ authChecked, setAuthChecked ])} >
+				{ authChecked ?
+					( <MainPage /> )
+						: 
+					(	<HomePage /> )
 				}
 	 		</ AppContext.Provider>
 		</div>
