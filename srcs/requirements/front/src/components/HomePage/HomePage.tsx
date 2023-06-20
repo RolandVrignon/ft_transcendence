@@ -1,4 +1,5 @@
 import React, { Dispatch, SetStateAction } from "react";
+//import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import SolidFrame from "../SolidFrame/SolidFrame";
 import './HomePage.scss'
 

@@ -11,7 +11,7 @@ import Pong from '../Pong/Pong';
 import Profil from '../Profil/Profil';
 
 // This is the new component that will be rendered within the Router
-const ProfilTitle: React.FC = () => {
+const Content: React.FC = () => {
   const location = useLocation();
 
   const getTitle = () => {
@@ -37,6 +37,7 @@ const ProfilTitle: React.FC = () => {
       <SolidFrame frameClass="content-frame">
         <Routes>
 					{/* Set a default page */}
+          <Route path="/Chat" element={<ChatBox />} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil />} />
           <Route path="/Pong" element={<Pong />} />
@@ -52,7 +53,7 @@ const MainPage: React.FC = () => {
     <Router>
       <SolidFrame frameClass="window-frame"> 
         <SideBar />
-        <ProfilTitle />
+        <Content />
       </SolidFrame>
     </Router>
   );
