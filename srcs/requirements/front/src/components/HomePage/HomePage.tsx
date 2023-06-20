@@ -1,31 +1,44 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AppContext } from '../Context'
+
 import SolidFrame from "../SolidFrame/SolidFrame";
 import './HomePage.scss'
 
+import GetAccess from '../GetAccess/GetAccess';
+import Login from '../Login/Login';
+
 type HomePageProps = {
-	authState: Dispatch<SetStateAction<boolean>>;
 	children?: React.ReactNode;
 };
 
 const HomePage: React.FC<HomePageProps> = ({
-	authState,
-	children,
+	//children,
 	}) => {
+
 	return (
-	<SolidFrame frameClass="login-frame"	>
-		<SolidFrame
-			frameClass="simple-pong-frame"
-			txtClass="text-logo"
-			txt2="Simple Pong"
-		/>
-		<SolidFrame
-			frameClass="access-frame"
-			txtClass="text-access"
-			// onClick={ () => function to log in }
-			txt2="Get access"
-		/>
-	</SolidFrame>
+		<Router>
+			<SolidFrame frameClass="login-frame"	>
+				<SolidFrame
+					frameClass="simple-pong-frame"
+					txtClass="text-logo"
+					txt2="Simple Pong"
+				/>
+				<AppContext.Consumer>
+					{([ authChecked, setAuthChecked ]) => (
+						<Routes >
+							<Route path="*" element={<GetAccess />} />
+							<Route 
+								path="/Login"
+								element={<Login authState={setAuthChecked} />} 
+							/>
+						</Routes>
+					)}
+				</AppContext.Consumer>
+			</SolidFrame>
+		</Router>
 	);
 };
 
 export default HomePage;
+

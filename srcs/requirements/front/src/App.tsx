@@ -23,11 +23,11 @@ function App() {
 
 	return (
 		<div className="App">
-			<AppContext.Provider value={authChecked} >
-				{ authChecked ? (
-					<MainPage />
-						) : 
-					<HomePage authState={setAuthChecked} />
+			<AppContext.Provider value={([ authChecked, setAuthChecked ])} >
+				{ authChecked ?
+					( <MainPage /> )
+						: 
+					(	<HomePage /> )
 				}
 	 		</ AppContext.Provider>
 		</div>

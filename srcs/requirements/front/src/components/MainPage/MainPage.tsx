@@ -5,25 +5,24 @@ import SideBar from "../SideBar/SideBar";
 import Title from '../Title/Title';
 import './MainPage.scss';
 
-import MsgBox from '../MsgBox/MsgBox';
 import ChatBox from '../ChatBox/ChatBox';
 import Pong from '../Pong/Pong';
 import Profil from '../Profil/Profil';
 
 // This is the new component that will be rendered within the Router
-const ProfilTitle: React.FC = () => {
+const Content: React.FC = () => {
   const location = useLocation();
 
   const getTitle = () => {
-    switch(location.pathname) {
-      case '/Profil':
-        return 'Profile';
-      case '/Pong':
-        return 'Pong';
-      case '/Chat':
-        return 'Chat';
-      default:
-        return 'Main';
+	switch(location.pathname) {
+		case '/Profil':
+			return 'Profile';
+		case '/Pong':
+			return 'Pong';
+		case '/Chat':
+			return 'Chat';
+		default:
+			return 'Chat';
     }
   }
 
@@ -36,6 +35,9 @@ const ProfilTitle: React.FC = () => {
       />
       <SolidFrame frameClass="content-frame">
         <Routes>
+					{/* Set a default route */}
+          <Route path="*" element={<ChatBox />} />
+					{/* Set the routes */}
           <Route path="/Profil" element={<Profil />} />
           <Route path="/Pong" element={<Pong />} />
           <Route path="/Chat" element={<ChatBox />} />
@@ -50,7 +52,7 @@ const MainPage: React.FC = () => {
     <Router>
       <SolidFrame frameClass="window-frame"> 
         <SideBar />
-        <ProfilTitle />
+        <Content />
       </SolidFrame>
     </Router>
   );
