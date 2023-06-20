@@ -36,6 +36,8 @@ const ProfilTitle: React.FC = () => {
       />
       <SolidFrame frameClass="content-frame">
         <Routes>
+					{/* Set a default page */}
+					{/* Set the routes */}
           <Route path="/Profil" element={<Profil />} />
           <Route path="/Pong" element={<Pong />} />
           <Route path="/Chat" element={<ChatBox />} />
