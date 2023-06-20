@@ -127,30 +127,64 @@ const ChatBox: React.FC = ({
 	};	  
 	if (!joined) {
 		return (
-			<div className="chat">
+			<SolidFrame frameClass="chat-box" >
 				<form onSubmit={(e) => {
 					e.preventDefault();
 					join();
 				}}>
-					<label>What's your name?</label>
-					<input value={name} onChange={(e) => setName(e.target.value)} />
-					<label>Chat name:</label>
-					<input value={chatName} onChange={(e) => setChatName(e.target.value)} />
-					<label>Chat password:</label>
-					<input value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-					<button type="submit">join room</button>
+						<label
+							className="text-content"
+						>
+							What's your name?
+						</label>
+						<input
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+						/>
+						<label className="text-content" >
+							Chat name:
+						</label>
+						<input value={chatName} onChange={(e) => setChatName(e.target.value)} />
+						<label
+							className="text-content"
+						>
+							Chat password:
+						</label>
+						<input
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							type="password" />
+						<button
+							className="text-content"
+							type="submit"
+						>
+							Join room
+						</button>
 				</form>
 				<form onSubmit={(e) => {
 					e.preventDefault();
 					createChannel();
 				}}>
-					<label>Create a channel (name) :</label>
+					<label
+						className="text-content"
+					>
+						Create a channel (name) :
+					</label>
 					<input value={createChatName} onChange={(e) => setCreateChatName(e.target.value)} />
-					<label>Create a channel (pass) :</label>
+					<label
+						className="text-content"
+					>
+						Create a channel (pass) :
+					</label>
 					<input value={createChatPassword} onChange={(e) => setCreateChatPassword(e.target.value)} type="password" />
-					<button type="submit">Create room</button>
+					<button
+						className="solid-frame button-frame text-content"
+						type="submit"
+					>
+						Create room
+					</button>
 				</form>
-			</div>
+			</SolidFrame>
 		);
 	}
 

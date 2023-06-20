@@ -1,6 +1,7 @@
 
 .chat-box {
 	height: 100%;
+	background-color: orange;
 }
 
 // ChatBox child style options
@@ -8,6 +9,11 @@
 	height: 75%;
 
 	border-width: 1px;
+}
+
+.button-frame {
+	width: 120px;
+	height: 50px;
 }
 
 .write-frame {
