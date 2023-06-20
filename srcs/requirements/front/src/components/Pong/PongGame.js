@@ -1,30 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useRef} from 'react';
 import { ReactP5Wrapper } from "@p5-wrapper/react";
 import io from 'socket.io-client'; // Import the socket.io client
 
 export default function PongGame() { 
     //possible states: undefined(didn't try anything), in queue, in game, Connection failed, Connection timeout, VICTORY, DEFEAT
     const [ sessionState, setsessionState ] = useState(undefined)
-    const [socket, setSocket] = useState(null); // Store the socket connection
+    const socketRef = useRef(null)
     const [playerIndex, setPlayerIndex] = useState(null); // Store the player index, 0 = left, 1 = right
 
     // Connect to the socket server on component mount
     useEffect(() => {
         console.log("UseEffect")
-        if (!socket) {
-            const newSocket = io.connect('http://localhost:9090'); // Replace with your server address
-            setSocket(newSocket);
+        if (!socketRef.current) {
+            socketRef.current = io('http://localhost:9090');;
             console.log(newSocket)
-            newSocket.on('connect', () => setsessionState('connected'));
-            newSocket.on('in-queue', () => setsessionState('in-queue'));
-            newSocket.on('start-game', (playerIndex) => {
+            socketRef.current.on('connect', () => setsessionState('connected'));
+            socketRef.current.on('in-queue', () => setsessionState('in-queue'));
+            socketRef.current.on('start-game', (playerIndex) => {
                 setsessionState('in-game')
                 setPlayerIndex(playerIndex)
             });
-            newSocket.on('connect_error', () => setsessionState('connection-failed'));
-            newSocket.on('connect_timeout', () => setsessionState('connection-timeout'));
+            socketRef.current.on('connect_error', () => setsessionState('connection-failed'));
+            socketRef.current.on('connect_timeout', () => setsessionState('connection-timeout'));
 
-            console.log("Created new socket")
+            console.log("Created new socketRef.current")
         }
         return () => {
             // console.log("closing connection")
@@ -71,7 +70,7 @@ export default function PongGame() {
                 this.pos.y = Math.max(this.pos.y, playerHeight / 2)
                 this.pos.y = Math.min(this.pos.y, canvasHeight - playerHeight / 2)
                 // console.log(`Emitting "player-move" event, y: ${this.pos.y}`)
-                socket.emit('player-move', { y: this.pos.y });
+                socketRef.current.emit('player-move', { y: this.pos.y });
             }
         }
 
@@ -88,14 +87,14 @@ export default function PongGame() {
         }
 
         p5.setup = () => {
-            if (socket) {
+            if (socketRef.current) {
                 // Your setup code here.
                 p5.createCanvas(canvasWidth, canvasHeight);
                 playerLeft = new Player(playerOffset + playerWidth);
                 playerRight = new Player(canvasWidth - playerOffset - playerWidth);
                 ball = new Ball();
-                console.log('setup called, socket: ', socket)
-                socket.on('update-game', (gameState) => {
+                console.log('setup called, socketRef.current: ', socketRef.current)
+                socketRef.current.on('update-game', (gameState) => {
                     // console.log("received gameState, left player: ", gameState.players[0].y, ", right player: ", gameState.players[1].y)
                     if (playerIndex === 1)
                     playerLeft.pos.y = gameState.players[0].y;
@@ -106,7 +105,7 @@ export default function PongGame() {
                     playerLeft.points = gameState.players[0].points
                     playerRight.points = gameState.players[1].points
                 });
-                socket.on('game-over', outcome => {
+                socketRef.current.on('game-over', outcome => {
                     console.log("received 'game-over' event, won: ", outcome.won, ", reason: ", outcome.reason)
                     if (outcome.won)
                     setsessionState("VICTORY")
