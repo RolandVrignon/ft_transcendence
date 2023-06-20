@@ -1,5 +1,7 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { AppContext } from '../Context'
+
 import SolidFrame from "../SolidFrame/SolidFrame";
 import './HomePage.scss'
 
@@ -7,11 +9,12 @@ import GetAccess from '../GetAccess/GetAccess';
 import Login from '../Login/Login';
 
 type HomePageProps = {
-	authState?: Dispatch<SetStateAction<boolean>>;
+	authState?: boolean;
+	setAuthChecked?: Dispatch<SetStateAction<boolean>>;
 	children?: React.ReactNode;
 };
 
-const GetLogged: React.FC = () => {
+const GetLogged: React.FC<Dispatch<SetStateAction<boolean>>> = () => {
   const location = useLocation();
 
   const getTitle = () => {
@@ -48,23 +51,14 @@ const GetLogged: React.FC = () => {
 
 const HomePage: React.FC<HomePageProps> = ({
 	authState,
-	children,
+	setAuthChecked,
+	//children,
 	}) => {
 
 	return (
-		<SolidFrame frameClass="login-frame"	>
-			<SolidFrame
-				frameClass="simple-pong-frame"
-				txtClass="text-logo"
-				txt2="Simple Pong"
-			/>
-			<SolidFrame
-				frameClass="access-frame"
-				txtClass="text-access"
-				// onClick={ () => function to log in }
-				txt2="Get Access"
-			/>
-		</SolidFrame>
+		<AppContext.Consumer value={{authState, setAuthChecked}} >
+			<GetLogged authState={setAuthChecked} />
+		</AppContext.Consumer>
 	);
 };
 
