@@ -13,12 +13,12 @@ const Pong: React.FC<PongProps> = ({
 	return (
 	<SolidFrame frameClass="pong-frame"	>
 		<SolidFrame frameClass="arena-frame" >
-			{children}
+		 <PongGame />
 		</SolidFrame>
 		<SolidFrame
 			frameClass="score-frame"
 		>
-			 <PongGame />
+			{children}
 		</SolidFrame>
 	</SolidFrame>
 	);

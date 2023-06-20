@@ -13,25 +13,22 @@ import MsgBox from './components/MsgBox/MsgBox';
 import ChatBox from './components/ChatBox/ChatBox';
 import Pong from './components/Pong/Pong'
 import Profil from './components/Profil/Profil';
-import Login from './components/Login/Login';
+import HomePage from './components/HomePage/HomePage';
 
-import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-dom'
+//import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-dom'
 
 function App() {
 
-	let title = "Chat";
-	let subtitle= "Some chat chanel !"
 	const [authChecked, setAuthChecked] = useState(false)
-	let logged = 1;
 
 	return (
 		<div className="App">
-			<AppContext.Provider value={authChecked}>
-			{ logged ? (
-				<MainPage />
-					) : 
-				<Login />
-			}
+			<AppContext.Provider value={authChecked} >
+				{ authChecked ? (
+					<MainPage />
+						) : 
+					<HomePage authState={setAuthChecked} />
+				}
 	 		</ AppContext.Provider>
 		</div>
 	);
