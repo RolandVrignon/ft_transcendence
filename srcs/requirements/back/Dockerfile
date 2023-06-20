@@ -2,7 +2,7 @@ FROM debian:buster
 
 RUN apt update
 RUN apt upgrade -y
-RUN apt install npm curl netcat postgresql-client -y
+RUN apt install npm curl netcat postgresql-client procps -y
 
 # COPY ./https/key.key /etc/ssl/private/
 # COPY ./https/certificate.cert /etc/ssl/certs/
@@ -24,4 +24,5 @@ RUN chmod 777 ./init_psql.sh
 
 EXPOSE 8080
 
-CMD ["sh", "./init_psql.sh"]
+# CMD ["sh", "./init_psql.sh"]
+ENTRYPOINT [ "./init_psql.sh" ]
