@@ -17,19 +17,20 @@ export type GlobalContent = {
   connected: boolean
 }
 
-export const AppContext = createContext<GlobalContent>({
-    user: {
-        id: -1,
-        email: '',
-        login: '',
-        firstName: '',
-        imageLink: '',
-        username: '',
-        doubleAuth: ''
-    },
-    connected: false
-})
+// export const AppContext = createContext<GlobalContent>({
+//     user: {
+//         id: -1,
+//         email: '',
+//         login: '',
+//         firstName: '',
+//         imageLink: '',
+//         username: '',
+//         doubleAuth: ''
+//     },
+//     connected: false
+// })
 
+export  const AppContext = React.createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>]>([false, () => {}])
 // export const context = useContext(AppContext)
 
 // export  const AppContext = React.createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>]>([false, () => {}]);
