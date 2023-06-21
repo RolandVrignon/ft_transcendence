@@ -56,22 +56,19 @@
 .messages-container {
 	flex-grow: 1;
 	border-width: 1px;
-	border-color: red;
 }
 
 .write-frame {
 	height: 50%;
-	border-color: red;
-	border-width: 1px;
 
 	.label-frame {
 		height: 50px;
-		border-color: blue;
 	}
 	.text-label {
 	}
 
 	.input-frame {
+		border-width: 1px;
 		flex-grow: 1;
 		border-width: 1px;
 		justify-content: start;
@@ -84,7 +81,6 @@
 	.button-frame {
 		height: 50px;
 		align-items: center;
-		border-width: 1px;
 	}
 	.text-button {
 		font-size: 20px;
