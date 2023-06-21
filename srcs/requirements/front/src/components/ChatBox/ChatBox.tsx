@@ -1,34 +1,9 @@
 import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
 import React, { useState, useEffect, useRef } from 'react'
-// import SendButton from './Chat_SendButton.png'
 import { io } from 'socket.io-client'
 import SolidFrame from '../SolidFrame/SolidFrame'
 import './ChatBox.scss'
-
-// type ChatBoxProps = {
-// 	joined: boolean;
-// 	name: string;
-// 	setName: (name: string) => void;
-// 	chatName: string;
-// 	setChatName: (chatName: string) => void;
-// 	password: string;
-// 	setPassword: (password: string) => void;
-// 	join: () => void;
-// 	createChatName: string;
-// 	setCreateChatName: (chatName: string) => void;
-// 	createChatPassword: string;
-// 	setCreateChatPassword: (password: string) => void;
-// 	createChannel: () => void;
-// 	messages: any[];
-// 	typingDisplay: string;
-// 	messagesContainerRef: React.RefObject<any>;
-// 	messageText: string;
-// 	setMessageText: (text: string) => void;
-// 	sendMessage: () => void;
-// 	emitTyping: () => void;
-// 	children?: React.ReactNode;
-// };
 
 const ChatBox: React.FC = ({
   }) => {
@@ -256,31 +231,3 @@ const ChatBox: React.FC = ({
 )}
 
 export default ChatBox;
-
-// type ChatBoxProps = {
-// 	children?: React.ReactNode;	
-// };
-
-// const ChatBox: React.FC<ChatBoxProps> = ({
-// 	children,
-// 	}) => {
-// 	return (
-// 	<SolidFrame 
-// 		frameClass="chat-box"
-// 	>
-// 		<SolidFrame frameClass="chat-frame"	>
-// 			{children} 
-// 		</SolidFrame>
-// 		<SolidFrame frameClass="write-frame" >
-// 			<SolidFrame frameClass="write-pad" />
-// 			<SolidFrame
-// 				frameClass="send-frame"
-// 				onClick={() => console.log("send button was click")}
-// 				txtClass="text-send"
-// 				txt2="send"
-// 			/>
-// 		</SolidFrame>
-// 	</SolidFrame>
-// 	);
-// };
-
