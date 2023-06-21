@@ -101,7 +101,6 @@ const Login: React.FC<LoginProps> = (authState) => {
     const handle2FAURL = 'http://localhost:8080/callback/secure'
 		// protect undefined value in back, 
 		// like email /app/src/controllers/login/auth.controller.ts:45
-		console.log(userApiData)
     axios
 		.post(handle2FAURL, {
       data : {

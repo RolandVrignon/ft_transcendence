@@ -48,14 +48,14 @@ export class ConnectController {
 				// }
 				// sendGrid.send(mail)
 			const secureTkn = totp.generate()
-			console.log('This is secure token: ', secureTkn)
+			console.log('App-back: This is secure token: ', secureTkn)
+			// console.log(req.body)
 			const token = await prisma.token2FA.create({
 				data: {
-					id: req.body.info.id,
+					id: req.body.data.info.id,
 					value: secureTkn
 				}
 			})
-			console.log(token)
 			res.status(200).json()
 		}
 		catch (err)	{
@@ -63,6 +63,7 @@ export class ConnectController {
 		}
 	}
 	@Post('verify-secure')	async verifyDoubleAuthToken(@Res() res: Response, @Req() req: Request)	{
+		console.log('App-back: this is the request body in verifyDoubleAuthToken: ', req.body)
 		const	verif = await prisma.token2FA.findUnique({
 			where: {
 				id: req.body.id
@@ -72,7 +73,7 @@ export class ConnectController {
 			res.status(201).json('approved')
 			await prisma.token2FA.delete({
 				where: {
-				id: req.body.id
+					id: req.body.id
 				}
 			})
 		}
