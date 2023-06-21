@@ -31,17 +31,27 @@ export default function PongGame() {
     }, []);
 
     const sketch = p5 => {
-        let canvasWidth;
-        let canvasHeight;
         const playerWidthRatio = 0.0375; // proportion of canvas width
         const playerOffsetRatio = 0.0125; // proportion of canvas width
         const playerHeightRatio = 0.166666; // proportion of canvas height
         const ballRadiusRatio = 0.025; // proportion of canvas width
+        const timeForPlayerToCrossCanvas = 0.6
+        function getSideLength() {
+            return Math.min(parentRef.current.offsetHeight, parentRef.current.offsetWidth)
+        }
+        function getPlayerWidth() {
+            return playerWidthRatio * getSideLength();
+        }
+        function getPlayerOffset() {
+            return playerOffsetRatio * getSideLength();
+        }
+        function getPlayerHeight() {
+            return playerHeightRatio * getSideLength();
+        }
+        function getBallRadius() {
+            return ballRadiusRatio * getSideLength();
+        }
 
-        let playerWidth;
-        let playerOffset;
-        let playerHeight;
-        let ballRadius;
 
         let playerLeft;
         let playerRight;
@@ -50,15 +60,14 @@ export default function PongGame() {
         class Player{
             constructor(x)
             {
-                this.pos = p5.createVector(x, canvasHeight / 2)
+                this.posRelativeToCanvas = p5.createVector(x, 0.5)
                 this.points = 0
             }
-            
             draw(isLocal)
             {
                 p5.rectMode(p5.CENTER)
                 p5.fill(isLocal ? 'blue' : 'red')
-                p5.rect(this.pos.x, this.pos.y, playerWidth, playerHeight)
+                p5.rect(this.posRelativeToCanvas.x * getSideLength(), this.posRelativeToCanvas.y * getSideLength(), getPlayerWidth(), getPlayerHeight())
                 p5.rectMode(p5.CORNER)
             }
             move(upKey, downKey)
@@ -70,51 +79,41 @@ export default function PongGame() {
                 if (p5.keyIsDown(downKey))
                     direction = 1
                 //move
-                this.pos.y += direction * canvasHeight * 0.5 * (p5.deltaTime / 1000)
+                this.posRelativeToCanvas.y += direction * timeForPlayerToCrossCanvas * (p5.deltaTime / 1000)
                 //clamp the position
-                this.pos.y = Math.max(this.pos.y, playerHeight / 2)
-                this.pos.y = Math.min(this.pos.y, canvasHeight - playerHeight / 2)
-                // console.log(`Emitting "player-move" event, y: ${this.pos.y}`)
-                socketRef.current.emit('player-move', { y: this.pos.y });
+                this.posRelativeToCanvas.y = Math.max(this.posRelativeToCanvas.y, playerHeightRatio / 2)
+                this.posRelativeToCanvas.y = Math.min(this.posRelativeToCanvas.y, 1 - playerHeightRatio / 2)
+                socketRef.current.emit('player-move', { y: this.posRelativeToCanvas.y })
             }
         }
 
         class Ball{
-            constructor()
-            {
-                this.pos = p5.createVector(canvasWidth / 2, canvasHeight / 2)
+            constructor() {
+                this.posRelativeToCanvas = p5.createVector(0.5, 0.5)
             }
-            draw()
-            {
-                // console.log(this.pos)
-                p5.circle(this.pos.x, this.pos.y, ballRadius * 2)
+            draw() {
+                p5.circle(this.posRelativeToCanvas.x * getSideLength(), this.posRelativeToCanvas.y * getSideLength(), getBallRadius() * 2)
             }
         }
+        
 
         p5.setup = () => {
             if (socketRef.current) {
                 // Your setup code here.
-                canvasWidth = Math.min(Math.min(parentRef.current.offsetWidth, parentRef.current.offsetWidth), 500);
-                canvasHeight = canvasWidth;
-                p5.createCanvas(canvasWidth, canvasHeight);
+                p5.createCanvas(getSideLength(), getSideLength());
 
-                playerWidth = playerWidthRatio * canvasWidth;
-                playerOffset = playerOffsetRatio * canvasWidth;
-                playerHeight = playerHeightRatio * canvasHeight;
-                ballRadius = ballRadiusRatio * canvasWidth;
-
-                playerLeft = new Player(playerOffset + playerWidth);
-                playerRight = new Player(canvasWidth - playerOffset - playerWidth);
+                playerLeft = new Player(playerOffsetRatio);
+                playerRight = new Player(1 - playerOffsetRatio);
                 ball = new Ball();
 
-                console.log('setup called, socketRef.current: ', socketRef.current)
                 socketRef.current.on('update-game', (gameState) => {
-                    if (playerIndex === 1)
-                    playerLeft.pos.y = gameState.players[0].y;
-                    if (playerIndex === 0)
-                        playerRight.pos.y = gameState.players[1].y;
-                    ball.pos.x = gameState.ball.pos.x;
-                    ball.pos.y = gameState.ball.pos.y;
+                    console.log(gameState) 
+                    if (playerIndex !== 0)//if we are not the left player we want to update the position of the remote left player
+                        playerLeft.posRelativeToCanvas.y = gameState.players[0].y
+                    if (playerIndex !== 1)//same for the right player
+                        playerRight.posRelativeToCanvas.y = gameState.players[1].y
+                    ball.posRelativeToCanvas.x = gameState.ball.posRelativeToCanvas.x
+                    ball.posRelativeToCanvas.y = gameState.ball.posRelativeToCanvas.y
                     playerLeft.points = gameState.players[0].points
                     playerRight.points = gameState.players[1].points
                 });
@@ -129,58 +128,48 @@ export default function PongGame() {
         };
 
         p5.windowResized = () => {
-            canvasWidth = Math.min(Math.min(parentRef.current.offsetWidth, parentRef.current.offsetWidth), 500);
-            canvasHeight = canvasWidth;
-            p5.resizeCanvas(canvasWidth, canvasHeight);
-
-            playerWidth = playerWidthRatio * canvasWidth;
-            playerOffset = playerOffsetRatio * canvasWidth;
-            playerHeight = playerHeightRatio * canvasHeight;
-            ballRadius = ballRadiusRatio * canvasWidth;
-
-            if (playerLeft && playerRight && ball) {
-                playerLeft = new Player(playerOffset + playerWidth);
-                playerRight = new Player(canvasWidth - playerOffset - playerWidth);
-                ball = new Ball();
-            }
+            p5.resizeCanvas(getSideLength(), getSideLength());
         };
 
         function drawGame() {
+            p5.background(220);
             playerLeft.draw(playerIndex === 0);
             playerRight.draw(playerIndex === 1);
             ball.draw();
  
             if (playerIndex === 0)
-            playerLeft.move(p5.UP_ARROW, p5.DOWN_ARROW);
-            else
-            playerRight.move(p5.UP_ARROW, p5.DOWN_ARROW);
+                playerLeft.move(p5.UP_ARROW, p5.DOWN_ARROW);
+            else 
+                playerRight.move(p5.UP_ARROW, p5.DOWN_ARROW);
 
-            p5.textSize(32);
+            p5.textSize(getSideLength() / 10);
             p5.fill('black')
-            p5.text(playerLeft.points.toString(), canvasWidth / 5, canvasHeight / 6)
-            p5.text(playerRight.points.toString(), canvasWidth - canvasWidth / 5, canvasHeight / 6)
+            p5.text(playerLeft.points.toString(), getSideLength() / 5, getSideLength() / 6)
+            p5.text(playerRight.points.toString(), getSideLength() - getSideLength() / 5, getSideLength() / 6)
         }
-        function drawEndMenu() {
+        function drawText() {
             p5.clear()
-            p5.textSize(150);
+            p5.background(220);
+            p5.textAlign(p5.CENTER)
+            p5.textSize(20);
+            if (typeof sessionState !== undefined && sessionState)
+                p5.textSize(0.9 * getSideLength() / sessionState.length);
             if (sessionState === "VICTORY") 
                 p5.fill('yellow')
             else 
                 p5.fill('gray')
-            p5.text(sessionState, canvasWidth / 10, canvasHeight / 10, canvasWidth * 0.9 , canvasHeight * 0.9)
+            p5.text(sessionState, getSideLength() / 10, getSideLength() / 10, getSideLength() * 0.9 , getSideLength() * 0.9)
         }
         p5.draw = () => {
-            p5.background(220);
             if (sessionState === 'in-game')
                 drawGame()
             else
-                drawEndMenu()
+                drawText()
         };
-
     };
  
     return (
-        <div ref={parentRef} style={{width: '100%', height: '100%'}}>
+        <div ref={parentRef} className="solid-frame parentDiv">
             <ReactP5Wrapper sketch={sketch} />
         </div>
     );
