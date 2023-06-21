@@ -139,19 +139,43 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else if (userLogged && userDbData && dOptAuth == 'on') {
     renderer = (
-      <div>
-        <button onClick={handle2FA}>To make 2FA, press the button!</button>
+      <div className="solid-frame">
+        <button
+					className="solid-frame text-content"
+					onClick={handle2FA}>
+						To make 2FA, press the button!
+				</button>
       </div>
     )
   }
   else if (userLogged && userApiData && !userDbData)  {
     renderer = (
-      <div>
+      <div className="solid-frame">
         User Logged, Apply design please, your welcome {userApiData.first_name}!
-        <form onSubmit={(e) => pushUserinDataBase(e)}>
-          <input onChange={(event)=>{setUserName(event.target.value)}} type='text' required />Choose username<br/>
-          <input onChange={(event)=>{setDoubleAuth(event.target.value)}} type='checkbox' />Do you want double authentificiation '2FA' enabled?<br/>
-          <button type='submit'>Submit</button>
+        <form
+					className="solid-frame text-content"
+					onSubmit={(e) => pushUserinDataBase(e)}
+				>
+          <input
+						className="solid-frame text-content"
+						onChange={(event)=>{setUserName(event.target.value)}}
+						type='text' required
+					/>
+						Choose username
+					<br/>
+          <input
+						className="solid-frame text-content"
+						onChange={(event)=>{setDoubleAuth(event.target.value)}}
+						type='checkbox'
+					/>
+						Do you want double authentificiation '2FA' enabled?
+					<br/>
+          <button
+						className="solid-frame text-content"
+						type='submit'
+					>
+						Submit
+					</button>
         </form>
       </div>
     )
