@@ -22,9 +22,27 @@ const Profil: React.FC<ProfilProps> = ({
 		frameClass="profil-frame"
 	>
 		<SolidFrame
-			frameClass="info-frame"
-			txt1={username}
+			frameClass="search-frame"
 		>
+			<input className="solid-frame search-frame search-input-frame text-content" />
+			<button className="solid-frame search-frame button-search-frame text-content">
+				Search
+			</button>
+		</SolidFrame>
+		<SolidFrame
+			frameClass="user-frame"
+		>
+			<SolidFrame
+				frameClass="photo-frame"
+			>
+				{children} {/* ou img balise*/}
+			</SolidFrame>
+			<SolidFrame
+				frameClass="user-data-frame"
+				txt1={username}
+			>
+				{children}
+			</SolidFrame>
 		</SolidFrame>
 		<SolidFrame
 			frameClass="info-frame"

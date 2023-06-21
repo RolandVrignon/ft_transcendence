@@ -1,11 +1,44 @@
+$user-height: 25%;
 
 .profil-frame {
 	height: 100%;
 
 }
 
+.search-frame {
+	height: 50px;
+	border-color: white;
+	flex-direction: row;
+	align-items: center;
+
+	.search-input-frame {
+		border-width: 1px;
+		height: 100%;
+	}
+	.button-search-frame {
+		height: 100%;
+		width: 250px;
+	}
+}
+
+.user-frame {
+	flex-direction: row;
+	height: $user-height;
+
+	.photo-frame {
+		width: 400px;
+		border-width:1px;
+		border-color:red;
+	}
+	.user-data-frame {
+		flex-grow: 1;
+		border-width:1px;
+		border-color:blue;
+	}
+}
+
 .info-frame {
-	height:33%;
+	height: calc( ( 100% - #{$user-height} ) / 2);
 }
 
 .history-frame {
