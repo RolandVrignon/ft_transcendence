@@ -13,7 +13,7 @@ export default function PongGame() {
         console.log("UseEffect")
         if (!socketRef.current) {
             socketRef.current = io('http://localhost:9090');;
-            console.log(newSocket)
+            //console.log(newSocket)
             socketRef.current.on('connect', () => setsessionState('connected'));
             socketRef.current.on('in-queue', () => setsessionState('in-queue'));
             socketRef.current.on('start-game', (playerIndex) => {

@@ -1,35 +1,29 @@
-# Stage 1: Build the application
-# FROM node:16-alpine as build
-FROM node:16-alpine
+FROM node:16-alpine as build
 
 WORKDIR /app
 
-# Copy package json files and install dependencies
 COPY package*.json ./
+
 RUN npm install -g npm
 RUN npm install
 
-# Copy other source code files
 COPY . .
 
-# Run the build script
-# RUN npm run build
+RUN npm run build
 
-# Stage 2: Run the application in a development environment
-# FROM node:14-alpine
+FROM node:14-alpine
 
-# Install global packages
-RUN npm install -g speakeasy qrcode axios python3
+# COPY ./https/key.key /etc/ssl/private/
+# COPY ./https/certificate.cert /etc/ssl/certs/
+# Installer le serveur HTTP simple (serve)
+RUN npm install -g serve speakeasy qrcode axios python3
 RUN apk add --update --no-cache openssl
+# RUN openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -keyout /etc/ssl/private/key.pem -out /etc/ssl/certs/cert.pem -days 365
 
-# Set the working directory
-# WORKDIR /app
+WORKDIR /app
+COPY --from=build /app/build /app
 
-# Copy source code files and node modules from build stage
-# COPY --from=build /app /app
-
-# Expose the port
 EXPOSE 3000
 
-# Run the start script with hot-reload enabled (substitute "start:dev" with the actual script in your package.json that starts the dev server)
-CMD ["npm", "run", "start"]
+# CMD ["serve", "-s", "/app", "--ssl-cert", "/etc/ssl/certs/certificate.cert", "--ssl-key", "/etc/ssl/private/key.key", "--listen", "3000"]
+CMD ["serve", "-s", "/app", "--listen", "3000"]
