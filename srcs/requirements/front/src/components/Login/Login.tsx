@@ -86,10 +86,10 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 
   async function  handle2FA() {
     const handle2FAURL = 'http://localhost:8080/callback/secure'
-		console.log("Function Called");
 		// protect undefined value in back, 
 		// like email /app/src/controllers/login/auth.controller.ts:45
-		axios
+		console.log(userApiData)
+    axios
 		.post(handle2FAURL, {
       data : {
         info: userApiData
@@ -173,10 +173,10 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else if (userLogged && userApiData && !userDbData)  {
     renderer = (
-      <div className="solid-frame user-logged-frame">
+      <div className="solid-frame user-logged-frame text-content">
         User Logged, Apply design please, your welcome {userApiData.first_name}!
         <form
-					className="solid-frame text-content"
+					className="solid-frame user-logged-frame text-content"
 					onSubmit={(e) => pushUserinDataBase(e)}
 				>
           <input
@@ -187,8 +187,7 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 						Choose username
 					<br/>
           <input
-						//className="solid-frame input-frame text-content text-input"
-						className="solid-frame text-content text-input"
+						className="solid-frame checked-frame text-content text-input"
 						onChange={(event)=>{setDoubleAuth(event.target.value)}}
 						type='checkbox'
 					/>

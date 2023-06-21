@@ -26,6 +26,7 @@ $front: white;
 	font-family: 'Arcade';
 	font-size: 16px;
 	text-align: center;
+	color: $front;
 
 	/*
 	-webkit-user-select: none;
@@ -34,7 +35,6 @@ $front: white;
 	user-select: none;
 	*/
 
-	color: $front;
 	.color1 {
 		color: $front;
 	}

@@ -40,20 +40,22 @@ export class ConnectController {
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
+			// const mail = {
+				// 	to: req.body.info.email,
+				// 	from: process.env.SENDER_SEND_GRID_MAIL,
+				// 	subject: '2FA verification from transcendance.team',
+				// 	text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn}`
+				// }
+				// sendGrid.send(mail)
 			const secureTkn = totp.generate()
-			const mail = {
-				to: req.body.info.email,
-				from: process.env.SENDER_SEND_GRID_MAIL,
-				subject: '2FA verification from transcendance.team',
-				text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn}`
-			}
-			sendGrid.send(mail)
-			await prisma.token2FA.create({
+			console.log('This is secure token: ', secureTkn)
+			const token = await prisma.token2FA.create({
 				data: {
 					id: req.body.info.id,
 					value: secureTkn
 				}
 			})
+			console.log(token)
 			res.status(200).json()
 		}
 		catch (err)	{
