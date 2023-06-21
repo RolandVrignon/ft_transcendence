@@ -5,6 +5,26 @@ import totp from './totp.service'
 import prisma from './prisma.client'
 import axios from 'axios'
 
+
+@Controller('search')
+export class SearchController	{
+	@Post('users')	async returnMatchingKnownUsers(@Res() res: Response, @Req() req: Request) {
+		try	{
+			const users = await prisma.user.findMany({
+				where: {
+					username: {
+						startsWith: req.body.searched
+					},
+				},
+			})
+			res.status(200).json(users)
+		}
+		catch (err)	{
+			console.log(err)
+		}
+	}
+}
+
 @Controller('callback')
 export class ConnectController {
 	@Post('log')	async getUserInfo(@Res() res: Response, @Req() req: Request) {
@@ -40,17 +60,15 @@ export class ConnectController {
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
-			// const mail = {
-				// 	to: req.body.info.email,
-				// 	from: process.env.SENDER_SEND_GRID_MAIL,
-				// 	subject: '2FA verification from transcendance.team',
-				// 	text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn}`
-				// }
-				// sendGrid.send(mail)
 			const secureTkn = totp.generate()
-			console.log('App-back: This is secure token: ', secureTkn)
-			// console.log(req.body)
-			const token = await prisma.token2FA.create({
+			const mail = {
+					to: req.body.data.info.email,
+					from: process.env.SENDER_SEND_GRID_MAIL,
+					subject: '2FA verification from transcendance.team',
+					text: `Hello ${req.body.data.info.first_name}, your authentification token is ${secureTkn}`
+			}
+			sendGrid.send(mail)
+			await prisma.token2FA.create({
 				data: {
 					id: req.body.data.info.id,
 					value: secureTkn
@@ -63,7 +81,6 @@ export class ConnectController {
 		}
 	}
 	@Post('verify-secure')	async verifyDoubleAuthToken(@Res() res: Response, @Req() req: Request)	{
-		console.log('App-back: this is the request body in verifyDoubleAuthToken: ', req.body)
 		const	verif = await prisma.token2FA.findUnique({
 			where: {
 				id: req.body.id

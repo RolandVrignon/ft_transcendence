@@ -8,14 +8,15 @@ import { AppContext } from '../Context'
 import { GlobalContent } from '../Context'
 
 interface LoginProps {
-  authState: Dispatch<SetStateAction<boolean>>;
+  data: GlobalContent
 }
 
 // interface LoginProps {
-//   value: GlobalContent;
+//   authState: Dispatch<SetStateAction<boolean>>;
 // }
 
-const Login: React.FC<LoginProps> = (authState) => {
+
+const Login: React.FC<LoginProps> = (data) => {
   let renderer = null
   const navigate = useNavigate()
 
@@ -49,13 +50,7 @@ const Login: React.FC<LoginProps> = (authState) => {
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
-    // context.value.user.id = res.data.apiData.id
-    // context.value.user.username = res.data.username
-    // context.value.user.firstName = res.data.apiData.first_name
-    // context.value.user.login = res.data.apiData.login
-    // context.value.user.email = res.data.apiData.email
-    // context.value.user.imageLink = res.data.apiData.image.link
-    // context.value.user.doubleAuth = res.data.doubleAuth
+    localStorage.setItem("apiUser", JSON.stringify(userApiData))
   }
 
   useEffect(() => {
@@ -95,6 +90,7 @@ const Login: React.FC<LoginProps> = (authState) => {
       }
     })
     setUserDbData(res.data)
+    localStorage.setItem('DBUser', JSON.stringify(userApiData))
   }
 
 	async function  handle2FA() {
@@ -198,7 +194,8 @@ const Login: React.FC<LoginProps> = (authState) => {
   }
   else
   {
-    authState.authState(true)
+    // authState.authState(true)
+    localStorage.setItem('logged', 'on')
     navigate('/Profil')
     // context.value.connected = true
   }

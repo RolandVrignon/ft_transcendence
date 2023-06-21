@@ -1,22 +1,34 @@
-import React from "react";
 import SolidFrame from "../SolidFrame/SolidFrame";
+import SearchBar from "../SearchBar/SearchBar";
+import SearchList from "../SearchList/SearchList";
 import Title from "../Title/Title";
-import './Profil.scss'
-
+import React, { useState } from 'react';
+import './Profil.scss';
 
 type ProfilProps = {
 	username?: string;
 	stats?: string;
 	matchHistory?: string;
 	children?: React.ReactNode;
-};
+}
 
 const Profil: React.FC<ProfilProps> = ({
-	username = 'ft_user',
 	stats = "Some user stats",
 	matchHistory = "Some match history data",
-	children,
+	children
 	}) => {
+	const [searchTerm, setSearchTerm] = useState('')
+
+	function	askDbForUsers(event: string)	{
+		setSearchTerm(event)
+	}
+
+	const	storage = localStorage.getItem('DBUser')
+	let	user
+	if (storage)
+		user = JSON.parse(storage)
+	console.log(user.username)
+
 	return (
 	<SolidFrame
 		frameClass="profil-frame"
@@ -24,22 +36,23 @@ const Profil: React.FC<ProfilProps> = ({
 		<SolidFrame
 			frameClass="search-frame"
 		>
-			<input className="solid-frame search-frame search-input-frame text-content" />
+			<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 			<button className="solid-frame search-frame button-search-frame text-content">
 				Search
 			</button>
 		</SolidFrame>
+		<SearchList searchTerm={searchTerm} />
 		<SolidFrame
 			frameClass="user-profil-frame"
 		>
 			<SolidFrame
 				frameClass="photo-frame"
 			>
-				{children} {/* ou img balise*/}
+				<img src={user.imageLink}/>
 			</SolidFrame>
 			<SolidFrame
 				frameClass="user-data-frame"
-				txt1={username}
+				txt1={user.username}
 			>
 				{children}
 			</SolidFrame>
@@ -78,4 +91,4 @@ const Profil: React.FC<ProfilProps> = ({
 			);
 };
 
-export default Profil;
+export default Profil

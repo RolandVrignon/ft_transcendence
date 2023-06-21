@@ -26,12 +26,13 @@ const HomePage: React.FC<HomePageProps> = ({
 				/>
 				<SolidFrame frameClass="bottom-frame">
 					<AppContext.Consumer>
-						{([ authChecked, setAuthChecked ]) => (
+						{/* {([ authChecked, setAuthChecked ]) => ( */}
+						{(data) => (
 							<Routes >
 								<Route path="*" element={<GetAccess />} />
 								<Route 
 									path="/Login"
-									element={<Login authState={setAuthChecked} />} 
+									element={<Login data={data} />} 
 								/>
 							</Routes>
 						)}
