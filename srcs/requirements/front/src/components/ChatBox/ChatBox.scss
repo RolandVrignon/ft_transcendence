@@ -6,32 +6,73 @@
 
 .user-frame {
 	height: 45%;
+
+	.label-frame {
+		height: 10%;
+		justify-content: end;
+		margin-bottom: 1%;
+	}
+	.text-label {
+	}
+	.input-label-frame {
+		height: 25%;
+		border-width: 1px;
+	}
+	.text-input {
+		font-family: 'Arcade';
+	}
+	.button-frame {
+		justify-content: center;
+		align-items: center;
+	}
+	.text-button {
+		font-size: 20px;
+	}
 }
 
-.chan-frame {
-	height: 45%;
+.create-chan-frame {
+	height: 40%;
 	margin-top: 20px;
+
+	.label-frame {
+		height: 10%;
+		justify-content: end;
+		margin-bottom: 1%;
+	}
+	.text-label {
+	}
+	.input-label-frame {
+		height: 25%;
+		border-width: 1px;
+	}
+	.text-input {
+		font-family: 'Arcade';
+	}
+	.button-frame {
+		justify-content: center;
+		align-items: center;
+	}
+	.text-button {
+		font-size: 20px;
+	}
 }
 
-.input-frame {
-	height: 150px;
+
+
+// for button
+
+.input-msg-frame {
+	margin-bottom: 1%;
+	height: 200px;
 	border-width: 1px;
 }
-.text-input {
-	font-family: 'Arcade';
+
+.messages-container {
+	border-width: 1px;
+	border-color: red;
 }
 
-.label-frame {
-	justify-content: end;
-	margin-bottom: 1%;
-}
-.text-label {
-}
-
-.button-frame {
-	justify-content: center;
-	align-items: center;
-}
-.text-button {
-	font-size: 20px;
+.message-input {
+	border-width: 1px;
+	border-color: blue;
 }

@@ -125,7 +125,9 @@ const ChatBox: React.FC = ({
 			socket.emit('typing', { isTyping: false, chatName, password });
 		}, 2000);
 	};	  
-	if (!joined) {
+	//if (!joined) {
+	let fakeVal = 0;
+	if ( !fakeVal ) {
 		return (
 			<SolidFrame frameClass="chat-box" >
 				<form 
@@ -140,7 +142,7 @@ const ChatBox: React.FC = ({
 							What's your name?
 						</label>
 						<input
-							className="solid-frame input-frame text-content text-input"
+							className="solid-frame input-label-frame text-content text-input"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 						/>
@@ -150,7 +152,7 @@ const ChatBox: React.FC = ({
 							Chat name:
 						</label>
 						<input
-							className="solid-frame input-frame text-content text-input"
+							className="solid-frame input-label-frame text-content text-input"
 							value={chatName}
 							onChange={(e) => setChatName(e.target.value)} />
 						<label
@@ -159,7 +161,7 @@ const ChatBox: React.FC = ({
 							Chat password:
 						</label>
 						<input
-							className="solid-frame input-frame text-content text-input"
+							className="solid-frame input-label-frame text-content text-input"
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 							type="password" />
@@ -171,7 +173,7 @@ const ChatBox: React.FC = ({
 						</button>
 				</form>
 				<form
-					className="solid-frame chan-frame"
+					className="solid-frame create-chan-frame"
 					onSubmit={(e) => {
 					e.preventDefault();
 					createChannel();
@@ -182,7 +184,7 @@ const ChatBox: React.FC = ({
 						Create a channel (name) :
 					</label>
 					<input
-						className="solid-frame input-frame text-content text-input"
+						className="solid-frame input-label-frame text-content text-input"
 						value={createChatName}
 						onChange={(e) => setCreateChatName(e.target.value)} />
 					<label
@@ -191,7 +193,7 @@ const ChatBox: React.FC = ({
 						Create a channel (pass) :
 					</label>
 					<input
-						className="solid-frame input-frame text-content text-input"
+						className="solid-frame input-label-frame text-content text-input"
 						value={createChatPassword} 
 						onChange={(e) => setCreateChatPassword(e.target.value)}
 						type="password" />
@@ -207,9 +209,14 @@ const ChatBox: React.FC = ({
 	}
 
 	return (
-		<div className="chat">
-			<div className="chat-container">
-				<div className="messages-container" ref={messagesContainerRef}>
+		<SolidFrame frameClass="chat-box" >
+			<div
+				className="chat-container"
+			>
+				<div
+					className="solid-frame messages-container"
+					ref={messagesContainerRef}
+				>
 					{messages.map((message: any, index: number) => (
 						<div key={index}>
 							[{message.name}]: {message.text}
@@ -220,18 +227,35 @@ const ChatBox: React.FC = ({
 				{typingDisplay && <div>{typingDisplay}</div>}
 
 				<hr />
-				<div className="message-input">
-					<form onSubmit={(e) => {
+				<div
+					className="solid-frame message-input"
+				>
+					<form 
+						onSubmit={(e) => {
 						e.preventDefault();
 						sendMessage();
 					}}>
-						<label>Message:</label>
-						<input value={messageText} onChange={(e) => setMessageText(e.target.value)} onInput={emitTyping} />
-						<button type="submit">Send</button>
+						<label
+							className="solid-frame label-frame text-content text-label"
+						>
+							Message:
+						</label>
+						<input
+							className="solid-frame input-msg-frame text-content text-input"
+							value={messageText}
+							onChange={(e) => setMessageText(e.target.value)}
+							onInput={emitTyping}
+						/>
+						<button
+							className="solid-frame button-frame text-content text-button"
+							type="submit"
+						>
+							Send
+						</button>
 					</form>
 				</div>
 			</div>
-		</div>
+		</SolidFrame>
 )}
 
 export default ChatBox;
