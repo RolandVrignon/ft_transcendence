@@ -113,7 +113,6 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
     else
       console.log('bad password')
   }
-
   if (!userLogged)
     renderer = <div className="solid-frame connect-frame">
 								<button
@@ -124,9 +123,17 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 							 </div>
   else if (check2FA)  {
     renderer = (
-      <div>
-        <input onChange={(event)=>{setToken2FA(event.target.value)}} type='text' required></input>
-        <button onClick={handle2FAVerif}> Verify code! </button>
+      <div className="solid-frame _2fa-frame">
+        <input
+					className="solif-frame input-frame text-input"
+					onChange={(event)=>{setToken2FA(event.target.value)}}
+					type='text' required
+				></input>
+        <button
+					className="solid-frame button-frame text-content text-button"
+					onClick={handle2FAVerif}>
+					Verify code!
+				</button>
       </div>
     )
   }
