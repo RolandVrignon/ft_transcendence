@@ -126,7 +126,7 @@ const ChatBox: React.FC = ({
 		}, 2000);
 	};	  
 	//if (!joined) {
-	let fakeVal = 0;
+	let fakeVal = 1;
 	if ( !fakeVal ) {
 		return (
 			<SolidFrame frameClass="chat-box" >
@@ -142,7 +142,7 @@ const ChatBox: React.FC = ({
 							What's your name?
 						</label>
 						<input
-							className="solid-frame input-label-frame text-content text-input"
+							className="solid-frame input-frame text-content text-input"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 						/>
@@ -152,7 +152,7 @@ const ChatBox: React.FC = ({
 							Chat name:
 						</label>
 						<input
-							className="solid-frame input-label-frame text-content text-input"
+							className="solid-frame input-frame text-content text-input"
 							value={chatName}
 							onChange={(e) => setChatName(e.target.value)} />
 						<label
@@ -161,7 +161,7 @@ const ChatBox: React.FC = ({
 							Chat password:
 						</label>
 						<input
-							className="solid-frame input-label-frame text-content text-input"
+							className="solid-frame input-frame text-content text-input"
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 							type="password" />
@@ -184,16 +184,16 @@ const ChatBox: React.FC = ({
 						Create a channel (name) :
 					</label>
 					<input
-						className="solid-frame input-label-frame text-content text-input"
+						className="solid-frame input-frame text-content text-input"
 						value={createChatName}
 						onChange={(e) => setCreateChatName(e.target.value)} />
 					<label
-						className="solid-frame label-frame text-content text-label"
+						className="solid-frame input-frame text-content text-label"
 					>
 						Create a channel (pass) :
 					</label>
 					<input
-						className="solid-frame input-label-frame text-content text-input"
+						className="solid-frame input-frame text-content text-input"
 						value={createChatPassword} 
 						onChange={(e) => setCreateChatPassword(e.target.value)}
 						type="password" />
@@ -210,9 +210,6 @@ const ChatBox: React.FC = ({
 
 	return (
 		<SolidFrame frameClass="chat-box" >
-			<div
-				className="chat-container"
-			>
 				<div
 					className="solid-frame messages-container"
 					ref={messagesContainerRef}
@@ -228,33 +225,33 @@ const ChatBox: React.FC = ({
 
 				<hr />
 				<div
-					className="solid-frame message-input"
+					className="solid-frame write-frame"
 				>
 					<form 
+						className="solid-frame"
 						onSubmit={(e) => {
 						e.preventDefault();
 						sendMessage();
 					}}>
 						<label
-							className="solid-frame label-frame text-content text-label"
+							className="solid-frame write-frame label-frame text-content text-label"
 						>
 							Message:
 						</label>
 						<input
-							className="solid-frame input-msg-frame text-content text-input"
+							className="solid-frame write-frame input-frame text-content text-input"
 							value={messageText}
 							onChange={(e) => setMessageText(e.target.value)}
 							onInput={emitTyping}
 						/>
 						<button
-							className="solid-frame button-frame text-content text-button"
+							className="solid-frame write-frame button-frame text-content text-button"
 							type="submit"
 						>
 							Send
 						</button>
 					</form>
 				</div>
-			</div>
 		</SolidFrame>
 )}
 
