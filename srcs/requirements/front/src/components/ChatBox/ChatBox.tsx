@@ -223,7 +223,7 @@ const ChatBox: React.FC = ({
 
 				{typingDisplay && <div>{typingDisplay}</div>}
 
-				<hr />
+				{/*<hr /> commented just in case it is usefull*/}
 				<div
 					className="solid-frame write-frame"
 				>
