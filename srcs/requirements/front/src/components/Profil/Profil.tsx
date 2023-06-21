@@ -30,7 +30,7 @@ const Profil: React.FC<ProfilProps> = ({
 			</button>
 		</SolidFrame>
 		<SolidFrame
-			frameClass="user-frame"
+			frameClass="user-profil-frame"
 		>
 			<SolidFrame
 				frameClass="photo-frame"
