@@ -3,16 +3,13 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Dispatch, SetStateAction } from 'react'
 import axios from 'axios'
-<<<<<<< HEAD
 import './Login.scss'
-=======
 import { AppContext } from '../Context'
 import { GlobalContent } from '../Context'
 
 // interface LoginProps {
 //   authState: Dispatch<SetStateAction<boolean>>;
-// }
->>>>>>> a4e6150 ([merging with new front])
+
 
 interface LoginProps {
   value: GlobalContent;
