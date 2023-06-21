@@ -86,14 +86,37 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 
   async function  handle2FA() {
     const handle2FAURL = 'http://localhost:8080/callback/secure'
+		console.log("Function Called");
+		// protect undefined value in back, 
+		// like email /app/src/controllers/login/auth.controller.ts:45
+		axios
+		.post(handle2FAURL, {
+      data : {
+        info: userApiData
+      }
+		})
+		.then( ( data ) => { console.log( data ) } )
+			.catch( (err) => {
+				console.log(err);
+			});
+		setcheck2FA(true);
+
+		/*
+    const handle2FAURL = 'http://localhost:8080/callback/secure'
+		console.log("Function Called");
+		// revoir syntax
     const res = await axios({
       url: handle2FAURL,
       method: 'POST',
       data : {
         info: userApiData
       }
-    })
+    }).then((data)=> 
+			{
+				console.log(data);
+			})
     setcheck2FA(true)
+		*/
   }
 
   async function handle2FAVerif() {
@@ -123,9 +146,9 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 							 </div>
   else if (check2FA)  {
     renderer = (
-      <div className="solid-frame _2fa-frame">
+      <div className="solid-frame two-fa-frame">
         <input
-					className="solif-frame input-frame text-input"
+					className="solid-frame input-frame text-content text-input"
 					onChange={(event)=>{setToken2FA(event.target.value)}}
 					type='text' required
 				></input>
@@ -139,9 +162,9 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else if (userLogged && userDbData && dOptAuth == 'on') {
     renderer = (
-      <div className="solid-frame">
+      <div className="solid-frame two-fa-frame">
         <button
-					className="solid-frame text-content"
+					className="solid-frame button-frame text-content text-button"
 					onClick={handle2FA}>
 						To make 2FA, press the button!
 				</button>
@@ -150,28 +173,29 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else if (userLogged && userApiData && !userDbData)  {
     renderer = (
-      <div className="solid-frame">
+      <div className="solid-frame user-logged-frame">
         User Logged, Apply design please, your welcome {userApiData.first_name}!
         <form
 					className="solid-frame text-content"
 					onSubmit={(e) => pushUserinDataBase(e)}
 				>
           <input
-						className="solid-frame text-content"
+						className="solid-frame input-frame text-content text-label"
 						onChange={(event)=>{setUserName(event.target.value)}}
 						type='text' required
 					/>
 						Choose username
 					<br/>
           <input
-						className="solid-frame text-content"
+						//className="solid-frame input-frame text-content text-input"
+						className="solid-frame text-content text-input"
 						onChange={(event)=>{setDoubleAuth(event.target.value)}}
 						type='checkbox'
 					/>
 						Do you want double authentificiation '2FA' enabled?
 					<br/>
           <button
-						className="solid-frame text-content"
+						className="solid-frame button-frame text-content text-button"
 						type='submit'
 					>
 						Submit

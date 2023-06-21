@@ -2,7 +2,7 @@ COMPOSE_PATH = srcs/docker-compose.yml
 
 all:
 	mkdir -p srcs/requirements/db
-	docker-compose --file srcs/docker-compose.yml up --build
+	docker-compose --file srcs/docker-compose.yml up
 
 db:
 	docker-compose -f $(COMPOSE_PATH) up -d database

@@ -1,5 +1,7 @@
 
 .connect-frame {
+	margin-top: 25px;
+
 	.connect-button {
 		border-color: blue;
 		border-width: 0px;
@@ -11,10 +13,43 @@
 	}
 }
 
-._2fa-frame {
+.two-fa-frame {
+	align-items: center;
 
+	.input-frame {
+		width: 80%;
+		height: 10%;
+		border-width: 1px;
+	}
+	.text-input {
+		font-family: 'Arcade';
+	}
 	.button-frame {
 		height: 100px;
+		align-items: center;
+	}
+	.text-button {
+		font-size: 20px;
+	}
+}
+
+.user-logged-frame {
+
+	.label-frame {
+		height: 20%;
+	}
+	.text-label {
+	}
+	.input-frame {
+		height: 15%;
+		border-width: 1px;
+	}
+	.text-input {
+		font-family: 'Arcade';
+	}
+	.button-frame {
+		height: 100px;
+		width: 50%;
 		align-items: center;
 	}
 	.text-button {
