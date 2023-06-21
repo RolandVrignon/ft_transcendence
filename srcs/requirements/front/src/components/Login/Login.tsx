@@ -97,39 +97,19 @@ const Login: React.FC<LoginProps> = (authState) => {
     setUserDbData(res.data)
   }
 
-  async function  handle2FA() {
-    const handle2FAURL = 'http://localhost:8080/callback/secure'
-		// protect undefined value in back, 
-		// like email /app/src/controllers/login/auth.controller.ts:45
-    axios
-		.post(handle2FAURL, {
-      data : {
-        info: userApiData
-      }
+	async function  handle2FA() {
+	const handle2FAURL = 'http://localhost:8080/callback/secure'
+	axios.post(handle2FAURL, {
+		data : {
+			info: userApiData
+		}}
+		).then((data) => {
+			console.log(data)
 		})
-		.then( ( data ) => { console.log( data ) } )
-			.catch( (err) => {
+		.catch((err) => {
 				console.log(err);
-			});
-		setcheck2FA(true);
-
-		/*
-    const handle2FAURL = 'http://localhost:8080/callback/secure'
-		console.log("Function Called");
-		// revoir syntax
-    const res = await axios({
-      url: handle2FAURL,
-      method: 'POST',
-      data : {
-        info: userApiData
-      }
-    }).then((data)=> 
-			{
-				console.log(data);
-			})
-    setcheck2FA(true)
-		*/
-  }
+		});
+	}
 
   async function handle2FAVerif() {
     const check2FAURL = 'http://localhost:8080/callback/verify-secure'
@@ -148,27 +128,28 @@ const Login: React.FC<LoginProps> = (authState) => {
     else
       console.log('bad password')
   }
+
   if (!userLogged)
     renderer = <div className="solid-frame connect-frame">
-								<button
-									className="solid-frame connect-button text-content text-connect"
-									onClick={attemptConnect}>
-										Connect
-								</button>
-							 </div>
+					<button
+						className="solid-frame connect-button text-content text-connect"
+						onClick={attemptConnect}>
+							Connect
+					</button>
+				</div>
   else if (check2FA)  {
     renderer = (
       <div className="solid-frame two-fa-frame">
         <input
-					className="solid-frame input-frame text-content text-input"
-					onChange={(event)=>{setToken2FA(event.target.value)}}
-					type='text' required
-				></input>
+			className="solid-frame input-frame text-content text-input"
+			onChange={(event)=>{setToken2FA(event.target.value)}}
+			type='text' required
+		></input>
         <button
-					className="solid-frame button-frame text-content text-button"
-					onClick={handle2FAVerif}>
-					Verify code!
-				</button>
+			className="solid-frame button-frame text-content text-button"
+			onClick={handle2FAVerif}>
+			Verify code!
+		</button>
       </div>
     )
   }
