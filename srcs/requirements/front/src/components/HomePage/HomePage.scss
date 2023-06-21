@@ -6,23 +6,15 @@
 
 .simple-pong-frame {
 	height: 50%;
-	margin-bottom: 25px;
 	justify-content: center;
+	border-width: 1px;
 }
 
-.access-frame {
+.bottom-frame {
 	height: 50%;
-	justify-content: start;
+	border-width: 1px;
 }
 
 .text-logo {
 	font-size: 48px;
-}
-
-.text-access {
-	font-size: 32px;
-
-	.color1 {
-		color: black;
-	}
 }

@@ -24,17 +24,19 @@ const HomePage: React.FC<HomePageProps> = ({
 					txtClass="text-logo"
 					txt2="Simple Pong"
 				/>
-				<AppContext.Consumer>
-					{([ authChecked, setAuthChecked ]) => (
-						<Routes >
-							<Route path="*" element={<GetAccess />} />
-							<Route 
-								path="/Login"
-								element={<Login authState={setAuthChecked} />} 
-							/>
-						</Routes>
-					)}
-				</AppContext.Consumer>
+				<SolidFrame frameClass="bottom-frame">
+					<AppContext.Consumer>
+						{([ authChecked, setAuthChecked ]) => (
+							<Routes >
+								<Route path="*" element={<GetAccess />} />
+								<Route 
+									path="/Login"
+									element={<Login authState={setAuthChecked} />} 
+								/>
+							</Routes>
+						)}
+					</AppContext.Consumer>
+				</SolidFrame>
 			</SolidFrame>
 		</Router>
 	);

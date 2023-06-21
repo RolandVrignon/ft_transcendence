@@ -3,6 +3,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Dispatch, SetStateAction } from 'react'
 import axios from 'axios'
+import './Login.scss'
 
 interface LoginProps {
   authState: Dispatch<SetStateAction<boolean>>;
@@ -114,7 +115,13 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
 
   if (!userLogged)
-    renderer = <div><button onClick={attemptConnect}>Connect</button></div>
+    renderer = <div className="solid-frame connect-frame">
+								<button
+									className="solid-frame connect-button text-content text-connect"
+									onClick={attemptConnect}>
+										Connect
+								</button>
+							 </div>
   else if (check2FA)  {
     renderer = (
       <div>
