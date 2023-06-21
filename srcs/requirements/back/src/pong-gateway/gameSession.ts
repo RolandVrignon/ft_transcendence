@@ -11,16 +11,13 @@ import { clamp, Vector2D } from './simpleMath';
 
 //const
 const interval: number = 1000 / 30
-const canvasWidth = 800;
-const canvasHeight = 600;
-const playerWidth = 30;
-const playerOffset = 10;
-const playerHeight = 100;
-const leftPlayerX = playerOffset + playerWidth
-const rightPlayerX = canvasWidth - playerOffset - playerWidth
-const ballRadius = 15;
+const playerWidthRatio = 0.0375; // proportion of canvas width 
+const playerOffsetRatio = 0.0125; // proportion of canvas width
+const playerHeightRatio = 0.166666; // proportion of canvas height
+const ballRadiusRatio = 0.025; // proportion of canvas width
 const deltaTime: number = 1 / 30
-const ballDeltaX = canvasWidth * deltaTime
+const timeForBallToCrossCanvas = 0.5
+const BallXspeed = deltaTime * timeForBallToCrossCanvas
 
 // Define the GameState and Player type
 type Player = {
@@ -36,46 +33,46 @@ type GameState = {
 
 
 class Ball{
-  pos: Vector2D = new Vector2D(canvasWidth / 2, canvasHeight / 2)
+  posRelativeToCanvas: Vector2D = new Vector2D(0.5, 0.5)
   horizontalMovement: number = 1
   verticalMovement: number = 0
-  checkOverlap(playerPos: Vector2D): boolean {
+  checkOverlap(playerPosRelativeToCanvas: Vector2D): boolean {
       // Find the closest point to the circle within the rectangle
-      let closestX = clamp(this.pos.x - playerPos.x,-playerWidth / 2, playerWidth / 2) + playerPos.x
-      let closestY = clamp(this.pos.y - playerPos.y, -playerHeight / 2, playerHeight / 2) + playerPos.y
+      let closestX = clamp(this.posRelativeToCanvas.x - playerPosRelativeToCanvas.x, -playerWidthRatio / 2, playerWidthRatio / 2) + playerPosRelativeToCanvas.x
+      let closestY = clamp(this.posRelativeToCanvas.y - playerPosRelativeToCanvas.y, -playerHeightRatio / 2, playerHeightRatio / 2) + playerPosRelativeToCanvas.y
       // Calculate the distance between the circle's center and the closest point
-      var distanceX = this.pos.x - closestX;
-      var distanceY = this.pos.y - closestY;
+      var distanceX = this.posRelativeToCanvas.x - closestX;
+      var distanceY = this.posRelativeToCanvas.y - closestY;
       var distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
       // Check if the distance is less than the circle's radius squared
-      return distanceSquared <= (ballRadius * ballRadius);
+      return distanceSquared <= (ballRadiusRatio * ballRadiusRatio);
   }
-  bounceOffPlayer(playerPos: Vector2D) { 
-      let dir = new Vector2D(this.pos.x - playerPos.x, this.pos.y - playerPos.y);
+  bounceOffPlayer(playerPosRelativeToCanvas: Vector2D) { 
+      let dir = new Vector2D(this.posRelativeToCanvas.x - playerPosRelativeToCanvas.x, this.posRelativeToCanvas.y - playerPosRelativeToCanvas.y);
       dir.normalize();
       this.horizontalMovement *= -1;
-      this.verticalMovement = dir.y * 90;
+      this.verticalMovement = dir.y * 0.15;
   }            
   givepointToPlayer(player: Player){
-    this.pos = new Vector2D(canvasWidth / 2, canvasHeight / 2)
+    this.posRelativeToCanvas = new Vector2D(0.5, 0.5)
     player.points++
   }
   move(gameState: GameState) {
-    this.pos.x += this.horizontalMovement * ballDeltaX
-    this.pos.y += this.verticalMovement * deltaTime
+    this.posRelativeToCanvas.x += this.horizontalMovement * BallXspeed
+    this.posRelativeToCanvas.y += this.verticalMovement * deltaTime
     //bounce off players
-    let leftPlayerPos: Vector2D = new Vector2D(leftPlayerX, gameState.players[0].y)
+    let leftPlayerPos: Vector2D = new Vector2D(playerOffsetRatio, gameState.players[0].y)
     if (this.checkOverlap(leftPlayerPos) && this.horizontalMovement === -1)
       this.bounceOffPlayer(leftPlayerPos)
-    let rightPlayerPos: Vector2D = new Vector2D(rightPlayerX, gameState.players[1].y)
+    let rightPlayerPos: Vector2D = new Vector2D(1 - ballRadiusRatio, gameState.players[1].y)
     if (this.checkOverlap(rightPlayerPos) && this.horizontalMovement === 1)
       this.bounceOffPlayer(rightPlayerPos)
     //bounce off walls
-    if (this.pos.y > canvasHeight - ballRadius || this.pos.y < ballRadius)
+    if (this.posRelativeToCanvas.y > 1 - ballRadiusRatio || this.posRelativeToCanvas.y < ballRadiusRatio)
       this.verticalMovement *= -1
-    if (this.pos.x > canvasWidth - ballRadius)
+    if (this.posRelativeToCanvas.x > 1 - ballRadiusRatio)
       this.givepointToPlayer(gameState.players[0])
-    if (this.pos.x < ballRadius)
+    if (this.posRelativeToCanvas.x < ballRadiusRatio)
       this.givepointToPlayer(gameState.players[1]) 
   }
 }
@@ -87,8 +84,8 @@ export class GameSession {
     nbFramesDebug: 0,
     ball: new Ball(),
     players: [
-      { y: canvasHeight / 2, points: 0 }, // Player 1
-      { y: canvasHeight / 2, points: 0 }, // Player 2
+      { y: 0.5, points: 0 }, // Player 1
+      { y: 0.5, points: 0 }, // Player 2
     ],
   };
 
@@ -110,7 +107,7 @@ export class GameSession {
  
   handleDisconnect(disconnectedClientSocket: Socket) {
     if (this.gameIsOver === false) {
-      //find the index of the player that left
+      //find the index of the player that left 
       let winnerSocket: Socket = this.clientSockets.find(cs => cs !== disconnectedClientSocket)
       //give the win to the player that remained
       console.log(`Game ${this.debugId} is over: a player left the game`)
@@ -140,6 +137,7 @@ export class GameSession {
     //find playerIndex with clientSocket (this way, a player can only affect its paddle)
     let playerIndex: number = this.clientSockets.findIndex(cs => cs === clientSocket)
     // Update the player's position based on the payload
+    console.log(`Setting position of player ${playerIndex} to ${payload.y}`)
     this.gameState.players[playerIndex].y = payload.y;
   }
 }

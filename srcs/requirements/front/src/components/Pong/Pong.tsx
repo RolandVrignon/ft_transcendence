@@ -15,11 +15,6 @@ const Pong: React.FC<PongProps> = ({
 		<SolidFrame frameClass="arena-frame" >
 		 <PongGame />
 		</SolidFrame>
-		<SolidFrame
-			frameClass="score-frame"
-		>
-			{children}
-		</SolidFrame>
 	</SolidFrame>
 	);
 };

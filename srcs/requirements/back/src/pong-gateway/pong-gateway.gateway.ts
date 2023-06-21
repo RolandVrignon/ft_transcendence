@@ -51,13 +51,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(clientScoket: Socket) {
     this.clientSocketsQueue = this.clientSocketsQueue.filter(cs => cs !== clientScoket)
-    console.log(`Client DISCONNECTED, sessions count: ${this.gameSessions.length}, [${this.gameSessions.map(session => session.debugId)}]`)
+    console.log(`Client DISCONNECTED`)
   }
 
   update() {
+    let nbSessions = this.gameSessions.length
     this.gameSessions = this.gameSessions.filter(session => {
       session.update()
       return session.gameIsOver === false
     })
+    if (nbSessions != this.gameSessions.length)
+      console.log(`New session count: ${this.gameSessions.length}, sessions: [${this.gameSessions}]`)
   }
 }
