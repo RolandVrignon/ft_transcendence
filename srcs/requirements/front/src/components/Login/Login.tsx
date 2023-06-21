@@ -3,13 +3,22 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Dispatch, SetStateAction } from 'react'
 import axios from 'axios'
+<<<<<<< HEAD
 import './Login.scss'
+=======
+import { AppContext } from '../Context'
+import { GlobalContent } from '../Context'
+
+// interface LoginProps {
+//   authState: Dispatch<SetStateAction<boolean>>;
+// }
+>>>>>>> a4e6150 ([merging with new front])
 
 interface LoginProps {
-  authState: Dispatch<SetStateAction<boolean>>;
+  value: GlobalContent;
 }
 
-const Login: React.FC<LoginProps> = ({ authState }) => {
+const Login: React.FC<LoginProps> = (context) => {
   let renderer = null
   const navigate = useNavigate()
 
@@ -43,6 +52,13 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
+    context.value.user.id = res.data.apiData.id
+    context.value.user.username = res.data.username
+    context.value.user.firstName = res.data.apiData.first_name
+    context.value.user.login = res.data.apiData.login
+    context.value.user.email = res.data.apiData.email
+    context.value.user.imageLink = res.data.apiData.image.link
+    context.value.user.doubleAuth = res.data.doubleAuth
   }
 
   useEffect(() => {
@@ -205,8 +221,9 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else
   {
-    navigate('/profil')
-    authState(true)
+    navigate('/Profil')
+    context.value.connected = true
+    // authState(true)
   }
 
   return renderer
