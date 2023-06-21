@@ -51,7 +51,7 @@ class Ball{
       let dir = new Vector2D(this.posRelativeToCanvas.x - playerPosRelativeToCanvas.x, this.posRelativeToCanvas.y - playerPosRelativeToCanvas.y);
       dir.normalize();
       this.horizontalMovement *= -1;
-      this.verticalMovement = dir.y * 90;
+      this.verticalMovement = dir.y * 0.15;
   }            
   givepointToPlayer(player: Player){
     this.posRelativeToCanvas = new Vector2D(0.5, 0.5)
