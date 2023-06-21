@@ -100,9 +100,7 @@ const ChatBox: React.FC = ({
 			socket.emit('typing', { isTyping: false, chatName, password });
 		}, 2000);
 	};	  
-	//if (!joined) {
-	let fakeVal = 1;
-	if ( !fakeVal ) {
+	if (!joined) {
 		return (
 			<SolidFrame frameClass="chat-box" >
 				<form 
