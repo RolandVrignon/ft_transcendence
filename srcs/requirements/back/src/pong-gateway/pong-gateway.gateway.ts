@@ -26,6 +26,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   //There is no need to havbe an array of sockets since it will never contain more than one element.
   clientSocketInQueue: Socket | null = null;
+  userDbIdInQueue: number = -1
   // clientSocketsQueue: Socket[] = [];
   gameSessions: GameSession[] = []
   nextDebugSessionId: number = 0
@@ -56,10 +57,27 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   
   @SubscribeMessage('enter-queue')
-  handleEnterQueueRequest(clientSocket: Socket, userDbId)
+  async handleEnterQueueRequest(clientSocket: Socket, userDbId)
   {
-      console.log(`user with id ${userDbId} count: ${prisma.user.count({where: {id: userDbId}})} `) 
+    //dubious way of checking if userDbId exists
+    let userCount = await prisma.user.count({where: {id: userDbId}})
+    if (userCount) {
+      if (this.clientSocketInQueue){ // if there is already a user waiting in the queue create a game session
+        this.gameSessions.push(new GameSession(this.clientSocketInQueue, clientSocket, this.userDbIdInQueue, userDbId, this.nextDebugSessionId))
+        this.nextDebugSessionId += 1//no ++ overload -_-
+        this.clientSocketInQueue = null
+        this.userDbIdInQueue = -1
+      } else {//otherwise, set this.clientSocketInQueue to clientSocket
+        this.clientSocketInQueue = clientSocket
+        this.userDbIdInQueue = userDbId
+      }
+    } else {
+      console.error(`Reiceved enter-queue request with userDbId ${userDbId}, but the user ID does not exist in the DB. Closing socket.`)
+      clientSocket.disconnect(true)
+    }
   }
+
+  
 
   handleDisconnect(clientSocket: Socket) {
     // this.clientSocketsQueue = this.clientSocketsQueue.filter(cs => cs !== clientScoket)

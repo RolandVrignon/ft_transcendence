@@ -2,9 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { ReactP5Wrapper } from "@p5-wrapper/react";
 import io from 'socket.io-client'; // Import the socket.io client
 import { Socket } from 'socket.io-client'; // Import the socket.io client
-import p5Type from '@p5-wrapper/react'; // This imports the type
-import { createNoSubstitutionTemplateLiteral } from 'typescript';
-
 
 type Vector = any;
 
