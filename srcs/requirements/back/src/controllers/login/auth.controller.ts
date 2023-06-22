@@ -60,6 +60,13 @@ export class ConnectController {
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
+			// delete old and unused token -----------
+			await prisma.token2FA.deleteMany({
+				where: {
+					id: req.body.data.info.id,
+				}
+			})
+			// ----------------------------------------
 			const secureTkn = totp.generate()
 			const mail = {
 					to: req.body.data.info.email,
