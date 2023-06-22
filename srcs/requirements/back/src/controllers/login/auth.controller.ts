@@ -5,6 +5,35 @@ import totp from './totp.service'
 import prisma from './prisma.client'
 import axios from 'axios'
 
+
+@Controller('search')
+export class SearchController	{
+	@Post('users')	async returnMatchingKnownUsers(@Res() res: Response, @Req() req: Request) {
+		try	{
+			const users = await prisma.user.findMany({
+				where: {
+					username: {
+						startsWith: req.body.searched
+					},
+				},
+			})
+			res.status(200).json(users)
+		}
+		catch (err)	{
+			console.log(err)
+		}
+	}
+	@Post('info-user')	async returnUserInformation(@Res() res: Response, @Req() req: Request) {
+		try	{
+			const info = await askDataBaseForCreation(req.body.ID)
+			res.status(200).json(info)
+		}
+		catch (err)	{
+			console.log(err)
+		}
+	}
+}
+
 @Controller('callback')
 export class ConnectController {
 	@Post('log')	async getUserInfo(@Res() res: Response, @Req() req: Request) {
@@ -40,17 +69,20 @@ export class ConnectController {
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
+			await prisma.token2FA.deleteMany({
+				where: { id: req.body.data.info.id }
+			})
 			const secureTkn = totp.generate()
 			const mail = {
-				to: req.body.info.email,
-				from: process.env.SENDER_SEND_GRID_MAIL,
-				subject: '2FA verification from transcendance.team',
-				text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn}`
+					to: req.body.data.info.email,
+					from: process.env.SENDER_SEND_GRID_MAIL,
+					subject: '2FA verification from transcendance.team',
+					text: `Hello ${req.body.data.info.first_name}, your authentification token is ${secureTkn}`
 			}
 			sendGrid.send(mail)
 			await prisma.token2FA.create({
 				data: {
-					id: req.body.info.id,
+					id: req.body.data.info.id,
 					value: secureTkn
 				}
 			})
@@ -70,7 +102,7 @@ export class ConnectController {
 			res.status(201).json('approved')
 			await prisma.token2FA.delete({
 				where: {
-				id: req.body.id
+					id: req.body.id
 				}
 			})
 		}
@@ -78,7 +110,6 @@ export class ConnectController {
 			res.status(401).json('pending')
 	}
 }
-
 
 async	function	exchangeCodeForToken(access_code: string)	{
 	try	{
@@ -121,9 +152,7 @@ async	function	fetchUserData42(accessToken: string, resourceOwnerId: string)	{
 
 async function	askDataBaseForCreation(userId: number) : Promise<object>	{
 	const	user = await prisma.user.findUnique({
-		where: {
-			id: userId,
-		},
+		where: { id: userId }
 	})
 	return user
 }

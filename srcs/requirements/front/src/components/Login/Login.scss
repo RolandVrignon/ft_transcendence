@@ -1,6 +1,7 @@
 
 .connect-frame {
 	margin-top: 25px;
+	min-width: 450px;
 
 	.connect-button {
 		border-color: blue;
@@ -15,6 +16,7 @@
 
 .two-fa-frame {
 	align-items: center;
+	min-width: 450px;
 
 	.input-frame {
 		width: 80%;
@@ -34,13 +36,20 @@
 }
 
 .user-logged-frame {
+	align-items: center;
+	min-width: 450px;
 
+	.checked-frame {
+		width: 50px;
+		height: 50px;
+	}
 	.label-frame {
 		height: 20%;
 	}
 	.text-label {
 	}
 	.input-frame {
+		width: 80%; //here
 		height: 15%;
 		border-width: 1px;
 	}

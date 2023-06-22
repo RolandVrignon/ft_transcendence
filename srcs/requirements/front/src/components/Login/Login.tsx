@@ -4,12 +4,15 @@ import { useNavigate } from 'react-router-dom'
 import { Dispatch, SetStateAction } from 'react'
 import axios from 'axios'
 import './Login.scss'
+import { AppContext } from '../Context'
+import { GlobalContent } from '../Context'
 
 interface LoginProps {
-  authState: Dispatch<SetStateAction<boolean>>;
+  log: Dispatch<SetStateAction<boolean>>
+  ID: Dispatch<SetStateAction<number>>
 }
 
-const Login: React.FC<LoginProps> = ({ authState }) => {
+const Login: React.FC<LoginProps> = (control) => {
   let renderer = null
   const navigate = useNavigate()
 
@@ -43,6 +46,7 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
+    control.ID(res.data.apiData.id)
   }
 
   useEffect(() => {
@@ -84,40 +88,14 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
     setUserDbData(res.data)
   }
 
-  async function  handle2FA() {
+	async function  handle2FA() {
     const handle2FAURL = 'http://localhost:8080/callback/secure'
-		console.log("Function Called");
-		// protect undefined value in back, 
-		// like email /app/src/controllers/login/auth.controller.ts:45
-		axios
-		.post(handle2FAURL, {
+    await axios.post(handle2FAURL, {
       data : {
         info: userApiData
-      }
-		})
-		.then( ( data ) => { console.log( data ) } )
-			.catch( (err) => {
-				console.log(err);
-			});
-		setcheck2FA(true);
-
-		/*
-    const handle2FAURL = 'http://localhost:8080/callback/secure'
-		console.log("Function Called");
-		// revoir syntax
-    const res = await axios({
-      url: handle2FAURL,
-      method: 'POST',
-      data : {
-        info: userApiData
-      }
-    }).then((data)=> 
-			{
-				console.log(data);
-			})
+    }})
     setcheck2FA(true)
-		*/
-  }
+	}
 
   async function handle2FAVerif() {
     const check2FAURL = 'http://localhost:8080/callback/verify-secure'
@@ -136,27 +114,28 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
     else
       console.log('bad password')
   }
+
   if (!userLogged)
     renderer = <div className="solid-frame connect-frame">
-								<button
-									className="solid-frame connect-button text-content text-connect"
-									onClick={attemptConnect}>
-										Connect
-								</button>
-							 </div>
+					<button
+						className="solid-frame connect-button text-content text-connect"
+						onClick={attemptConnect}>
+							Connect
+					</button>
+				</div>
   else if (check2FA)  {
     renderer = (
       <div className="solid-frame two-fa-frame">
         <input
-					className="solid-frame input-frame text-content text-input"
-					onChange={(event)=>{setToken2FA(event.target.value)}}
-					type='text' required
-				></input>
+			className="solid-frame input-frame text-content text-input"
+			onChange={(event)=>{setToken2FA(event.target.value)}}
+			type='text' required
+      ></input>
         <button
-					className="solid-frame button-frame text-content text-button"
-					onClick={handle2FAVerif}>
-					Verify code!
-				</button>
+          className="solid-frame button-frame text-content text-button"
+          onClick={handle2FAVerif}>
+          Verify code!
+        </button>
       </div>
     )
   }
@@ -173,10 +152,10 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else if (userLogged && userApiData && !userDbData)  {
     renderer = (
-      <div className="solid-frame user-logged-frame">
+      <div className="solid-frame user-logged-frame text-content">
         User Logged, Apply design please, your welcome {userApiData.first_name}!
         <form
-					className="solid-frame text-content"
+					className="solid-frame user-logged-frame text-content"
 					onSubmit={(e) => pushUserinDataBase(e)}
 				>
           <input
@@ -187,8 +166,7 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
 						Choose username
 					<br/>
           <input
-						//className="solid-frame input-frame text-content text-input"
-						className="solid-frame text-content text-input"
+						className="solid-frame checked-frame text-content text-input"
 						onChange={(event)=>{setDoubleAuth(event.target.value)}}
 						type='checkbox'
 					/>
@@ -206,8 +184,8 @@ const Login: React.FC<LoginProps> = ({ authState }) => {
   }
   else
   {
-    navigate('/profil')
-    authState(true)
+    control.log(true)
+    navigate('/Profil')
   }
 
   return renderer

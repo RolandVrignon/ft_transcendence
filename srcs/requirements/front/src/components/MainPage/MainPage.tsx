@@ -9,8 +9,11 @@ import ChatBox from '../ChatBox/ChatBox';
 import Pong from '../Pong/Pong';
 import Profil from '../Profil/Profil';
 
-// This is the new component that will be rendered within the Router
-const Content: React.FC = () => {
+type MainPageProps = {
+  ID: number
+}
+
+const Content: React.FC<MainPageProps> = (ID) => {
   const location = useLocation();
 
   const getTitle = () => {
@@ -38,7 +41,7 @@ const Content: React.FC = () => {
 					{/* Set a default route */}
           <Route path="*" element={<ChatBox />} />
 					{/* Set the routes */}
-          <Route path="/Profil" element={<Profil />} />
+          <Route path="/Profil" element={<Profil ID={ID.ID}/>} />
           <Route path="/Pong" element={<Pong />} />
           <Route path="/Chat" element={<ChatBox />} />
         </Routes>
@@ -47,12 +50,12 @@ const Content: React.FC = () => {
   );
 };
 
-const MainPage: React.FC = () => {
+const MainPage: React.FC<MainPageProps> = (ID) => {
   return (
     <Router>
       <SolidFrame frameClass="window-frame"> 
         <SideBar />
-        <Content />
+        <Content ID={ID.ID}/>
       </SolidFrame>
     </Router>
   );
