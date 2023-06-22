@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AppContext } from '../Context'
-
+import { Dispatch, SetStateAction } from 'react'
 import SolidFrame from "../SolidFrame/SolidFrame";
 import './HomePage.scss'
 
@@ -9,12 +9,12 @@ import GetAccess from '../GetAccess/GetAccess';
 import Login from '../Login/Login';
 
 type HomePageProps = {
+	log: Dispatch<SetStateAction<boolean>>
+	user: Dispatch<SetStateAction<number>>
 	children?: React.ReactNode;
 };
 
-const HomePage: React.FC<HomePageProps> = ({
-	//children,
-	}) => {
+const HomePage: React.FC<HomePageProps> = ({log, user}) => {
 
 	return (
 		<Router>
@@ -25,18 +25,13 @@ const HomePage: React.FC<HomePageProps> = ({
 					txt2="Simple Pong"
 				/>
 				<SolidFrame frameClass="bottom-frame">
-					<AppContext.Consumer>
-						{/* {([ authChecked, setAuthChecked ]) => ( */}
-						{(data) => (
-							<Routes >
-								<Route path="*" element={<GetAccess />} />
-								<Route 
-									path="/Login"
-									element={<Login data={data} />} 
-								/>
-							</Routes>
-						)}
-					</AppContext.Consumer>
+					<Routes >
+						<Route path="*" element={<GetAccess />} />
+						<Route 
+							path="/Login"
+							element={<Login log={log} ID={user}/> }
+						/>
+					</Routes>
 				</SolidFrame>
 			</SolidFrame>
 		</Router>

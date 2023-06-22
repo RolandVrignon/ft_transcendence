@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'
+import './SearchList.scss'
 
 interface User {
 	id: number;
-	name: string;
+	username: string;
 }
+
 interface SearchListProps	{
 	searchTerm: string
 }
@@ -22,7 +24,6 @@ const SearchList = ({searchTerm}: SearchListProps) => {
 					searched: searchTerm
 				}
 			})
-			console.log(res.data)
 			setUsers(res.data)
 		}
 		catch (error) {
@@ -31,18 +32,23 @@ const SearchList = ({searchTerm}: SearchListProps) => {
 	}
 
 	useEffect(() => {
-		askDataBaseForSearchBarContent()
+		if (searchTerm)
+			askDataBaseForSearchBarContent()
 	}
-	, [searchTerm]);
+	, [searchTerm])
 
 	return (
-		<ul>
-			{users.map((user) => (
-			<li
-				key={user.id}>{user.name}
-			</li>
-			))}
-		</ul>
+		<div className='search-list' >
+			{searchTerm ? 
+			<ul>
+				{users.map((user) => (
+					<li
+					key={user.id}>{user.username}
+				</li>
+				))}
+			</ul>
+			: null }
+		</div>
 	)
 }
 

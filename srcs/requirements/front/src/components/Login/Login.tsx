@@ -8,15 +8,11 @@ import { AppContext } from '../Context'
 import { GlobalContent } from '../Context'
 
 interface LoginProps {
-  data: GlobalContent
+  log: Dispatch<SetStateAction<boolean>>
+  ID: Dispatch<SetStateAction<number>>
 }
 
-// interface LoginProps {
-//   authState: Dispatch<SetStateAction<boolean>>;
-// }
-
-
-const Login: React.FC<LoginProps> = (data) => {
+const Login: React.FC<LoginProps> = (control) => {
   let renderer = null
   const navigate = useNavigate()
 
@@ -50,7 +46,7 @@ const Login: React.FC<LoginProps> = (data) => {
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
-    localStorage.setItem("apiUser", JSON.stringify(userApiData))
+    control.ID(res.data.apiData.id)
   }
 
   useEffect(() => {
@@ -90,21 +86,15 @@ const Login: React.FC<LoginProps> = (data) => {
       }
     })
     setUserDbData(res.data)
-    localStorage.setItem('DBUser', JSON.stringify(userApiData))
   }
 
 	async function  handle2FA() {
-	const handle2FAURL = 'http://localhost:8080/callback/secure'
-	axios.post(handle2FAURL, {
-		data : {
-			info: userApiData
-		}}
-		).then((data) => {
-			console.log(data)
-		})
-		.catch((err) => {
-				console.log(err);
-		});
+    const handle2FAURL = 'http://localhost:8080/callback/secure'
+    await axios.post(handle2FAURL, {
+      data : {
+        info: userApiData
+    }})
+    setcheck2FA(true)
 	}
 
   async function handle2FAVerif() {
@@ -140,12 +130,12 @@ const Login: React.FC<LoginProps> = (data) => {
 			className="solid-frame input-frame text-content text-input"
 			onChange={(event)=>{setToken2FA(event.target.value)}}
 			type='text' required
-		></input>
+      ></input>
         <button
-			className="solid-frame button-frame text-content text-button"
-			onClick={handle2FAVerif}>
-			Verify code!
-		</button>
+          className="solid-frame button-frame text-content text-button"
+          onClick={handle2FAVerif}>
+          Verify code!
+        </button>
       </div>
     )
   }
@@ -194,10 +184,8 @@ const Login: React.FC<LoginProps> = (data) => {
   }
   else
   {
-    // authState.authState(true)
-    localStorage.setItem('logged', 'on')
+    control.log(true)
     navigate('/Profil')
-    // context.value.connected = true
   }
 
   return renderer

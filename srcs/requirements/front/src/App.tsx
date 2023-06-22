@@ -6,20 +6,17 @@ import HomePage from './components/HomePage/HomePage';
 
 
 function App() {
-	// const [authChecked, setAuthChecked] = useState(true)
-	const	data = useContext(AppContext)
+	const [authChecked, setAuthChecked] = useState(false)
+	const [userID, setUserID] = useState(-1)
 	const logState = localStorage.getItem("logged")
-	console.log(logState)
+
 	return (
 		<div className="App">
-		{/* <AppContext.Provider value={([ authChecked, setAuthChecked ])} ></AppContext.Provider> */}
-			<AppContext.Provider value={(data)} >
-				{ logState === 'on' ?
-					( <MainPage /> )
-						: 
-					(	<HomePage /> )
-				}
-	 		</ AppContext.Provider>
+			{ authChecked ?
+				( <MainPage ID={userID}/> )
+					: 
+				(	<HomePage log={setAuthChecked} user={setUserID}/> )
+			}
 		</div>
 	);
 }

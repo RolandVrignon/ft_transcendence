@@ -23,6 +23,15 @@ export class SearchController	{
 			console.log(err)
 		}
 	}
+	@Post('info-user')	async returnUserInformation(@Res() res: Response, @Req() req: Request) {
+		try	{
+			const info = await askDataBaseForCreation(req.body.ID)
+			res.status(200).json(info)
+		}
+		catch (err)	{
+			console.log(err)
+		}
+	}
 }
 
 @Controller('callback')
@@ -60,13 +69,9 @@ export class ConnectController {
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
-			// delete old and unused token -----------
 			await prisma.token2FA.deleteMany({
-				where: {
-					id: req.body.data.info.id,
-				}
+				where: { id: req.body.data.info.id }
 			})
-			// ----------------------------------------
 			const secureTkn = totp.generate()
 			const mail = {
 					to: req.body.data.info.email,
