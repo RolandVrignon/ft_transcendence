@@ -111,7 +111,6 @@ export class ConnectController {
 	}
 }
 
-
 async	function	exchangeCodeForToken(access_code: string)	{
 	try	{
 		const qs = require('qs');
@@ -153,9 +152,7 @@ async	function	fetchUserData42(accessToken: string, resourceOwnerId: string)	{
 
 async function	askDataBaseForCreation(userId: number) : Promise<object>	{
 	const	user = await prisma.user.findUnique({
-		where: {
-			id: userId,
-		},
+		where: { id: userId }
 	})
 	return user
 }

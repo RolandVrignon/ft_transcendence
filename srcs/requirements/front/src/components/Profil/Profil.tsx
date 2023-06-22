@@ -29,9 +29,11 @@ const Profil: React.FC<ProfilProps> = ({
 	children
 	}) => {
 
-	const [searchTerm, setSearchTerm] = useState('')
-	const [userInfo, setUserInfo] = useState<UserInfo>({
-		id: -1,
+		
+		const [newID, setNewID] = useState(-1)
+		const [searchTerm, setSearchTerm] = useState('')
+		const [userInfo, setUserInfo] = useState<UserInfo>({
+			id: -1,
 		first_name: '',
 		last_name: '',
 		imageLink: '',
@@ -41,32 +43,34 @@ const Profil: React.FC<ProfilProps> = ({
 	useEffect(() => {
 		const fetchUserInformationDisplay = async () => {
 			try {
-			const res = await axios({
-				url: 'http://localhost:8080/search/info-user',
-				method: 'POST',
-				data: {
-					ID
+				const res = await axios({
+					url: 'http://localhost:8080/search/info-user',
+					method: 'POST',
+					data: { ID }
+				})
+				const updatedUserInfo: UserInfo = {
+					id: ID,
+					first_name: res.data.firstName,
+					imageLink: res.data.imageLink,
+					username: res.data.username
 				}
-			})
-			const updatedUserInfo: UserInfo = {
-				id: ID,
-				first_name: res.data.firstName,
-				imageLink: res.data.imageLink,
-				username: res.data.username
-			}
-			setUserInfo(updatedUserInfo)
+				setUserInfo(updatedUserInfo)
 			}
 			catch (err)	{
-				console.log(err);
+				console.log(err)
 			}
 		}
 		fetchUserInformationDisplay()
-	
 	}, [ID])
 
 	function	askDbForUsers(event: string)	{
 		setSearchTerm(event)
 	}
+
+	useEffect(() => {
+		
+	}, [newID])
+
 
 	return (
 	<SolidFrame
@@ -80,7 +84,7 @@ const Profil: React.FC<ProfilProps> = ({
 				Search
 			</button>
 		</SolidFrame>
-		<SearchList searchTerm={searchTerm} />
+		<SearchList setNewID={setNewID} searchTerm={searchTerm}  />
 		<SolidFrame
 			frameClass="user-profil-frame"
 		>

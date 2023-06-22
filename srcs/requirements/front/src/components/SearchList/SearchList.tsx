@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'
+import { Dispatch, SetStateAction } from 'react'
 import './SearchList.scss'
 
 interface User {
@@ -8,10 +9,11 @@ interface User {
 }
 
 interface SearchListProps	{
-	searchTerm: string
+	searchTerm: string,
+	setNewID: Dispatch<SetStateAction<number>>
 }
 
-const SearchList = ({searchTerm}: SearchListProps) => {
+const SearchList = ({setNewID, searchTerm}: SearchListProps) => {
 	const [users, setUsers] = useState<User[]>([])
 	
 	async function askDataBaseForSearchBarContent()	{
@@ -20,9 +22,7 @@ const SearchList = ({searchTerm}: SearchListProps) => {
 			const	res = await axios({
 				url: searchResultURL,
 				method: 'POST',
-				data:	{
-					searched: searchTerm
-				}
+				data:	{ searched: searchTerm }
 			})
 			setUsers(res.data)
 		}
@@ -37,14 +37,24 @@ const SearchList = ({searchTerm}: SearchListProps) => {
 	}
 	, [searchTerm])
 
+	async function	navigateToSelectedProfile(e: React.MouseEvent<HTMLLIElement>)	{
+		const	liTag = e.target as HTMLLIElement
+		const	index = liTag.dataset.index
+		const	text = liTag.textContent
+		
+		setNewID(1)
+
+		console.log('app-front: display profile of: ', text, ' at index ', index)
+		// prepare how to pass the informations to the profile part maybe using a setter with
+			// a useEffect based on it si it can directly display the new profile
+	}
+
 	return (
 		<div className='search-list' >
 			{searchTerm ? 
 			<ul>
 				{users.map((user) => (
-					<li
-					key={user.id}>{user.username}
-				</li>
+					<li onClick={(e) => navigateToSelectedProfile(e)} key={user.id}>{user.username} </li>
 				))}
 			</ul>
 			: null }
