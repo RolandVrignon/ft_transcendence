@@ -11,30 +11,40 @@ $user-height: 25%;
 	flex-direction: row;
 	color: white;
 	font-family: 'Arcade';
+	margin-top: 5px;
+	margin-bottom: 10px;
 
 	.button-add-friend	{
-		height: 100%;
-		opacity: 0.8;
+		height: 70%;
+		border-radius: 30px;
+		opacity: 0.9;
 		background-color: green;
-		width: 25%;
+		margin-right: 2%;
+		width: 20%;
 	}
 	.button-remove-friend	{
-		height: 100%;
-		opacity: 0.8;
+		height: 70%;
+		border-radius: 30px;
+		opacity: 0.9;
+		margin-right: 2%;
 		background-color: orange;
-		width: 25%;
+		width: 20%;
 	}
 	.button-block-user	{
-		height: 100%;
-		opacity: 0.8;
+		height: 70%;
+		border-radius: 30px;
+		opacity: 0.9;
+		margin-right: 2%;
 		background-color: red;
-		width: 25%;
+		width: 20%;
 	}
 	.button-make-game	{
-		height: 100%;
-		opacity: 0.8;
+		height: 70%;
+		border-radius: 30px;
+		opacity: 0.9;
+		margin-right: 2%;
 		background-color: blue;
-		width: 25%;
+		width: 20%;
 	}
 
 }

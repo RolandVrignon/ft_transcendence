@@ -9,9 +9,33 @@ interface ProfileUserButtonProps	{
 
 
 const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
+	function	whichSendButton(e: React.MouseEvent<HTMLButtonElement>): number	{
+		const target = e.target as HTMLButtonElement;
+		if (target.className === 'button-interface-actions-user button-add-friend')
+			return 0
+		else if (target.className === 'button-interface-actions-user button-remove-friend')
+			return 1
+		else if (target.className === 'button-interface-actions-user button-block-user')
+			return 2
+		return 3
+	}
 
-	function	handleSocialInteract()
-		{ console.log('app-front: buttons action got triggered.') }
+	function	handleSocialInteract(e: React.MouseEvent<HTMLButtonElement>)	{
+		switch (whichSendButton(e))	{
+			case 0:
+				console.log('button-add-friend')
+				break
+			case 1:
+				console.log('button-remove-friend')
+				break
+			case 2:
+				console.log('button-block-user')
+				break
+			case 3:
+				console.log('button-make-game')
+
+		}
+	}
 
 	function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
 		const target = event.target as HTMLButtonElement;
