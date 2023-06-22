@@ -39,23 +39,22 @@ const SearchList = ({setNewID, searchTerm}: SearchListProps) => {
 
 	async function	navigateToSelectedProfile(e: React.MouseEvent<HTMLLIElement>)	{
 		const	liTag = e.target as HTMLLIElement
-		const	index = liTag.dataset.index
 		const	text = liTag.textContent
-		
-		setNewID(1)
-
-		console.log('app-front: display profile of: ', text, ' at index ', index)
-		// prepare how to pass the informations to the profile part maybe using a setter with
-			// a useEffect based on it si it can directly display the new profile
+		if (text)	{
+			const user = users.filter(user => user.username.toLowerCase().includes(text.toLowerCase()))
+			setNewID(user[0].id)
+		}
 	}
 
 	return (
 		<div className='search-list' >
 			{searchTerm ? 
 			<ul>
-				{users.map((user) => (
-					<li onClick={(e) => navigateToSelectedProfile(e)} key={user.id}>{user.username} </li>
-				))}
+				{users.length ? users.map((user) => (
+					<li onClick={(e) => navigateToSelectedProfile(e)} key={user.id}>
+						{user.username}
+					</li>
+				)) : <li>No user matched your search</li>}
 			</ul>
 			: null }
 		</div>
