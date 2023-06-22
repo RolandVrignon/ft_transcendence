@@ -5,6 +5,40 @@ $user-height: 25%;
 
 }
 
+.button-interface-actions-user	{
+	height: 50px;
+	border-color: cadetblue;
+	flex-direction: row;
+	color: white;
+	font-family: 'Arcade';
+
+	.button-add-friend	{
+		height: 100%;
+		opacity: 0.8;
+		background-color: green;
+		width: 25%;
+	}
+	.button-remove-friend	{
+		height: 100%;
+		opacity: 0.8;
+		background-color: orange;
+		width: 25%;
+	}
+	.button-block-user	{
+		height: 100%;
+		opacity: 0.8;
+		background-color: red;
+		width: 25%;
+	}
+	.button-make-game	{
+		height: 100%;
+		opacity: 0.8;
+		background-color: blue;
+		width: 25%;
+	}
+
+}
+
 .search-frame {
 	height: 50px;
 	border-color: white;
@@ -18,6 +52,7 @@ $user-height: 25%;
 	.button-search-frame {
 		height: 100%;
 		width: 250px;
+		background-color: green;
 	}
 }
 
@@ -27,13 +62,9 @@ $user-height: 25%;
 
 	.photo-frame {
 		width: 400px;
-		border-width:1px;
-		border-color:red;
 	}
 	.user-data-frame {
 		flex-grow: 1;
-		border-width:1px;
-		border-color:blue;
 	}
 }
 

@@ -54,7 +54,10 @@ const SearchList = ({setNewID, searchTerm}: SearchListProps) => {
 					<li onClick={(e) => navigateToSelectedProfile(e)} key={user.id}>
 						{user.username}
 					</li>
-				)) : <li>No user matched your search</li>}
+				)) : 
+					<li>
+						No user matched your search
+					</li>}
 			</ul>
 			: null }
 		</div>

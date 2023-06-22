@@ -1,10 +1,11 @@
-import SolidFrame from "../SolidFrame/SolidFrame";
-import SearchBar from "../SearchBar/SearchBar";
-import SearchList from "../SearchList/SearchList";
+import SolidFrame from "../SolidFrame/SolidFrame"
+import SearchBar from "../SearchBar/SearchBar"
+import SearchList from "../SearchList/SearchList"
+import ProfileUserButton from "../StyledButtons/StyledButtons"
 import Title from "../Title/Title";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import './Profil.scss';
+import './Profil.scss'
 
 interface UserInfo {
 	id?: number,
@@ -100,17 +101,18 @@ const Profil: React.FC<ProfilProps> = ({
 			frameClass="search-frame"
 		>
 			<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
-			<button className="solid-frame search-frame button-search-frame text-content">
-				Search
-			</button>
+			{/* { newID === -1 || newID === ID ? null
+				:
+				<button className="solid-frame search-frame button-search-frame text-content">
+					Add Friend
+				</button>
+			} */}
 		</SolidFrame>
-		<SearchList setNewID={setNewID} searchTerm={searchTerm}  />
-		<SolidFrame
-			frameClass="user-profil-frame"
-		>
-			<SolidFrame
-				frameClass="photo-frame"
-			>
+		<SearchList setNewID={setNewID} searchTerm={searchTerm} />
+		<ProfileUserButton newID={newID} ID={ID}/>
+		{/* display image and username +? 2FA */}
+		<SolidFrame frameClass="user-profil-frame">
+			<SolidFrame frameClass="photo-frame">
 				<img src={userInfo.imageLink} />
 			</SolidFrame>
 			<SolidFrame
@@ -120,9 +122,8 @@ const Profil: React.FC<ProfilProps> = ({
 				{children}
 			</SolidFrame>
 		</SolidFrame>
-		<SolidFrame
-			frameClass="info-frame"
-		>
+		{/* display stats of the user concerned */}
+		<SolidFrame frameClass="info-frame">
 			<Title
 				frameClass="profil-title-frame"
 				txtClass="text-profil-title"
@@ -135,9 +136,8 @@ const Profil: React.FC<ProfilProps> = ({
 			/>
 			{children}
 		</SolidFrame>
-		<SolidFrame
-			frameClass="info-frame"
-		>
+		{/* display the match history of the user */}
+		<SolidFrame frameClass="info-frame">
 			<Title
 				frameClass="profil-title-frame"
 				txtClass="text-profil-title"
