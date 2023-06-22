@@ -7,4 +7,6 @@ while ! nc -z database 5432;
 
 echo 'PostgreSQL Server is up - executing command';
 
-npm run start
+
+npx prisma migrate dev
+npm run start:dev

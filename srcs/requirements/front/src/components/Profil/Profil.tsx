@@ -29,7 +29,6 @@ const Profil: React.FC<ProfilProps> = ({
 	children
 	}) => {
 
-		
 		const [newID, setNewID] = useState(-1)
 		const [searchTerm, setSearchTerm] = useState('')
 		const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -46,7 +45,7 @@ const Profil: React.FC<ProfilProps> = ({
 				const res = await axios({
 					url: 'http://localhost:8080/search/info-user',
 					method: 'POST',
-					data: { ID }
+					data: { id: ID }
 				})
 				const updatedUserInfo: UserInfo = {
 					id: ID,
@@ -68,7 +67,28 @@ const Profil: React.FC<ProfilProps> = ({
 	}
 
 	useEffect(() => {
-		
+		const fetchOtherUserInformationDisplay = async () => {
+			try {
+				if (newID !== -1)	{
+					const res = await axios({
+						url: 'http://localhost:8080/search/info-user',
+						method: 'POST',
+						data: { id: newID }
+					})
+					const updatedUserInfo: UserInfo = {
+						id: newID,
+						first_name: res.data.firstName,
+						imageLink: res.data.imageLink,
+						username: res.data.username
+					}
+					setUserInfo(updatedUserInfo)
+				}
+			}
+			catch (err)	{
+				console.log(err)
+			}
+		}
+		fetchOtherUserInformationDisplay()
 	}, [newID])
 
 
@@ -95,7 +115,7 @@ const Profil: React.FC<ProfilProps> = ({
 			</SolidFrame>
 			<SolidFrame
 				frameClass="user-data-frame"
-				txt1={userInfo.username}
+				txt1={'Username: ' + userInfo.username}
 			>
 				{children}
 			</SolidFrame>

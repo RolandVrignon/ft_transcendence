@@ -25,7 +25,7 @@ export class SearchController	{
 	}
 	@Post('info-user')	async returnUserInformation(@Res() res: Response, @Req() req: Request) {
 		try	{
-			const info = await askDataBaseForCreation(req.body.ID)
+			const info = await askDataBaseForCreation(req.body.id)
 			res.status(200).json(info)
 		}
 		catch (err)	{
@@ -111,6 +111,7 @@ export class ConnectController {
 	}
 }
 
+
 async	function	exchangeCodeForToken(access_code: string)	{
 	try	{
 		const qs = require('qs');
@@ -152,7 +153,7 @@ async	function	fetchUserData42(accessToken: string, resourceOwnerId: string)	{
 
 async function	askDataBaseForCreation(userId: number) : Promise<object>	{
 	const	user = await prisma.user.findUnique({
-		where: { id: userId }
+		where: { id: userId },
 	})
 	return user
 }
