@@ -1,4 +1,5 @@
 import {
+  SubscribeMessage,
   WebSocketGateway,
   OnGatewayConnection,
   WebSocketServer,
@@ -6,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { GameSession } from './gameSession';
+import prisma from '../controllers/login/prisma.client';
 
 const interval: number = 1000 / 30
 
@@ -21,7 +23,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   // clientSocket connections list
-  clientSocketsQueue: Socket[] = [];
+
+  //There is no need to havbe an array of sockets since it will never contain more than one element.
+  clientSocketInQueue: Socket | null = null;
+  // clientSocketsQueue: Socket[] = [];
   gameSessions: GameSession[] = []
   nextDebugSessionId: number = 0
 
@@ -30,29 +35,38 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleConnection(clientSocket: Socket) {
-    // When a new clientSocket connects, add them to the list of clientSockets
-    this.clientSocketsQueue.push(clientSocket);
-    // console.log('clientSocket connected:', clientSocket.id, ", clientScokets.length: ", this.clientSocketsQueue.length, ", clientScokets: ", this.clientSocketsQueue.map(cs => cs.id));
+    console.log(`Pong client CONNECTED: ${clientSocket.id}`)
+    // // When a new clientSocket connects, add them to the list of clientSockets
+    // this.clientSocketsQueue.push(clientSocket);
+    // // console.log('clientSocket connected:', clientSocket.id, ", clientScokets.length: ", this.clientSocketsQueue.length, ", clientScokets: ", this.clientSocketsQueue.map(cs => cs.id));
 
-    // If we have two players, start the game
-    if (this.clientSocketsQueue.length >= 2) {
-      let clientSocket1 = this.clientSocketsQueue.pop()
-      let clientSocket2 = this.clientSocketsQueue.pop()
-      console.log(`Client CONNECTED, creating game session ${this.nextDebugSessionId}`)
-      this.gameSessions.push(new GameSession(clientSocket1, clientSocket2, this.nextDebugSessionId))
-      this.nextDebugSessionId += 1
-      console.log(`Sessions count: ${this.gameSessions.length}, [${this.gameSessions.map(session => session.debugId)}]`)
-    }
-    else{
-      console.log(`Client CONNECTED, added to queue, queue.length = ${this.clientSocketsQueue.length}`)
-      clientSocket.emit('in-queue')
-    }
+    // // If we have two players, start the game
+    // if (this.clientSocketsQueue.length >= 2) {
+    //   let clientSocket1 = this.clientSocketsQueue.pop()
+    //   let clientSocket2 = this.clientSocketsQueue.pop()
+    //   console.log(`Client CONNECTED, creating game session ${this.nextDebugSessionId}`)
+    //   this.gameSessions.push(new GameSession(clientSocket1, clientSocket2, this.nextDebugSessionId))
+    //   this.nextDebugSessionId += 1
+    //   console.log(`Sessions count: ${this.gameSessions.length}, [${this.gameSessions.map(session => session.debugId)}]`)
+    // }
+    // else{
+    //   console.log(`Client CONNECTED, added to queue, queue.length = ${this.clientSocketsQueue.length}`)
+    //   clientSocket.emit('in-queue')
+    // }
+  }
+  
+  @SubscribeMessage('enter-queue')
+  handleEnterQueueRequest(clientSocket: Socket, userDbId)
+  {
+      console.log(`user with id ${userDbId} count: ${prisma.user.count({where: {id: userDbId}})} `) 
   }
 
-  handleDisconnect(clientScoket: Socket) {
-    this.clientSocketsQueue = this.clientSocketsQueue.filter(cs => cs !== clientScoket)
-    console.log(`Client DISCONNECTED`)
+  handleDisconnect(clientSocket: Socket) {
+    // this.clientSocketsQueue = this.clientSocketsQueue.filter(cs => cs !== clientScoket)
+    console.log(`Pong client DISCONNECTED: ${clientSocket.id}`)
   }
+
+
 
   update() {
     let nbSessions = this.gameSessions.length

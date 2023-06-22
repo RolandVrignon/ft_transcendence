@@ -1,13 +1,23 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ReactP5Wrapper } from "@p5-wrapper/react";
 import io from 'socket.io-client'; // Import the socket.io client
+import { Socket } from 'socket.io-client'; // Import the socket.io client
+import p5Type from '@p5-wrapper/react'; // This imports the type
+import { createNoSubstitutionTemplateLiteral } from 'typescript';
 
-export default function PongGame() { 
+
+type Vector = any;
+
+type PongGameProps = {
+    userDbID: number;
+};
+
+export default function PongGame({userDbID}: PongGameProps) { 
     //possible states: undefined(didn't try anything), in queue, in game, Connection failed, Connection timeout, VICTORY, DEFEAT
-    const [ sessionState, setsessionState ] = useState(undefined)
-    const socketRef = useRef(null)
-    const [playerIndex, setPlayerIndex] = useState(null); // Store the player index, 0 = left, 1 = right
-    const parentRef = useRef();
+    const [sessionState, setsessionState] = useState<string | undefined>(undefined)
+    const socketRef = useRef<Socket | null>(null)
+    const [playerIndex, setPlayerIndex] = useState<number | null>(null); // Store the player index, 0 = left, 1 = right
+    const parentRef = useRef<HTMLDivElement | null>(null);
 
     // Connect to the socket server on component mount
     useEffect(() => {
@@ -30,14 +40,16 @@ export default function PongGame() {
         }
     }, []);
 
-    const sketch = p5 => {
+    const sketch = (p5: any) => {
         const playerWidthRatio = 0.0375; // proportion of canvas width
         const playerOffsetRatio = 0.0125; // proportion of canvas width
         const playerHeightRatio = 0.166666; // proportion of canvas height
         const ballRadiusRatio = 0.025; // proportion of canvas width
         const timeForPlayerToCrossCanvas = 0.6
         function getSideLength() {
-            return Math.min(parentRef.current.offsetHeight, parentRef.current.offsetWidth)
+            if (parentRef.current !== null)
+                return Math.min(parentRef.current.offsetHeight, parentRef.current.offsetWidth)
+            return 500
         }
         function getPlayerWidth() {
             return playerWidthRatio * getSideLength();
@@ -53,24 +65,26 @@ export default function PongGame() {
         }
 
 
-        let playerLeft;
-        let playerRight;
-        let ball;
+        let playerLeft: Player;
+        let playerRight: Player;
+        let ball: Ball;
 
         class Player{
-            constructor(x)
+            posRelativeToCanvas: Vector;
+            points: number = 0
+            constructor(x: number)
             {
                 this.posRelativeToCanvas = p5.createVector(x, 0.5)
                 this.points = 0
             }
-            draw(isLocal)
+            draw(isLocal: boolean)
             {
                 p5.rectMode(p5.CENTER)
                 p5.fill(isLocal ? 'blue' : 'red')
                 p5.rect(this.posRelativeToCanvas.x * getSideLength(), this.posRelativeToCanvas.y * getSideLength(), getPlayerWidth(), getPlayerHeight())
                 p5.rectMode(p5.CORNER)
             }
-            move(upKey, downKey)
+            move(upKey: number, downKey: number)
             {
                 //get the direction
                 let direction = 0
@@ -83,11 +97,12 @@ export default function PongGame() {
                 //clamp the position
                 this.posRelativeToCanvas.y = Math.max(this.posRelativeToCanvas.y, playerHeightRatio / 2)
                 this.posRelativeToCanvas.y = Math.min(this.posRelativeToCanvas.y, 1 - playerHeightRatio / 2)
-                socketRef.current.emit('player-move', { y: this.posRelativeToCanvas.y })
+                socketRef.current?.emit('player-move', { y: this.posRelativeToCanvas.y })
             }
         }
 
         class Ball{
+            posRelativeToCanvas: Vector;
             constructor() {
                 this.posRelativeToCanvas = p5.createVector(0.5, 0.5)
             }
@@ -98,7 +113,10 @@ export default function PongGame() {
         
 
         p5.setup = () => {
-            if (socketRef.current) {
+            if (socketRef.current) { 
+                console.log("Sending enter-queue event with ", userDbID, " id.")
+                socketRef.current?.emit('enter-queue', userDbID)
+
                 // Your setup code here.
                 p5.createCanvas(getSideLength(), getSideLength());
 
@@ -107,7 +125,7 @@ export default function PongGame() {
                 ball = new Ball();
 
                 socketRef.current.on('update-game', (gameState) => {
-                    console.log(gameState) 
+                    // console.log(gameState) 
                     if (playerIndex !== 0)//if we are not the left player we want to update the position of the remote left player
                         playerLeft.posRelativeToCanvas.y = gameState.players[0].y
                     if (playerIndex !== 1)//same for the right player
@@ -117,7 +135,7 @@ export default function PongGame() {
                     playerLeft.points = gameState.players[0].points
                     playerRight.points = gameState.players[1].points
                 });
-                socketRef.current.on('game-over', outcome => {
+                socketRef.current.on('game-over', (outcome: any) => {
                     console.log("received 'game-over' event, won: ", outcome.won, ", reason: ", outcome.reason)
                     if (outcome.won)
                         setsessionState("VICTORY")

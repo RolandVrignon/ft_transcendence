@@ -4,19 +4,15 @@ import './Pong.scss'
 import PongGame from './PongGame'
 
 type PongProps = {
-	children?: React.ReactNode;
+	userDbID: number;
 };
 
-const Pong: React.FC<PongProps> = ({
-	children,
-	}) => {
+export default function Pong({userDbID}: PongProps) { 
 	return (
 	<SolidFrame frameClass="pong-frame"	>
 		<SolidFrame frameClass="arena-frame" >
-		 <PongGame />
+		<PongGame userDbID={userDbID}/>
 		</SolidFrame>
 	</SolidFrame>
 	);
-};
-
-export default Pong;
+}; 

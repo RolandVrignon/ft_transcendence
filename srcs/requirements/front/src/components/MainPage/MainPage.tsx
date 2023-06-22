@@ -42,7 +42,7 @@ const Content: React.FC<MainPageProps> = (ID) => {
           <Route path="*" element={<ChatBox />} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil ID={ID.ID}/>} />
-          <Route path="/Pong" element={<Pong />} />
+          <Route path="/Pong" element={<Pong userDbID={ID.ID} />} />
           <Route path="/Chat" element={<ChatBox />} />
         </Routes>
       </SolidFrame>
