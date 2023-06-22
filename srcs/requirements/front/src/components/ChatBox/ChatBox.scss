@@ -2,6 +2,7 @@
 .chat-box {
 	height: 100%;
 	border-width: 0px;
+	max-width: 75%;
 }
 
 .user-frame {
@@ -56,6 +57,11 @@
 .messages-container {
 	flex-grow: 1;
 	border-width: 1px;
+	justify-content: start;
+}
+
+.text-container {
+	text-align: start;
 }
 
 .write-frame {
@@ -72,7 +78,6 @@
 		flex-grow: 1;
 		border-width: 1px;
 		justify-content: start;
-		align-items: top;
 	}
 	.text-input {
 		font-family: 'Arcade';
@@ -84,5 +89,8 @@
 	}
 	.text-button {
 		font-size: 20px;
+	}
+	.text-msg-input {
+		text-align: start;
 	}
 }

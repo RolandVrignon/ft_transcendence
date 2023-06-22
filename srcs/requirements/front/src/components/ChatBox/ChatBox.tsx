@@ -161,7 +161,7 @@ const ChatBox: React.FC = ({
 						value={createChatName}
 						onChange={(e) => setCreateChatName(e.target.value)} />
 					<label
-						className="solid-frame input-frame text-content text-label"
+						className="solid-frame label-frame text-content text-label"
 					>
 						Create a channel (pass) :
 					</label>
@@ -184,7 +184,7 @@ const ChatBox: React.FC = ({
 	return (
 		<SolidFrame frameClass="chat-box" >
 				<div
-					className="solid-frame messages-container"
+					className="solid-frame messages-container text-content text-container"
 					ref={messagesContainerRef}
 				>
 					{messages.map((message: any, index: number) => (
@@ -212,7 +212,7 @@ const ChatBox: React.FC = ({
 							Message:
 						</label>
 						<input
-							className="solid-frame write-frame input-frame text-content text-input"
+							className="solid-frame write-frame input-frame text-content text-input text-msg-input"
 							value={messageText}
 							onChange={(e) => setMessageText(e.target.value)}
 							onInput={emitTyping}
