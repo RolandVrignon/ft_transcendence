@@ -147,7 +147,6 @@ export class GameSession {
     promise.catch(err => console.error(`create error: ${err}`))
     promise.then(() => console.log('session created'))
   }
-  
 
   // Method to handle player move events
   // @SubscribeMessage('player-move')
