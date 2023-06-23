@@ -11,11 +11,11 @@ interface ProfileUserButtonProps	{
 const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
 	function	whichSendButton(e: React.MouseEvent<HTMLButtonElement>): number	{
 		const target = e.target as HTMLButtonElement;
-		if (target.className === 'button-interface-actions-user button-add-friend')
+		if (target.className === 'solid-frame text-content button-interface-actions-user button-add-friend')
 			return 0
-		else if (target.className === 'button-interface-actions-user button-remove-friend')
+		else if (target.className === 'solid-frame text-content button-interface-actions-user button-remove-friend')
 			return 1
-		else if (target.className === 'button-interface-actions-user button-block-user')
+		else if (target.className === 'solid-frame text-content button-interface-actions-user button-block-user')
 			return 2
 		return 3
 	}
@@ -52,10 +52,10 @@ const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
 			{ newID === -1 || newID === ID ?
 				null :
 				<SolidFrame frameClass="button-interface-actions-user">
-					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="button-interface-actions-user button-add-friend" >Add friend</button>
-					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="button-interface-actions-user button-remove-friend" >Remove Friend</button>
-					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="button-interface-actions-user button-block-user" >Block User</button>
-					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="button-interface-actions-user button-make-game" >Make Game</button>
+					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="solid-frame text-content button-interface-actions-user button-add-friend" >Add friend</button>
+					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="solid-frame text-content button-interface-actions-user button-remove-friend" >Remove Friend</button>
+					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="solid-frame text-content button-interface-actions-user button-block-user" >Block User</button>
+					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="solid-frame text-content button-interface-actions-user button-make-game" >Make Game</button>
 			</SolidFrame>}
 		</div>
 	)
