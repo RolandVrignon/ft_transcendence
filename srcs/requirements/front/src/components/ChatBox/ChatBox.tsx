@@ -201,24 +201,24 @@ const ChatBox: React.FC = ({
 					className="solid-frame write-frame"
 				>
 					<form 
-						className="solid-frame"
+						className="solid-frame write-frame"
 						onSubmit={(e) => {
 						e.preventDefault();
 						sendMessage();
 					}}>
 						<label
-							className="solid-frame write-frame label-frame text-content text-label"
+							className="solid-frame label-frame text-content text-label"
 						>
 							Message:
 						</label>
 						<input
-							className="solid-frame write-frame input-frame text-content text-input text-msg-input"
+							className="solid-frame input-frame text-content text-input text-msg-input"
 							value={messageText}
 							onChange={(e) => setMessageText(e.target.value)}
 							onInput={emitTyping}
 						/>
 						<button
-							className="solid-frame write-frame button-frame text-content text-button"
+							className="solid-frame button-frame text-content text-button"
 							type="submit"
 						>
 							Send

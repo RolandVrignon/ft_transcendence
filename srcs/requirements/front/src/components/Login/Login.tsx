@@ -139,7 +139,7 @@ const Login: React.FC<LoginProps> = (control) => {
       </div>
     )
   }
-  else if (userLogged && userDbData && dOptAuth == 'on') {
+  else if (userLogged && userDbData && dOptAuth === 'on') {
     renderer = (
       <div className="solid-frame two-fa-frame">
         <button

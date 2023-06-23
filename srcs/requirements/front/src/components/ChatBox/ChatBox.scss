@@ -65,7 +65,6 @@
 }
 
 .write-frame {
-	height: 50%;
 
 	.label-frame {
 		height: 50px;
@@ -74,23 +73,18 @@
 	}
 
 	.input-frame {
-		border-width: 1px;
-		flex-grow: 1;
-		border-width: 1px;
 		justify-content: start;
+		border-width: 1px;
 	}
 	.text-input {
-		font-family: 'Arcade';
 		text-align: start;
+		align-items: start;
+		justify-content: start;
 	}
 	.button-frame {
 		height: 50px;
-		align-items: center;
 	}
 	.text-button {
 		font-size: 20px;
-	}
-	.text-msg-input {
-		text-align: start;
 	}
 }

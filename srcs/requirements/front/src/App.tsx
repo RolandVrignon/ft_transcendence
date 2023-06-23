@@ -3,6 +3,7 @@ import React, { useState, useContext } from 'react';
 import './App.scss';
 import MainPage from './components/MainPage/MainPage'
 import HomePage from './components/HomePage/HomePage';
+import './components/ChatBox/ChatBox.scss'
 
 
 function App() {
