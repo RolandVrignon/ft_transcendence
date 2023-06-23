@@ -111,7 +111,6 @@ export default function PongGame({userDbID}: PongGameProps) {
 
         p5.setup = () => {
             if (socketRef.current) { 
-                console.log("Sending enter-queue event with ", userDbID, " id.")
                 socketRef.current?.emit('enter-queue', userDbID)
 
                 // Your setup code here.
@@ -161,6 +160,7 @@ export default function PongGame({userDbID}: PongGameProps) {
             p5.fill('black')
             p5.text(playerLeft.points.toString(), getSideLength() / 5, getSideLength() / 6)
             p5.text(playerRight.points.toString(), getSideLength() - getSideLength() / 5, getSideLength() / 6)
+            
         }
         function drawText() {
             p5.clear()
