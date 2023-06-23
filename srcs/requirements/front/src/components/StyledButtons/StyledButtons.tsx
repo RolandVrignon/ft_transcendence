@@ -40,11 +40,13 @@ const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
 	function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
 		const target = event.target as HTMLButtonElement;
 		target.style.opacity = '1'
+		target.style.borderWidth = '3px'
 	}
 
 	function MouseOut(event: React.MouseEvent<HTMLButtonElement>){
 		const target = event.target as HTMLButtonElement;
 		target.style.opacity = '0.8'
+		target.style.borderWidth = '2px'
 	}
 
 	return (
