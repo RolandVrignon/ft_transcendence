@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { clamp, Vector2D } from './simpleMath';
+import prisma from 'src/controllers/login/prisma.client';
 
 
 //const
@@ -91,14 +92,16 @@ export class GameSession {
 
   // clientSocket connections list
   clientSockets: Socket[] = [];
+  userDbIDs: number[] = []
 
   //Is used by the pongGateway to check if it should be removed
   gameIsOver: boolean = false
   debugId: number = -1
 
-  constructor(clientSocket1: Socket, clientSocket2: Socket, debugId: number) {
+  constructor(clientSocket1: Socket, clientSocket2: Socket, userDbId1: number, userDbId2: number, debugId: number) {
     this.debugId = debugId
     this.clientSockets = [clientSocket1, clientSocket2]
+    this.userDbIDs = [userDbId1, userDbId2]
     this.clientSockets.forEach((cs, index) => cs.emit('start-game', index))
     this.clientSockets.forEach(cs => cs.emit('update-game', this.gameState));
     this.clientSockets.forEach(cs => cs.on('disconnect', () => this.handleDisconnect(cs)))
@@ -108,36 +111,51 @@ export class GameSession {
   handleDisconnect(disconnectedClientSocket: Socket) {
     if (this.gameIsOver === false) {
       //find the index of the player that left 
-      let winnerSocket: Socket = this.clientSockets.find(cs => cs !== disconnectedClientSocket)
-      //give the win to the player that remained
-      console.log(`Game ${this.debugId} is over: a player left the game`)
-      winnerSocket.emit('game-over', {won: true, reason: "Other player disconnected."})
-      this.gameIsOver = true
+      let winnerIndex = 1 - this.clientSockets.findIndex(cs => cs !== disconnectedClientSocket)
+      let reason = `Game ${this.debugId} is over: player ${1 - winnerIndex} disconnected.`
+      this.handleGameOver(winnerIndex, reason)
     } 
   }
   update()  {
     this.gameState.ball.move(this.gameState)
     let WinnerIndex = this.gameState.players.findIndex(player => player.points >= 3)
     if (WinnerIndex !== -1) {
-      console.log(`Game ${this.debugId} is over: player ${WinnerIndex} has ${this.gameState.players[WinnerIndex].points} points.`)
-      this.clientSockets[WinnerIndex].emit('game-over', {won: true, reason: "You have 3 or more points."})
-      this.clientSockets[1 - WinnerIndex].emit('game-over', {won: false, reason: "Other player has 3 or more points."})
-      //Set gameIsOver to true before disconnecting the clients because handleDisconnect(which rellis on gameIsOver) will get called/
-      this.gameIsOver = true
-      this.clientSockets.forEach(cs => cs.disconnect(true))
+      this.handleGameOver(WinnerIndex, `Game ${this.debugId} is over: player ${WinnerIndex} has ${this.gameState.players[WinnerIndex].points} points.`)
     }
     else
       this.clientSockets.forEach(cs => cs.emit('update-game', this.gameState));
     this.gameState.nbFramesDebug++
   }
 
+  handleGameOver(winnerIndex: number, reason: string = `Game ${this.debugId} is over, winer index: ${winnerIndex}.`) {
+    console.log(reason)
+    this.clientSockets[winnerIndex].emit('game-over', {won: true, reason: reason})
+    this.clientSockets[1 - winnerIndex].emit('game-over', {won: false, reason: reason})
+    //Set gameIsOver to true before disconnecting the clients because handleDisconnect(which rellis on gameIsOver) will get called/
+    this.gameIsOver = true
+    this.clientSockets.forEach(cs => cs.disconnect(true))
+    let yes = {
+      data: {
+        userID1: { connect: { id: this.userDbIDs[0] } },
+        userID2: { connect: { id: this.userDbIDs[1] } },
+        winner: { connect: { id: this.userDbIDs[winnerIndex] } },
+        loser: { connect: { id: this.userDbIDs[1 - winnerIndex] } }
+      }
+  };
+    console.log(`Creating new gameSessionOutcome ${yes}`)
+    let promise = prisma.gameSessionOutcome.create(yes)
+    promise.catch(err => console.error(`create error: ${err}`))
+    promise.then(() => console.log('session created'))
+  }
+  
+
   // Method to handle player move events
-  @SubscribeMessage('player-move')
+  // @SubscribeMessage('player-move')
   handlePlayerMove(clientSocket: Socket, payload: { y: number }) {
     //find playerIndex with clientSocket (this way, a player can only affect its paddle)
     let playerIndex: number = this.clientSockets.findIndex(cs => cs === clientSocket)
     // Update the player's position based on the payload
-    console.log(`Setting position of player ${playerIndex} to ${payload.y}`)
+    // console.log(`Setting position of player ${playerIndex} to ${payload.y}`)
     this.gameState.players[playerIndex].y = payload.y;
   }
 }

@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { ReactP5Wrapper } from "@p5-wrapper/react";
 import io from 'socket.io-client'; // Import the socket.io client
+import p5Type from '@p5-wrapper/react'; // This imports the type
+// import { createNoSubstitutionTemplateLiteral } from 'typescript';
+
 
 export default function PongGame() { 
     //possible states: undefined(didn't try anything), in queue, in game, Connection failed, Connection timeout, VICTORY, DEFEAT
