@@ -31,15 +31,25 @@ const SearchList = ({setNewID, searchTerm}: SearchListProps) => {
 		}
 	}
 
+	function MouseOver(event: React.MouseEvent<HTMLDivElement>) {
+		const target = event.target as HTMLDivElement;
+		target.style.opacity = '0.8'
+	}
+
+	function MouseOut(event: React.MouseEvent<HTMLDivElement>){
+		const target = event.target as HTMLDivElement;
+		target.style.opacity = '1'
+	}
+
 	useEffect(() => {
 		if (searchTerm)
 			askDataBaseForSearchBarContent()
 	}
 	, [searchTerm])
 
-	async function	navigateToSelectedProfile(e: React.MouseEvent<HTMLLIElement>)	{
-		const	liTag = e.target as HTMLLIElement
-		const	text = liTag.textContent
+	async function	navigateToSelectedProfile(e: React.MouseEvent<HTMLDivElement>)	{
+		const	tag = e.target as HTMLDivElement
+		const	text = tag.textContent
 		if (text)	{
 			const user = users.filter(user => user.username.toLowerCase().includes(text.toLowerCase()))
 			setNewID(user[0].id)
@@ -51,13 +61,14 @@ const SearchList = ({setNewID, searchTerm}: SearchListProps) => {
 			{searchTerm ? 
 			<ul>
 				{users.length ? users.map((user) => (
-					<li onClick={(e) => navigateToSelectedProfile(e)} key={user.id}>
+					<div className='search-list-display-user' onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={(e) => navigateToSelectedProfile(e)} key={user.id}>
 						{user.username}
-					</li>
+					</div>
 				)) : 
-					<li>
+					<div>
 						No user matched your search
-					</li>}
+					</div>
+				}
 			</ul>
 			: null }
 		</div>
