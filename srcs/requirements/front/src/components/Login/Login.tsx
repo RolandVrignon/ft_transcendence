@@ -60,7 +60,7 @@ const Login: React.FC<LoginProps> = (control) => {
       catch (err) {
           console.log(err)
       }
-  }, [attemptLogin])
+  }, [attemptLogin, askDataBaseForCreation])
 
   async function attemptConnect() {
     try {
