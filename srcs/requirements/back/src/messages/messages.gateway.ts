@@ -431,9 +431,7 @@ export class MessagesGateway {
 				},
 			})
 			if (this.server.sockets.sockets.has(target.clientId)) {
-				const socket = this.server.sockets.sockets.get(target.clientId);
-			if (socket)
-				socket.disconnect(); // a changer apres ....
+				this.server.to(target.clientId).emit('leaveChannel');
 			}
 		}
 	}
@@ -520,10 +518,6 @@ export class MessagesGateway {
 				throw  "You cannot kick a SuperUser."
 			}
 			else if (this.server.sockets.sockets.has(target.clientId)) {
-				const socket = this.server.sockets.sockets.get(target.clientId);
-				if (socket) {
-					socket.disconnect(); // a changer apres ....
-				}
 				const expirationTimestamp = DateTime.now().plus({ minutes: parseInt(duration) }).toMillis();
 				await prisma.channelUser.update ({
 					where: {id: target.id},
@@ -532,6 +526,10 @@ export class MessagesGateway {
 						kickExpiration: { set: new Date(expirationTimestamp) }
 					},
 				})
+				const socket = this.server.sockets.sockets.get(target.clientId);
+				if (socket) {
+					socket.disconnect(); // a changer apres ....
+				}
 				throw `Server: ${targetUser} has been kicked.`
 			}
 			else {

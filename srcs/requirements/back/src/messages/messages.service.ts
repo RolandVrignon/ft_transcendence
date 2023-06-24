@@ -25,7 +25,7 @@ export class MessagesService {
 				channelId: channel.id,
 			},
 		})
-		if (!user)
+		if (!channelUser)
 		{
 			const createUser = await prisma.channelUser.create({
 				data: {
@@ -59,7 +59,7 @@ export class MessagesService {
 		else
 		{
 			await prisma.channelUser.update({
-				where: {id: user.id},
+				where: {id: channelUser.id},
 				data: {clientId: clientId}
 			})
 		}

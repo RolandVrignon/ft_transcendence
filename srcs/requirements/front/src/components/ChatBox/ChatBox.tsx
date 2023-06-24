@@ -53,6 +53,10 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 			setFormError(error);
 		});
 
+		socket.on('leaveChannel', () => {
+			setJoined(false);
+		});
+
 		return () => {
 			socket.off('formFailed');
 			socket.off('message');
