@@ -5,6 +5,8 @@ import { io } from 'socket.io-client'
 import SolidFrame from '../SolidFrame/SolidFrame'
 import './ChatBox.scss'
 
+
+
 const ChatBox: React.FC = ({
   }) => {
 
@@ -189,7 +191,7 @@ const ChatBox: React.FC = ({
 				>
 					{messages.map((message: any, index: number) => (
 						<div key={index}>
-							[{message.name}]: {message.text}
+							[<button onClick={() => console.log(`CLIIIICKED, userID: ${message.id}`)}>{message.name}</button>]: {message.text}
 						</div>
 					))}
 				</div>
