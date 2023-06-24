@@ -5,17 +5,59 @@ import totp from './totp.service'
 import prisma from './prisma.client'
 import axios from 'axios'
 
+@Controller('friend')
+export class SocialInteractController	{
+	@Post('add')	async addFriendOfUser(@Res() res: Response, @Req() req: Request)	{
+		try	{
+			const	user = await prisma.user.findUnique({where: { id: req.body.ID }})
+			const	newFriend = await prisma.user.findUnique({where: { id: req.body.newID }})
+			const	alreadyFriend = user.friends.find(friend => friend === newFriend.username)
+			console.log(alreadyFriend)
+			if (alreadyFriend) {
+				res.status(304)
+				return
+			}
+			await prisma.user.update({
+				where: { id: user.id },
+				data:	{ friends: { push: newFriend.username } }
+			})
+			res.status(201)
+		}
+		catch (err)	{
+			console.log(err)
+		}
+	}
+	@Post('remove')	async removeFriendOfUser(@Res() res: Response, @Req() req: Request)	{
+		try	{
+			const	user = await prisma.user.findUnique({where: { id: req.body.ID }})
+			const	removeFriend = await prisma.user.findUnique({where: { id: req.body.newID }})
+			const	friendExists = user.friends.find(friend => friend === removeFriend.username)
+			console.log(friendExists)
+			if (!friendExists)	{
+				console.log('app-back: youre not friend with the user, cant remove')
+				res.status(204)
+				return
+			}
+			const updatedFriends = user.friends.filter(friend => friend !== removeFriend.username)
+			await prisma.user.update({
+				where: { id: user.id },
+				data: { friends: updatedFriends }
+			})
+			console.log('app-back: user was removed from friends successfully')
+			res.status(202)
+		}
+		catch (err)	{
+			console.log(err)
+		}
+	}
+}
 
 @Controller('search')
 export class SearchController	{
 	@Post('users')	async returnMatchingKnownUsers(@Res() res: Response, @Req() req: Request) {
 		try	{
 			const users = await prisma.user.findMany({
-				where: {
-					username: {
-						startsWith: req.body.searched
-					},
-				},
+				where: { username: { startsWith: req.body.searched } }
 			})
 			res.status(200).json(users)
 		}
@@ -74,22 +116,15 @@ export class ConnectController {
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
-			await prisma.token2FA.deleteMany({
-				where: { id: req.body.data.info.id }
-			})
 			const secureTkn = totp.generate()
-			const mail = {
-					to: req.body.data.info.email,
-					from: process.env.SENDER_SEND_GRID_MAIL,
-					subject: '2FA verification from transcendance.team',
-					text: `Hello ${req.body.data.info.first_name}, your authentification token is ${secureTkn}`
-			}
-			sendGrid.send(mail)
+			sendGrid.send({
+				to: req.body.data.info.email,
+				from: process.env.SENDER_SEND_GRID_MAIL,
+				subject: '2FA verification from transcendance.team',
+				text: `Hello ${req.body.data.info.first_name}, your authentification token is ${secureTkn}`
+			})
 			await prisma.token2FA.create({
-				data: {
-					id: req.body.data.info.id,
-					value: secureTkn
-				}
+				data: { id: req.body.data.info.id, value: secureTkn }
 			})
 			res.status(200).json()
 		}
@@ -99,23 +134,18 @@ export class ConnectController {
 	}
 	@Post('verify-secure')	async verifyDoubleAuthToken(@Res() res: Response, @Req() req: Request)	{
 		const	verif = await prisma.token2FA.findUnique({
-			where: {
-				id: req.body.id
-			}
+			where: { id: req.body.id }
 		})
-		if (verif.value === req.body.token)	{
-			res.status(201).json('approved')
+		if (verif && verif.value === req.body.token)	{
 			await prisma.token2FA.delete({
-				where: {
-					id: req.body.id
-				}
+				where: { id: req.body.id }
 			})
+			res.status(201).json('approved')
 		}
 		else
-			res.status(401).json('pending')
+			res.status(401)
 	}
 }
-
 
 async	function	exchangeCodeForToken(access_code: string)	{
 	try	{
@@ -158,7 +188,7 @@ async	function	fetchUserData42(accessToken: string, resourceOwnerId: string)	{
 
 async function	askDataBaseForCreation(userId: number) : Promise<object>	{
 	const	user = await prisma.user.findUnique({
-		where: { id: userId },
+		where: { id: userId }
 	})
 	return user
 }

@@ -7,6 +7,7 @@ generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
+
 model User {
   id          Int      @id @default(autoincrement())
   email       String   @unique
@@ -16,6 +17,7 @@ model User {
   imageLink   String
   username    String
   doubleAuth  String
+  friends     String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   wins        GameSessionOutcome[] @relation("userWins")
@@ -23,7 +25,6 @@ model User {
   games1      GameSessionOutcome[] @relation("userGames1")
   games2      GameSessionOutcome[] @relation("userGames2")
 }
-
 
 model Token2FA {
   id          Int     @unique
