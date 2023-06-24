@@ -12,7 +12,6 @@ export class SocialInteractController	{
 			const	user = await prisma.user.findUnique({where: { id: req.body.ID }})
 			const	newFriend = await prisma.user.findUnique({where: { id: req.body.newID }})
 			const	alreadyFriend = user.friends.find(friend => friend === newFriend.username)
-			console.log(alreadyFriend)
 			if (alreadyFriend) {
 				res.status(304)
 				return
@@ -114,8 +113,32 @@ export class ConnectController {
 			console.log(err)
 		}
 	}
+	@Post('change-two-fa')	async update2FAStatus(@Res() res: Response, @Req() req: Request) {
+		try	{
+			if (req.body.twoFaStatus === 'Enable')	{
+				await prisma.user.update({
+					where: { id: req.body.ID },
+					data: { doubleAuth: 'on' }
+				})
+				res.status(200)
+				return
+			}
+			await prisma.user.update({
+				where: { id: req.body.ID },
+				data:	{ doubleAuth: '' }
+			})
+			const	user = await askDataBaseForCreation(req.body.ID)
+			res.status(200).json(user)
+		}
+		catch (err)	{
+			console.log(err)
+		}
+	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
+			await prisma.token2FA.deleteMany({
+				where: { id: req.body.data.info.id }
+			})
 			const secureTkn = totp.generate()
 			sendGrid.send({
 				to: req.body.data.info.email,
@@ -149,15 +172,15 @@ export class ConnectController {
 
 async	function	exchangeCodeForToken(access_code: string)	{
 	try	{
-		const qs = require('qs');
-		let url = process.env.CODE_FOR_TOKEN;
+		const qs = require('qs')
+		let url = process.env.CODE_FOR_TOKEN
 		const requestBody = {
 			grant_type: 'authorization_code',
 			client_id: process.env.CLIENT_ID,
 			client_secret: process.env.CLIENT_SECRET,
 			code: access_code,
 			redirect_uri: process.env.URL_API_CONTROLLER
-		};
+		}
 		let res = await axios.post(url, qs.stringify(requestBody))
 		const accessToken = res.data.access_token
 		return accessToken

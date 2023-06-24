@@ -32,6 +32,16 @@ const Login: React.FC<LoginProps> = (control) => {
   const [check2FA, setcheck2FA] = useState(false)
   const [token2FA, setToken2FA] = useState('')
 
+  function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
+    const target = event.target as HTMLButtonElement
+    target.style.fontSize = '22px'
+  }
+
+  function MouseOut(event: React.MouseEvent<HTMLButtonElement>){
+    const target = event.target as HTMLButtonElement
+    target.style.fontSize = '20px'
+  }
+
   async function askDataBaseForCreation(code: string) {
     const checkUserStateURL = 'http://localhost:8080/callback/log'
     const res = await axios({
@@ -145,8 +155,10 @@ const Login: React.FC<LoginProps> = (control) => {
       <div className="solid-frame two-fa-frame">
         <button
 					className="solid-frame button-frame text-content text-button"
+          onMouseOver={MouseOver}
+          onMouseLeave={MouseOut}
 					onClick={handle2FA}>
-						To make 2FA, press the button!
+						To make 2FA, press here!
 				</button>
       </div>
     )
