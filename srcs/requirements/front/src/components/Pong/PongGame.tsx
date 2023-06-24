@@ -20,7 +20,7 @@ export default function PongGame({userDbID}: PongGameProps) {
 
     // Connect to the socket server on component mount
     useEffect(() => {
-        console.log("UseEffect")
+        console.log("UseEffect mount")
         if (!socketRef.current) {
             socketRef.current = io('http://localhost:9090');;
             socketRef.current.on('connect', () => setsessionState('connected'));
@@ -31,11 +31,13 @@ export default function PongGame({userDbID}: PongGameProps) {
             });
             socketRef.current.on('connect_error', () => setsessionState('connection-failed'));
             socketRef.current.on('connect_timeout', () => setsessionState('connection-timeout'));
-
+            socketRef.current?.emit('enter-queue', userDbID)
             console.log("Created new socketRef.current")
         }
         return () => {
             // console.log("closing connection")
+            console.log("UseEffect UNmount, disconnecting socket")
+            socketRef.current?.disconnect()
         }
     }, []);
 
@@ -113,7 +115,6 @@ export default function PongGame({userDbID}: PongGameProps) {
 
         p5.setup = () => {
             if (socketRef.current) { 
-                socketRef.current?.emit('enter-queue', userDbID)
 
                 // Your setup code here.
                 p5.createCanvas(getSideLength(), getSideLength());

@@ -92,16 +92,16 @@ export class GameSession {
 
   // clientSocket connections list
   clientSockets: Socket[] = [];
-  userDbIDs: number[] = []
+  userIDs: number[] = []
 
   //Is used by the pongGateway to check if it should be removed
   gameIsOver: boolean = false
   debugId: number = -1
 
-  constructor(clientSocket1: Socket, clientSocket2: Socket, userDbId1: number, userDbId2: number, debugId: number) {
+  constructor(clientSocket1: Socket, clientSocket2: Socket, userID1: number, userID2: number, debugId: number) {
     this.debugId = debugId
     this.clientSockets = [clientSocket1, clientSocket2]
-    this.userDbIDs = [userDbId1, userDbId2]
+    this.userIDs = [userID1, userID2]
     this.clientSockets.forEach((cs, index) => cs.emit('start-game', index))
     this.clientSockets.forEach(cs => cs.emit('update-game', this.gameState));
     this.clientSockets.forEach(cs => cs.on('disconnect', () => this.handleDisconnect(cs)))
@@ -128,24 +128,24 @@ export class GameSession {
   }
 
   handleGameOver(winnerIndex: number, reason: string = `Game ${this.debugId} is over, winer index: ${winnerIndex}.`) {
-    console.log(reason)
+    console.log(`\n` + reason)
     this.clientSockets[winnerIndex].emit('game-over', {won: true, reason: reason})
     this.clientSockets[1 - winnerIndex].emit('game-over', {won: false, reason: reason})
     //Set gameIsOver to true before disconnecting the clients because handleDisconnect(which rellis on gameIsOver) will get called/
     this.gameIsOver = true
     this.clientSockets.forEach(cs => cs.disconnect(true))
-    let yes = {
+    let recoredData = {
       data: {
-        userID1: { connect: { id: this.userDbIDs[0] } },
-        userID2: { connect: { id: this.userDbIDs[1] } },
-        winner: { connect: { id: this.userDbIDs[winnerIndex] } },
-        loser: { connect: { id: this.userDbIDs[1 - winnerIndex] } }
+        userID1: { connect: { id: this.userIDs[0] } },
+        userID2: { connect: { id: this.userIDs[1] } },
+        winner: { connect: { id: this.userIDs[winnerIndex] } },
+        loser: { connect: { id: this.userIDs[1 - winnerIndex] } }
       }
   };
-    console.log(`Creating new gameSessionOutcome ${yes}`)
-    let promise = prisma.gameSessionOutcome.create(yes)
-    promise.catch(err => console.error(`create error: ${err}`))
-    promise.then(() => console.log('session created'))
+    console.log(`Creating new gameSessionOutcome ${recoredData}.`)
+    let promise = prisma.gameSessionOutcome.create(recoredData)
+    promise.catch(err => console.error(`Caught game session outcome prisma record creation error: ${err}`))
+    promise.then(() => console.log('Game session outcome prisma record created.'))
   }
 
   // Method to handle player move events
