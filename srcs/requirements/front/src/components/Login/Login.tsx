@@ -34,7 +34,7 @@ const Login: React.FC<LoginProps> = (control) => {
 
   function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
     const target = event.target as HTMLButtonElement
-    target.style.fontSize = '22px'
+    target.style.fontSize = '20.7px'
   }
 
   function MouseOut(event: React.MouseEvent<HTMLButtonElement>){

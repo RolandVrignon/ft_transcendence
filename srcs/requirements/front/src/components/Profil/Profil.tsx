@@ -33,7 +33,6 @@ const Profil: React.FC<ProfilProps> = ({
 	}) => {
 
 		const [newID, setNewID] = useState(-1)
-		const [refreshData, setRefreshData] = useState(false)
 		const [searchTerm, setSearchTerm] = useState('')
 		const [userInfo, setUserInfo] = useState<UserInfo>({
 			id: -1,
@@ -46,7 +45,7 @@ const Profil: React.FC<ProfilProps> = ({
 	useEffect(() => {
 		const fetchUserInformationDisplay = async () => {
 			try {
-				if (!newID)	{
+				if (newID === -1)	{
 					const res = await axios({
 						url: 'http://localhost:8080/search/info-user',
 						method: 'POST',
@@ -74,7 +73,6 @@ const Profil: React.FC<ProfilProps> = ({
 	}
 
 	useEffect(() => {
-		console.log('went there')
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
 				if (newID !== -1)	{
@@ -98,12 +96,12 @@ const Profil: React.FC<ProfilProps> = ({
 			}
 		}
 		fetchOtherUserInformationDisplay()
-	}, [newID])
+	}, [newID, userInfo])
 
 	function MouseOver(event: React.MouseEvent<HTMLParagraphElement>) {
 		const target = event.target as HTMLParagraphElement
-		target.style.opacity = '0.8'
-		target.style.fontSize = '18px'
+		target.style.opacity = '0.9'
+		target.style.fontSize = '16.5px'
 	}
 
 	function MouseOut(event: React.MouseEvent<HTMLParagraphElement>){
@@ -112,7 +110,6 @@ const Profil: React.FC<ProfilProps> = ({
 		target.style.fontSize = '16px'
 	}
 
-	const waithandle2FAUpdate = debounce(handle2FAUpdate, 200)
 	async function	handle2FAUpdate(e: React.MouseEvent<HTMLParagraphElement>)	{
 		let twoFaStatus
 		if ((e.target as HTMLParagraphElement).textContent === 'Enable 2FA on my account')
@@ -125,6 +122,7 @@ const Profil: React.FC<ProfilProps> = ({
 		})
 		setUserInfo(res.data)
 	}
+	const waithandle2FAUpdate = debounce(handle2FAUpdate, 500)
 
 	return (
 	<SolidFrame frameClass="profil-frame">
@@ -134,8 +132,8 @@ const Profil: React.FC<ProfilProps> = ({
 		<SearchList setNewID={setNewID} searchTerm={searchTerm} />
 		<ProfileUserButton newID={newID} ID={ID}/>
 		{/* display image and username +? 2FA */}
-		<SolidFrame frameClass="user-profil-frame">
-			<SolidFrame frameClass="photo-frame">
+		<SolidFrame frameClass="user-profil-frame" >
+			<SolidFrame frameClass="photo-frame" >
 				<img src={userInfo.imageLink} />
 			</SolidFrame>
 			<SolidFrame frameClass="user-data-frame" txt1={'Username: ' + userInfo.username} >
@@ -143,13 +141,11 @@ const Profil: React.FC<ProfilProps> = ({
 				{ userInfo.id === ID ? 
 					!userInfo.doubleAuth?.length ? 
 					<div>
-						<p onClick={waithandle2FAUpdate} onMouseOver={MouseOver} onMouseLeave={MouseOut} className="twoFA-option-profile">Enable 2FA on my account</p>
-					<br/>
+						<p onClick={waithandle2FAUpdate} onMouseOver={MouseOver} onMouseLeave={MouseOut} className="twoFA-option-profile">Enable 2FA on my account</p><br/>
 					</div>
 					: 
 					<div>
-						<p onClick={waithandle2FAUpdate} onMouseOver={MouseOver} onMouseLeave={MouseOut} className="twoFA-option-profile">Disable 2FA on my account</p>
-					<br/>
+						<p onClick={waithandle2FAUpdate} onMouseOver={MouseOver} onMouseLeave={MouseOut} className="twoFA-option-profile">Disable 2FA on my account</p><br/>
 					</div>
 					: 
 					null
