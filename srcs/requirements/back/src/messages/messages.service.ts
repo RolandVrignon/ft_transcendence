@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import prisma from '../controllers/login/prisma.client';
 import { Message } from './entities/message.entity';
@@ -15,7 +15,7 @@ export class MessagesService {
 			include: {users: true},
 		})
 		if (!channel)
-			throw  "this channel does not exist."
+			throw ` (${ChannelName}) channel does not exist.`
 		const user = await this.findUserInfo(userId);
 		if (!user)
 			throw "cant find user."
@@ -70,9 +70,9 @@ export class MessagesService {
 				const diffMilliseconds = punishExpirationTimestamp - dateNow;
 				const minutesRemaining = Math.floor(diffMilliseconds / (1000 * 60));
 				if (channelUser.banned == true)
-					throw `Server: you are banned, remaining time = ${minutesRemaining} minutes`;
+					throw `you are banned, remaining time = ${minutesRemaining} minutes`;
 				else
-					throw `Server: you are kicked, remaining time = ${minutesRemaining} minutes`;
+					throw `you are kicked, remaining time = ${minutesRemaining} minutes`;
 			}
 			else { 
 				if (channelUser.banned == true){
@@ -100,7 +100,7 @@ export class MessagesService {
 			},
 		})
 		if (channel){
-			throw  "a channel with this name already exists"
+			throw  `a channel with "${ChannelName}" as name already exists`
 		}
 		const createChannel = await prisma.channel.create({
 			data: {
@@ -185,6 +185,26 @@ export class MessagesService {
 			},
 		})
 		return channelUsers;
+	}
+
+	async findChannels(userId: number) {
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+			  userID: userId
+			},
+			include: {
+			  channel: true
+			}
+		  });
+		if (channelUsers.length === 0) {
+			return [];
+		}
+		const channelList = channelUsers.map(channelUser => {
+			const { ChannelName, password, id} = channelUser.channel;
+			return { ChannelName, password, id };
+		});
+		console.log("salut ", channelList);
+		return channelList;
 	}
 
 	async findChannelOwner(chatName: string, password: string) {

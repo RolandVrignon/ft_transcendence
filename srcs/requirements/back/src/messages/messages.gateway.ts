@@ -81,6 +81,13 @@ export class MessagesGateway {
 	// 	return this.messagesService.findAll();
 	// }
 
+	@SubscribeMessage('findAllChannels')
+	async findAllChannels(
+		@MessageBody('userId') userId:number,
+	){
+		return await this.messagesService.findChannels(userId);
+	}
+
 	@SubscribeMessage('findAllChannelMessages')
 	async findAllChanMsg(
 		@MessageBody('chatName') chatName:string,
@@ -105,8 +112,8 @@ export class MessagesGateway {
 	@SubscribeMessage('createChannel')
 	async createChannel(
 		@MessageBody('userId') userID:number,
-		@MessageBody('createChatName') chatName:string,
-		@MessageBody('createChatPassword') password:string,
+		@MessageBody('chatName') chatName:string,
+		@MessageBody('password') password:string,
 		@ConnectedSocket() client: Socket,
 	){
 		try {

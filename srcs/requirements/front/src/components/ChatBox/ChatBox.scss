@@ -5,6 +5,61 @@
 	max-width: 75%;
 }
 
+.sidebar {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	max-width: 19%;
+	width: 300px;
+	background-color: rgb(5, 5, 5);
+	color: rgb(241, 231, 231);
+	border: 1px solid rgb(249, 245, 245);
+	/* Autres styles de la sidebar */
+}
+
+.sidebar-container {
+	position: relative;
+}
+
+.sidebar-toggle-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.hidden {
+	display: none;
+}
+
+.channel-list {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+  }
+  
+  .channel-item {
+	padding: 10px;
+	cursor: pointer;
+  }
+  
+  .channel-item:hover {
+	background-color: rgb(152, 8, 8);
+  }
+  
+  .channel-name {
+	color: white;
+}
+
+.channel-item.header {
+	position: sticky;
+	top: 0;
+	background-color: #6a5a5a;
+	font-weight: bold;
+	padding: 10px;
+	z-index: 1;
+}
+
 .user-frame {
 	height: 45%;
 
@@ -102,3 +157,32 @@
 		font-size: 20px;
 	}
 }
+
+.text-button:hover {
+	color: rgb(209, 28, 28); /* Change the background color on hover */
+}
+
+.button-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 40px; /* Adjust the value to increase/decrease the spacing between buttons */
+  }
+  
+  .button-frame-choice {
+	height: 80px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 20px;
+  }
+  
+  .text-button-choice {
+	font-size: 24px;
+	border: 1px solid rgb(255, 255, 255);
+	padding: 5px 10px;
+  }
+  .text-button-choice:hover {
+	background-color: rgb(205, 45, 45); /* Change the background color on hover */
+  }

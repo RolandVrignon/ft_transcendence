@@ -10,31 +10,54 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const [formFailed, setFormFailed] = useState<boolean>(false);
 	const [fomrError, setFormError] = useState<string>("");
 
+	const [channels, setChannels] = useState<any[]>([]);
+
 	const messagesContainerRef = useRef<HTMLDivElement>(null);
 	const [socket, setSocket] = useState<any>(null);
 	const [messages, setMessages] = useState<any[]>([]);
 	const [messageText, setMessageText] = useState('');
 	const [joined, setJoined] = useState(false);
-	const [name, setName] = useState('');
 	const [typingDisplay, setTypingDisplay] = useState('');
-	const [chatName, setChatName] = useState('');
-	const [password, setPassword] = useState('');
-	const [createChatName, setCreateChatName] = useState('');
-	const [createChatPassword, setCreateChatPassword] = useState('');
+
+	const [chatName, setChatName] = useState<string>('');
+	const [password, setPassword] = useState<string>('');
+
+	const [joinChatName, setJoinChatName] = useState<string>('');
+	const [joinPassword, setJoinPassword] = useState<string>('');
+
+	const [createChatName, setCreateChatName] = useState<string>('');
+	const [createPassword, setCreatePassword] = useState<string>('');
+
+	const [createChannelMode ,setCreateChannelMode] = useState<boolean>(false);
+	const [joinChannelMode ,setJoinChannelMode] = useState<boolean>(false);
+
+	const [sidebarVisible, setSidebarVisible] = useState(true);
 
 	useEffect(() => {
 		const socketInstance = io('http://localhost:8080');
 		console.log(socketInstance)
 		setSocket(socketInstance);
-
 		return () => {
 			socketInstance.disconnect();
 		};
 	}, []);
 
+	// useEffect(() => {
+	// 	const socketInstance = io('http://localhost:8080');
+	// 	setSocket(socketInstance);
+	  
+	// 	socketInstance.on('connect', () => {
+	// 	  console.log('Socket connected');
+	// 	  findAllChannels();
+	// 	});
+	// 	return () => {
+	// 	  socketInstance.disconnect();
+	// 	};
+	//   }, []);
+
 	useEffect(() => {
 		if (!socket) return;
-
+		findAllChannels();
 	socket.on('message', (message: any) => {
 		console.log(message);
 		setMessages((prevMessages: any[]) => [...prevMessages, message]);
@@ -73,7 +96,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		}
 	};
 
-	const join = () => {
+	const join = (chatName: string, password: string) => {
 		console.log('try to join');
 		socket.emit('join', { userId: props.userDbID, chatName, password }, (response: boolean) => {
 			if (response)
@@ -97,13 +120,19 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		});
 	};
 
-	const createChannel = () => {
-		socket.emit('createChannel', { userId: props.userDbID, createChatName, createChatPassword }, (response: boolean) => {
+	const findAllChannels = () => {
+		socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
+			console.log(response);
+			setChannels(response);
+		});
+	};
+
+	const createChannel = (chatName: string, password: string) => {
+		socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
 			if (response) {
 				setFormFailed(false);
 				setJoined(true);
-				setChatName(createChatName);
-				setPassword(createChatPassword);
+				setMessages([]);
 			}
 			else {
 				console.log("can't create channel");
@@ -115,6 +144,17 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		socket.emit('createMessageChannel', { text: messageText, chatName, password }, () => {
 			setMessageText('');
 		});
+	};
+
+	const toggleSidebar = () => {
+		setSidebarVisible(!sidebarVisible);
+	  };
+
+	const handleChannelClick = (channelName: string, password: string) => {
+		setChatName(channelName);
+		setPassword(password);
+		console.log(channelName, password);
+		join(channelName, password);
 	};
 
 	let timeout;
@@ -129,22 +169,32 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	if (!joined) {
 		return (
 			<SolidFrame frameClass="chat-box" >
-				<form 
-					className="solid-frame user-frame"
-					onSubmit={(e) => {
-					e.preventDefault();
-					join();
-				}}>
-						<label
-							className="solid-frame label-frame text-content text-label"
+				{!createChannelMode && !joinChannelMode && (
+					<div className="button-container">
+						<button
+							className="solid-frame button-frame-choice text-content text-button-choice "
+							onClick={() => setCreateChannelMode(true)}
 						>
-							What's your name?
-						</label>
-						<input
-							className="solid-frame input-frame text-content text-input"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-						/>
+							Create Channel
+						</button>
+						<button
+						className="solid-frame button-frame-choice text-content text-button-choice"
+							onClick={() => setJoinChannelMode(true)}
+						>
+							Join Channel
+						</button>
+					</div>
+				)}
+				{joinChannelMode && (
+					<form
+						className="solid-frame create-chan-frame"
+							onSubmit={(e) => {
+								e.preventDefault();
+								setChatName(joinChatName);
+								setPassword(joinPassword);	
+								join(joinChatName, joinPassword);
+							}}
+					>
 						<label
 							className="solid-frame label-frame text-content text-label"
 						>
@@ -152,8 +202,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						</label>
 						<input
 							className="solid-frame input-frame text-content text-input"
-							value={chatName}
-							onChange={(e) => setChatName(e.target.value)} />
+							value={joinChatName}
+							onChange={(e) => setJoinChatName(e.target.value)} />
 						<label
 							className="solid-frame label-frame text-content text-label"
 						>
@@ -161,8 +211,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						</label>
 						<input
 							className="solid-frame input-frame text-content text-input"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
+							value={joinPassword}
+							onChange={(e) => setJoinPassword(e.target.value)}
 							type="password" />
 						<button
 							className="solid-frame button-frame text-content text-button"
@@ -170,17 +220,23 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						>
 							Join room
 						</button>
-				</form>
-				<form
-					className="solid-frame create-chan-frame"
-					onSubmit={(e) => {
-					e.preventDefault();
-					createChannel();
-				}}>
+					
+					</form>
+				)}
+				{createChannelMode && (
+					<form
+						className="solid-frame user-frame"
+						onSubmit={(e) => {
+							e.preventDefault();
+							setChatName(createChatName);
+							setPassword(createPassword);
+							createChannel(createChatName, createPassword);
+						}}
+					>
 					<label
 						className="solid-frame label-frame text-content text-label"
 					>
-						Create a channel (name) :
+						Chat name :
 					</label>
 					<input
 						className="solid-frame input-frame text-content text-input"
@@ -189,12 +245,12 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 					<label
 						className="solid-frame label-frame text-content text-label"
 					>
-						Create a channel (pass) :
+						Chat password:
 					</label>
 					<input
 						className="solid-frame input-frame text-content text-input"
-						value={createChatPassword} 
-						onChange={(e) => setCreateChatPassword(e.target.value)}
+						value={createPassword} 
+						onChange={(e) => setCreatePassword(e.target.value)}
 						type="password" />
 					<button
 						className="solid-frame button-frame text-content text-button"
@@ -202,12 +258,30 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 					>
 						Create room
 					</button>
-				</form>
+
+					</form>
+				)}
 				{formFailed && (
 					<div className="solid-frame  text-content text-label error-message ">
 						{fomrError}
 					</div>
 				)}
+				
+				<div className=" solid-frame  text-content text-label sidebar">
+					{ channels.length != 0 ? (<ul className="channel-list">
+						<li className="channel-item header">joined channels: </li>
+						{channels.map((channel: any) => (
+							<li className="channel-item" key={channel.id}>
+								<div className="channel-name" onClick={() => handleChannelClick(channel.ChannelName, channel.password)}>
+									 {channel.ChannelName} 
+								</div>
+							</li>
+						))}
+					</ul>
+					): (
+						<div className="channel-name"> empty </div>
+					)}
+				</div>
 			</SolidFrame>
 		);
 	}
