@@ -39,11 +39,11 @@ const Content: React.FC<MainPageProps> = (ID) => {
       <SolidFrame frameClass="content-frame">
         <Routes>
 					{/* Set a default route */}
-          <Route path="*" element={<ChatBox />} />
+          <Route path="*" element={<ChatBox userDbID={ID.ID} />} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil ID={ID.ID}/>} />
           <Route path="/Pong" element={<Pong userDbID={ID.ID} />} />
-          <Route path="/Chat" element={<ChatBox />} />
+          <Route path="/Chat" element={<ChatBox userDbID={ID.ID} />} />
         </Routes>
       </SolidFrame>
     </SolidFrame>

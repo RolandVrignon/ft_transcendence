@@ -29,6 +29,20 @@
 	}
 }
 
+.error-message {
+	height: 10%;
+	border-width: 1px;
+	margin-top: 2px;
+	color: red; /* Couleur du texte */
+	font-size: 14px; /* Taille de police */
+	font-weight: bold; /* Gras */
+	background-color: transparent; /* Couleur de fond */
+	padding: 5px; /* Espacement interne pour créer une bordure autour du message */
+	border: 1px solid red; /* Bordure autour du message */
+	/* Autres propriétés CSS selon vos préférences */
+}
+
+
 .create-chan-frame {
 	height: 40%;
 	margin-top: 20px;

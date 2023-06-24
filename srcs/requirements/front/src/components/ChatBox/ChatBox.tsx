@@ -5,8 +5,10 @@ import { io } from 'socket.io-client'
 import SolidFrame from '../SolidFrame/SolidFrame'
 import './ChatBox.scss'
 
-const ChatBox: React.FC = ({
-  }) => {
+const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
+
+	const [formFailed, setFormFailed] = useState<boolean>(false);
+	const [fomrError, setFormError] = useState<string>("");
 
 	const messagesContainerRef = useRef<HTMLDivElement>(null);
 	const [socket, setSocket] = useState<any>(null);
@@ -34,9 +36,9 @@ const ChatBox: React.FC = ({
 		if (!socket) return;
 
 	socket.on('message', (message: any) => {
+		console.log(message);
 		setMessages((prevMessages: any[]) => [...prevMessages, message]);
 		});
-		
 
 		socket.on('typing', ({ name, isTyping }: { name: string, isTyping: boolean }) => {
 		if (isTyping) {
@@ -46,7 +48,13 @@ const ChatBox: React.FC = ({
 		}
 		});
 
+		socket.on('formFailed', (error: string) => {
+			setFormFailed(true);
+			setFormError(error);
+		});
+
 		return () => {
+			socket.off('formFailed');
 			socket.off('message');
 			socket.off('typing');
 		};
@@ -63,26 +71,40 @@ const ChatBox: React.FC = ({
 
 	const join = () => {
 		console.log('try to join');
-		socket.emit('join', { name, chatName, password }, () => {
-			setJoined(true);
-			console.log('joined');
+		socket.emit('join', { userId: props.userDbID, chatName, password }, (response: boolean) => {
+			if (response)
+			{
+				setFormFailed(false);
+				setJoined(true);
+				console.log('joined');
+				const joinPromise = new Promise<void>((resolve) => {
+				resolve();
+				});
 
-		const joinPromise = new Promise<void>((resolve) => {
-		resolve();
-		});
-
-		joinPromise.then(() => {
-		socket.emit('findAllChannelMessages', { chatName, password }, (response: any) => {
-			setMessages(response);
-		});
-		});
+				joinPromise.then(() => {
+				socket.emit('findAllChannelMessages', { chatName, password }, (response: any) => {
+					setMessages(response);
+				});
+				});
+			}
+			else {
+				console.log("can't join");
+			}
 		});
 	};
 
 	const createChannel = () => {
-		console.log('try to channel');
-		const resocket = socket.emit('createChannel', { name, createChatName, createChatPassword }, (response: any) => {});
-		console.log(resocket);
+		socket.emit('createChannel', { userId: props.userDbID, createChatName, createChatPassword }, (response: boolean) => {
+			if (response) {
+				setFormFailed(false);
+				setJoined(true);
+				setChatName(createChatName);
+				setPassword(createChatPassword);
+			}
+			else {
+				console.log("can't create channel");
+			}
+		});
 	};
 
 	const sendMessage = () => {
@@ -177,6 +199,11 @@ const ChatBox: React.FC = ({
 						Create room
 					</button>
 				</form>
+				{formFailed && (
+					<div className="solid-frame  text-content text-label error-message ">
+						{fomrError}
+					</div>
+				)}
 			</SolidFrame>
 		);
 	}

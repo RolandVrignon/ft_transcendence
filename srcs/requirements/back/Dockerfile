@@ -17,7 +17,8 @@ RUN n 14
 RUN npm install
 
 RUN	npm install webpack --save-dev \
-	&& npm install prisma --save-dev
+	&& npm install prisma --save-dev\
+	&& npm install --python=python3
 
 RUN npm run build
 RUN chmod 777 ./init_psql.sh

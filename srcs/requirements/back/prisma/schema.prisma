@@ -22,6 +22,7 @@ model User {
   losses      GameSessionOutcome[] @relation("userLosses")
   games1      GameSessionOutcome[] @relation("userGames1")
   games2      GameSessionOutcome[] @relation("userGames2")
+  channelUsers  ChannelUser[]      @relation("user")
 }
 
 
@@ -35,7 +36,7 @@ model textChannel {
   name      String
   text      String
   channelUserId     Int          @default(-1)
-  channelUser       ChannelUser  @relation("user", fields: [channelUserId], references: [id])
+  channelUser       ChannelUser  @relation("userText", fields: [channelUserId], references: [id])
   channelId         Int          @default(-1)
   channel           Channel      @relation("channel", fields: [channelId], references: [id])
 }
@@ -53,8 +54,11 @@ model block {
 model ChannelUser {
   id              Int      @id @default(autoincrement())
   clientId        String
-  Name            String   @default("unknown")
+  userName        String   @default("unknown")
   status          String   @default("user")
+
+  userID      Int     @default(-1)
+  user        User    @relation("user", fields: [userID], references: [id])
 
   //punishment
   muted           Boolean  @default(false)
@@ -67,9 +71,11 @@ model ChannelUser {
 
   blockedBy       block[]    @relation("BlockedByRelation")
   blockedUser     block[]    @relation("BlockedUserRelation")
-  texts           textChannel[] @relation("user")
+  texts           textChannel[] @relation("userText")
+
   channelId      Int        @default(-1)
   channel        Channel    @relation(fields: [channelId], references: [id])
+
 }
 
 model Channel {

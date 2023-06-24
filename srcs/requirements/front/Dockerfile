@@ -7,6 +7,7 @@ WORKDIR /app
 # Copy package json files and install dependencies
 COPY package*.json ./
 RUN npm install -g npm
+RUN apk add --update --no-cache python3 make gcc g++ libc-dev
 RUN npm install
 
 # Copy other source code files
