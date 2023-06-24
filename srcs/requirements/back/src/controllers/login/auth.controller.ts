@@ -53,19 +53,24 @@ export class ConnectController {
 		}
 	}
 	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
-		const user = await prisma.user.create({
-			data: {
-				id: req.body.apiData.id,
-				username: req.body.username,
-				email: req.body.apiData.email,
-				login: req.body.apiData.login,
-				lastName: req.body.apiData.last_name,
-				firstName: req.body.apiData.first_name,
-				imageLink: req.body.apiData.image.link,
-				doubleAuth: req.body.doubleAuth
-			}
-		})
-		res.status(201).json(user)
+		try	{
+			const user = await prisma.user.create({
+				data: {
+					id: req.body.apiData.id,
+					username: req.body.username,
+					email: req.body.apiData.email,
+					login: req.body.apiData.login,
+					lastName: req.body.apiData.last_name,
+					firstName: req.body.apiData.first_name,
+					imageLink: req.body.apiData.image.link,
+					doubleAuth: req.body.doubleAuth
+				}
+			})
+			res.status(201).json(user)
+		}
+		catch (err)	{
+			console.log(err)
+		}
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{

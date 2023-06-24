@@ -5,45 +5,48 @@ $user-height: 25%;
 
 }
 
+$border-width: 2px;
 .button-interface-actions-user	{
 	height: 50px;
-	border-color: cadetblue;
 	flex-direction: row;
 	color: white;
 	font-family: 'Arcade';
 	margin-top: 5px;
 	margin-bottom: 10px;
+	align-items: center;
+	overflow: hidden;
+	border-radius: 10px;
 
 	.button-add-friend	{
 		height: 70%;
-		border-radius: 30px;
+		border-width: $border-width;
+		border-color: green;
 		opacity: 0.9;
-		background-color: green;
 		margin-right: 2%;
 		width: 20%;
 	}
 	.button-remove-friend	{
 		height: 70%;
-		border-radius: 30px;
+		border-width: $border-width;
+		border-color: orange;
 		opacity: 0.9;
 		margin-right: 2%;
-		background-color: orange;
 		width: 20%;
 	}
 	.button-block-user	{
 		height: 70%;
-		border-radius: 30px;
+		border-width: $border-width;
+		border-color: red;
 		opacity: 0.9;
 		margin-right: 2%;
-		background-color: red;
 		width: 20%;
 	}
 	.button-make-game	{
 		height: 70%;
-		border-radius: 30px;
+		border-width: $border-width;
+		border-color: blue;
 		opacity: 0.9;
 		margin-right: 2%;
-		background-color: blue;
 		width: 20%;
 	}
 
@@ -93,10 +96,6 @@ $user-height: 25%;
 
 .text-profil-title {
 	font-size: 28px;
-
-	.color1 {
-		color: black;
-	}
 }
 
 .text-data-profil {

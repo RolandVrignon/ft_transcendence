@@ -55,12 +55,13 @@ const Login: React.FC<LoginProps> = (control) => {
         const code = queryParams.get('code')
         if (code !== null)  {
           askDataBaseForCreation(code)
+          
         }
       }
       catch (err) {
           console.log(err)
       }
-  }, [attemptLogin, askDataBaseForCreation])
+  }, [attemptLogin])
 
   async function attemptConnect() {
     try {
