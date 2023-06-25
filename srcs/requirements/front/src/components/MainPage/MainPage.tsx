@@ -4,16 +4,18 @@ import SolidFrame from '../SolidFrame/SolidFrame';
 import SideBar from "../SideBar/SideBar";
 import Title from '../Title/Title';
 import './MainPage.scss';
-
 import ChatBox from '../ChatBox/ChatBox';
 import Pong from '../Pong/Pong';
+import { Dispatch, SetStateAction } from 'react'
 import Profil from '../Profil/Profil';
 
 type MainPageProps = {
-  ID: number
+  ID: number,
+  refreshWebToken: Dispatch<SetStateAction<string>>,
+  webToken: string
 }
 
-const Content: React.FC<MainPageProps> = (ID) => {
+const Content: React.FC<MainPageProps> = (control) => {
   const location = useLocation();
 
   const getTitle = () => {
@@ -41,8 +43,8 @@ const Content: React.FC<MainPageProps> = (ID) => {
 					{/* Set a default route */}
           <Route path="*" element={<ChatBox />} />
 					{/* Set the routes */}
-          <Route path="/Profil" element={<Profil ID={ID.ID}/>} />
-          <Route path="/Pong" element={<Pong userDbID={ID.ID} />} />
+          <Route path="/Profil" element={<Profil ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>} />
+          <Route path="/Pong" element={<Pong userDbID={control.ID} />} />
           <Route path="/Chat" element={<ChatBox />} />
         </Routes>
       </SolidFrame>
@@ -50,15 +52,15 @@ const Content: React.FC<MainPageProps> = (ID) => {
   );
 };
 
-const MainPage: React.FC<MainPageProps> = (ID) => {
+const MainPage: React.FC<MainPageProps> = (control) => {
   return (
     <Router>
       <SolidFrame frameClass="window-frame"> 
         <SideBar />
-        <Content ID={ID.ID}/>
+        <Content ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>
       </SolidFrame>
     </Router>
-  );
-};
+  )
+}
 
 export default MainPage;

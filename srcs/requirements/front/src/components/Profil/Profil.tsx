@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import './Profil.scss'
 import { debounce } from 'lodash'
+import { Dispatch, SetStateAction } from 'react'
 
 interface UserInfo {
 	id?: number,
@@ -19,6 +20,8 @@ interface UserInfo {
 
 type ProfilProps = {
 	ID: number,
+	refreshWebToken: Dispatch<SetStateAction<string>>,
+	webToken: string,
 	username?: string,
 	stats?: string,
 	matchHistory?: string,
@@ -27,6 +30,8 @@ type ProfilProps = {
 
 const Profil: React.FC<ProfilProps> = ({
 	ID,
+	webToken,
+	refreshWebToken,
 	stats = "Some user stats",
 	matchHistory = "Some match history data",
 	children
@@ -34,13 +39,7 @@ const Profil: React.FC<ProfilProps> = ({
 
 		const [newID, setNewID] = useState(-1)
 		const [searchTerm, setSearchTerm] = useState('')
-		const [userInfo, setUserInfo] = useState<UserInfo>({
-			id: -1,
-		first_name: '',
-		last_name: '',
-		imageLink: '',
-		username: ''
-	})
+		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: ''})
 
 	useEffect(() => {
 		const fetchUserInformationDisplay = async () => {
@@ -66,7 +65,7 @@ const Profil: React.FC<ProfilProps> = ({
 			}
 		}
 		fetchUserInformationDisplay()
-	}, [ID, userInfo])
+	}, [ID])
 
 	function	askDbForUsers(event: string)	{
 		setSearchTerm(event)
@@ -75,6 +74,7 @@ const Profil: React.FC<ProfilProps> = ({
 	useEffect(() => {
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
+				console.log(newID)
 				if (newID !== -1)	{
 					const res = await axios({
 						url: 'http://localhost:8080/search/info-user',
@@ -96,18 +96,12 @@ const Profil: React.FC<ProfilProps> = ({
 			}
 		}
 		fetchOtherUserInformationDisplay()
-	}, [newID, userInfo])
+	}, [newID])
 
-	function MouseOver(event: React.MouseEvent<HTMLParagraphElement>) {
-		const target = event.target as HTMLParagraphElement
-		target.style.opacity = '0.9'
-		target.style.fontSize = '16.5px'
-	}
-
-	function MouseOut(event: React.MouseEvent<HTMLParagraphElement>){
-		const target = event.target as HTMLParagraphElement
-		target.style.opacity = '1'
-		target.style.fontSize = '16px'
+	function	return2FAStatus()	{
+		if (userInfo.doubleAuth?.length)
+			return 'enabled'
+		return 'disabled'
 	}
 
 	async function	handle2FAUpdate(e: React.MouseEvent<HTMLParagraphElement>)	{
@@ -138,16 +132,12 @@ const Profil: React.FC<ProfilProps> = ({
 			</SolidFrame>
 			<SolidFrame frameClass="user-data-frame" txt1={'Username: ' + userInfo.username} >
 				{children}
-				{ userInfo.id === ID ? 
-					!userInfo.doubleAuth?.length ? 
+				{ userInfo.id === ID ?
+
 					<div>
-						<p onClick={waithandle2FAUpdate} onMouseOver={MouseOver} onMouseLeave={MouseOut} className="twoFA-option-profile">Enable 2FA on my account</p><br/>
+						<p className="twoFA-option-profile">2FA status: {return2FAStatus()}</p><br/>
 					</div>
-					: 
-					<div>
-						<p onClick={waithandle2FAUpdate} onMouseOver={MouseOver} onMouseLeave={MouseOut} className="twoFA-option-profile">Disable 2FA on my account</p><br/>
-					</div>
-					: 
+					:
 					null
 				}
 			</SolidFrame>

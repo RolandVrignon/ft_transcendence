@@ -2,6 +2,8 @@ import { Controller, Post, Get, Res, Req } from '@nestjs/common'
 import { Response, Request } from 'express'
 import sendGrid from './sendgrid.service'
 import totp from './totp.service'
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import prisma from './prisma.client'
 import axios from 'axios'
 
@@ -77,17 +79,26 @@ export class SearchController	{
 
 @Controller('callback')
 export class ConnectController {
+	constructor(private readonly jwtService: JwtService) {}
+	generateToken(userId: string, email: string): string {
+		const payload = { userId, email }
+		return this.jwtService.sign(payload)
+	}
+
 	@Post('log')	async getUserInfo(@Res() res: Response, @Req() req: Request) {
 		try	{
 			const accessToken = await exchangeCodeForToken(req.body.code)
 			const userID = await askUserID(accessToken)
 			const userData = await fetchUserData42(accessToken, userID)
-			const userDataState = await askDataBaseForCreation(userData.id)
+			const userDataState = await askDataBaseForCreation(userID)
+			const jwt = this.generateToken(userData.id, userData.email);
+			console.log(jwt)
 			const data = {
+				jwtSecureToken: jwt,
 				apiData: userData,
 				dbData: userDataState
 			}
-			res.status(200).json(data)
+			res.status(200).json(data).json()
 		}
 		catch (err)	{
 			console.log(err)

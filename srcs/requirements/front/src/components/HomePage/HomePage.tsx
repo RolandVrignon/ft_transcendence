@@ -9,12 +9,13 @@ import GetAccess from '../GetAccess/GetAccess';
 import Login from '../Login/Login';
 
 type HomePageProps = {
-	log: Dispatch<SetStateAction<boolean>>
-	user: Dispatch<SetStateAction<number>>
-	children?: React.ReactNode;
-};
+	log: Dispatch<SetStateAction<boolean>>,
+	user: Dispatch<SetStateAction<number>>,
+	controlJwtToken: Dispatch<SetStateAction<string>>,
+	children?: React.ReactNode
+}
 
-const HomePage: React.FC<HomePageProps> = ({log, user}) => {
+const HomePage: React.FC<HomePageProps> = ({log, user, controlJwtToken}) => {
 
 	return (
 		<Router>
@@ -29,7 +30,7 @@ const HomePage: React.FC<HomePageProps> = ({log, user}) => {
 						<Route path="*" element={<GetAccess />} />
 						<Route 
 							path="/Login"
-							element={<Login log={log} ID={user}/> }
+							element={<Login controlJwtToken={controlJwtToken} log={log} ID={user}/> }
 						/>
 					</Routes>
 				</SolidFrame>

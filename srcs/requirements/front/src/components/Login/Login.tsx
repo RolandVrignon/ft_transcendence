@@ -8,7 +8,8 @@ import { AppContext } from '../Context'
 import { GlobalContent } from '../Context'
 
 interface LoginProps {
-  log: Dispatch<SetStateAction<boolean>>
+  log: Dispatch<SetStateAction<boolean>>,
+	controlJwtToken: Dispatch<SetStateAction<string>>,
   ID: Dispatch<SetStateAction<number>>
 }
 
@@ -56,6 +57,7 @@ const Login: React.FC<LoginProps> = (control) => {
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
+    control.controlJwtToken(res.data.jwtSecureToken)
     control.ID(res.data.apiData.id)
   }
 
