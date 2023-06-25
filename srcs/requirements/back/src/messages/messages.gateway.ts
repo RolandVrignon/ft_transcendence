@@ -88,6 +88,30 @@ export class MessagesGateway {
 		return await this.messagesService.findChannels(userId);
 	}
 
+	@SubscribeMessage('findAllInvitations')
+	async findAllInvitations(
+		@MessageBody('userId') userId:number,
+	){
+		return await this.messagesService.findAllInvitations(userId);
+	}
+
+	@SubscribeMessage('joinInvitation')
+	async joinInvitation(
+		@MessageBody('invitationId') invitationId:number,
+		@MessageBody('accepted') accepted:boolean,
+		@ConnectedSocket() client: Socket,
+	){
+		try {
+			 await this.messagesService.joinInvitation(invitationId, accepted, client.id);
+			 return true;
+		} catch (serverMessage) {
+			//this.server.to(client.id).emit('serverMessage', serverMessage);
+			console.log(serverMessage);
+			this.server.to(client.id).emit('formFailed', serverMessage);
+			false;
+		}
+	}
+
 	@SubscribeMessage('findAllChannelMessages')
 	async findAllChanMsg(
 		@MessageBody('chatName') chatName:string,
@@ -235,6 +259,14 @@ export class MessagesGateway {
 						await this.changeChannelPass(commandArgs[1], clientId, channelName, channelPass);
 					}
 					break;
+				case "invite":
+					if (commandArgs.length != 2){
+						throw  "Invalid argument.\n to invite => /invite username"
+					}
+					else {
+						await this.invite(commandArgs[1], clientId, channelName, channelPass);
+					}
+					break;
 				default:
 					throw  "unknown command."
 			}
@@ -243,6 +275,66 @@ export class MessagesGateway {
 			throw  "unknown command."
 		}
 	}
+
+	async invite(target:string, executorId: string, channelName: string, channelPass: string) {
+		const channel = await prisma.channel.findFirst({
+			where: {
+				ChannelName: channelName,
+				password: channelPass
+			},
+			include: {users: true},
+		})
+		if (!channel){
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		else if ( channel.status == "private"
+					&& await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
+			throw  "you need to be the channel owner to execute this command."
+		}
+		const	executorChannelProfil = await prisma.channelUser.findFirst({
+			where: {
+				clientId: executorId,
+				channelId: channel.id
+			}
+		})
+		if (!executorChannelProfil)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const	user = await prisma.user.findFirst({
+			where:{
+				username: target
+			}
+		})
+		if (!user){
+			throw  `Cant find ${target} !`;
+		}
+		else if (user.username == executorChannelProfil.userName) {
+			throw  "You cannot invite yourself."
+		}
+		const alreadyInvited = await prisma.invitation.findFirst({
+			where: {
+				whereID: channel.id,
+				invitedID: user.id,
+			}
+		})
+		if (alreadyInvited){
+			throw  "this user already have been invited here !";
+		}
+		else {
+			console.log("salut");
+			await prisma.invitation.create({
+				data: {
+					type: "chat",
+					whereID: channel.id,
+					whoInviteUserName: executorChannelProfil.userName,
+					invited: {
+						connect: {id: user.id}
+					},
+				},
+			})
+			throw  `${target} have been invited !`;
+		}
+	}
+
 
 	async changeChannelPass(newPass:string, executorId: string, channelName: string, channelPass: string) {
 		const channel = await prisma.channel.findFirst({

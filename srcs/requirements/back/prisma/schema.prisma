@@ -16,6 +16,7 @@ model User {
   imageLink   String
   username    String
   doubleAuth  String
+  friends     String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   wins        GameSessionOutcome[] @relation("userWins")
@@ -23,12 +24,23 @@ model User {
   games1      GameSessionOutcome[] @relation("userGames1")
   games2      GameSessionOutcome[] @relation("userGames2")
   channelUsers  ChannelUser[]      @relation("user")
+  invitations   invitation[]       @relation("invitedRelation")
 }
 
 
 model Token2FA {
   id          Int     @unique
   value       String
+}
+
+model invitation {
+  id                     Int      @id @default(autoincrement())
+  type                   String
+  whereID                 Int
+  whoInviteUserName      String
+  invitedID              Int             @default(-1)
+  invited                User  @relation("invitedRelation", fields: [invitedID], references: [id])
+
 }
 
 model textChannel {

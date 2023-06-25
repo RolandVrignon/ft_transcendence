@@ -203,8 +203,50 @@ export class MessagesService {
 			const { ChannelName, password, id} = channelUser.channel;
 			return { ChannelName, password, id };
 		});
-		console.log("salut ", channelList);
 		return channelList;
+	}
+
+	async findAllInvitations(userId: number) {
+		const invitations = await prisma.invitation.findMany({
+			where: {
+				invitedID: userId
+			},
+		  });
+		if (invitations.length === 0) {
+			return [];
+		}
+		console.log("salut" , invitations);
+		return invitations;
+	}
+
+	async joinInvitation(invitationId: number, accepted: boolean, clientId: string) {
+		if (accepted == false)
+		{
+			await prisma.invitation.delete({
+				where: {
+					id: invitationId
+				}
+			})
+			return ;
+		}
+		const invitation = await prisma.invitation.findUnique({
+			where: {
+				id: invitationId
+			},
+		});
+		if (!invitation)
+			return ;
+		if (invitation.type == "chat")
+		{
+			const channel = await prisma.channel.findUnique({
+				where: {id: invitation.whereID}
+			})
+			await this.identify(invitation.invitedID, clientId, channel.ChannelName, channel.password);
+			await prisma.invitation.delete({
+				where: {id: invitation.id}
+			})
+			return ;
+		}
 	}
 
 	async findChannelOwner(chatName: string, password: string) {

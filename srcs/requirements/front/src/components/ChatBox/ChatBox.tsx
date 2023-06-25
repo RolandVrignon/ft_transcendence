@@ -10,8 +10,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const [formFailed, setFormFailed] = useState<boolean>(false);
 	const [fomrError, setFormError] = useState<string>("");
 
-	const [channels, setChannels] = useState<any[]>([]);
-
+	
 	const messagesContainerRef = useRef<HTMLDivElement>(null);
 	const [socket, setSocket] = useState<any>(null);
 	const [messages, setMessages] = useState<any[]>([]);
@@ -19,6 +18,9 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const [joined, setJoined] = useState(false);
 	const [typingDisplay, setTypingDisplay] = useState('');
 
+	const [channels, setChannels] = useState<any[]>([]);
+	const [invitations, setInvitations] = useState<any[]>([]);
+	
 	const [chatName, setChatName] = useState<string>('');
 	const [password, setPassword] = useState<string>('');
 
@@ -57,6 +59,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	useEffect(() => {
 		if (!socket) return;
+		findAllInvitations();
 		findAllChannels();
 	socket.on('message', (message: any) => {
 		console.log(message);
@@ -122,11 +125,18 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	const findAllChannels = () => {
 		socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
-			console.log(response);
 			setChannels(response);
 		});
 	};
 
+	const findAllInvitations = () => {
+		socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
+			console.log(response);
+			setInvitations(response);
+		});
+	};
+
+	
 	const createChannel = (chatName: string, password: string) => {
 		socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
 			if (response) {
@@ -155,6 +165,16 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		setPassword(password);
 		console.log(channelName, password);
 		join(channelName, password);
+	};
+
+	const handleInvitationlClick = (invitationId: number, accepted: boolean, type: string) => {
+		socket.emit('joinInvitation', { invitationId, accepted}, (response: boolean) => {
+			console.log(response);
+			if (response) {
+				const updatedInvitations = invitations.filter(invitation => invitation.id !== invitationId);
+				setInvitations(updatedInvitations);
+			}
+		});
 	};
 
 	let timeout;
@@ -268,19 +288,39 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 				)}
 				
 				<div className=" solid-frame  text-content text-label sidebar">
-					{ channels.length != 0 ? (<ul className="channel-list">
-						<li className="channel-item header">joined channels: </li>
-						{channels.map((channel: any) => (
-							<li className="channel-item" key={channel.id}>
-								<div className="channel-name" onClick={() => handleChannelClick(channel.ChannelName, channel.password)}>
-									 {channel.ChannelName} 
-								</div>
-							</li>
-						))}
+					<ul className="channel-list">
+						<li className="channel-item header">channels: </li>
+						<>
+						{ channels.length != 0 ? (
+							channels.map((channel: any) => (
+								<li className="channel-item" key={channel.id}>
+									<div className="channel-name" onClick={() => handleChannelClick(channel.ChannelName, channel.password)}>
+										{channel.ChannelName} 
+									</div>
+								</li>
+							))
+						): (
+							<div className="channel-name"> empty </div>
+						)}
+						<li className="channel-item header">Invitations: </li>
+						
+						{ invitations.length != 0 ? (
+							invitations.map((invitation: any) => (
+								<li className="channel-item" key={invitation.id}>
+									<div className="channel-name">
+										join {invitation.whoInviteUserName}'s {invitation.type} invitation now
+									</div>
+									<div className="invitation-buttons">
+										<button className="button-yes" onClick={() => handleInvitationlClick(invitation.id, true, invitation.type)}>Yes</button>
+										<button className="button-no" onClick={() => handleInvitationlClick(invitation.id, false, invitation.type)}>No</button>
+									</div>
+								</li>
+							))
+						): (
+							<div className="channel-name"> empty </div>
+						)}
+						</>
 					</ul>
-					): (
-						<div className="channel-name"> empty </div>
-					)}
 				</div>
 			</SolidFrame>
 		);
