@@ -14,7 +14,6 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const [fomrError, setFormError] = useState<string>("");
 
 	
-	const messagesContainerRef = useRef<HTMLDivElement>(null);
 	const [socket, setSocket] = useState<any>(null);
 	const [messages, setMessages] = useState<any[]>([]);
 	const [messageText, setMessageText] = useState('');
@@ -83,15 +82,6 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 			socket.off('typing');
 		};
 	}, [socket]);
-
-	const addMessage = (message: any) => {
-		setMessages((prevMessages: any[]) => [...prevMessages, message]);
-
-		// Faire défiler vers le bas
-		if (messagesContainerRef.current) {
-			messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-		}
-	};
 
 	const join = (chatName: string, password: string) => {
 		console.log('try to join');
@@ -350,7 +340,6 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		<SolidFrame frameClass="chat-box" >
 				<div
 					className="solid-frame messages-container text-content text-container"
-					ref={messagesContainerRef}
 				>
 					{messages.map((message: any, index: number) => (
 						<div key={index}>
