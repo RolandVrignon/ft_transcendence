@@ -16,7 +16,7 @@ export class MessagesService {
 		})
 		if (!channel)
 			throw ` (${ChannelName}) channel does not exist.`
-		const user = await this.findUserInfo(userId);
+		const user = await this.findUserInfo(userId, null);
 		if (!user)
 			throw "cant find user."
 		const channelUser = await prisma.channelUser.findFirst({
@@ -111,7 +111,7 @@ export class MessagesService {
 		if (!createChannel) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		const user = await this.findUserInfo(userId);
+		const user = await this.findUserInfo(userId, null);
 		if (!user)
 			throw "cant find user."
 		const createUser = await prisma.channelUser.create({
@@ -289,7 +289,16 @@ export class MessagesService {
 		return admins;
 	}
 
-	async findUserInfo(userID: number) {
+	async findUserInfo(userID: number, userName: string) {
+		if (userName != null)
+		{
+			const user = await prisma.user.findFirst({
+				where: {
+					username: userName
+				}
+			})
+			return user;
+		}
 		const user = await prisma.user.findUnique({
 			where: {
 				id: userID,

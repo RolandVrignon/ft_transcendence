@@ -1,11 +1,14 @@
-import MsgBox from '../MsgBox/MsgBox'
-import './ChatBox.scss'
-import React, { useState, useEffect, useRef } from 'react'
-import { io } from 'socket.io-client'
+import React, { useState, useEffect, useRef, useContext } from 'react'
+import { click } from '@testing-library/user-event/dist/click'
 import SolidFrame from '../SolidFrame/SolidFrame'
+import Profil from '../Profil/Profil'
+import { io } from 'socket.io-client'
+import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
 
 const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
+
+	const [selectedUserId, setSelectedUserId] = useState<number>(-1);
 
 	const [formFailed, setFormFailed] = useState<boolean>(false);
 	const [fomrError, setFormError] = useState<string>("");
@@ -15,6 +18,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const [socket, setSocket] = useState<any>(null);
 	const [messages, setMessages] = useState<any[]>([]);
 	const [messageText, setMessageText] = useState('');
+
 	const [joined, setJoined] = useState(false);
 	const [typingDisplay, setTypingDisplay] = useState('');
 
@@ -35,6 +39,9 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	const [sidebarVisible, setSidebarVisible] = useState(true);
 
+	const [showProfile, setShowProfile] = useState(false);
+
+
 	useEffect(() => {
 		const socketInstance = io('http://localhost:8080');
 		console.log(socketInstance)
@@ -43,19 +50,6 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 			socketInstance.disconnect();
 		};
 	}, []);
-
-	// useEffect(() => {
-	// 	const socketInstance = io('http://localhost:8080');
-	// 	setSocket(socketInstance);
-	  
-	// 	socketInstance.on('connect', () => {
-	// 	  console.log('Socket connected');
-	// 	  findAllChannels();
-	// 	});
-	// 	return () => {
-	// 	  socketInstance.disconnect();
-	// 	};
-	//   }, []);
 
 	useEffect(() => {
 		if (!socket) return;
@@ -177,6 +171,24 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		});
 	};
 
+	const handleUserClick = (userName: string) => {
+		console.log("click on profil")
+		socket.emit('findUserInfo', {userName}, (response: any) => {
+			if (response.length != 0)
+			{
+				console.log(response.username);
+				setSelectedUserId(response.id);
+				setShowProfile(true);
+				console.log(selectedUserId);
+			}
+		});
+	};
+
+	const hideProfile = () => {
+		//join(joinChatName, joinPassword);
+		setShowProfile(false);
+	};
+
 	let timeout;
 
 	const emitTyping = () => {
@@ -185,8 +197,9 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		timeout = setTimeout(() => {
 			socket.emit('typing', { isTyping: false, chatName, password });
 		}, 2000);
-	};	  
-	if (!joined) {
+	};
+
+	if (!joined && !showProfile) {
 		return (
 			<SolidFrame frameClass="chat-box" >
 				{!createChannelMode && !joinChannelMode && (
@@ -325,7 +338,14 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 			</SolidFrame>
 		);
 	}
-
+	else if (showProfile)
+		return (
+			<>
+				<Profil ID={selectedUserId}/>
+				<button className="solid-frame button-frame-choice text-content text-button-choice"
+				 onClick={hideProfile}>return to chat</button>
+			</>
+		)
 	return (
 		<SolidFrame frameClass="chat-box" >
 				<div
@@ -334,7 +354,13 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 				>
 					{messages.map((message: any, index: number) => (
 						<div key={index}>
-							[{message.name}]: {message.text}
+							<span
+							  className="message-name"
+							  onClick={() => handleUserClick(message.name)}
+							>
+							  {message.name}
+							</span>
+							: {message.text}
 						</div>
 					))}
 				</div>

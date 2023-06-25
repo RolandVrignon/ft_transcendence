@@ -3,7 +3,7 @@ import SearchBar from "../SearchBar/SearchBar"
 import SearchList from "../SearchList/SearchList"
 import ProfileUserButton from "../StyledButtons/StyledButtons"
 import Title from "../Title/Title";
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import './Profil.scss'
 
@@ -29,7 +29,6 @@ const Profil: React.FC<ProfilProps> = ({
 	matchHistory = "Some match history data",
 	children
 	}) => {
-
 		const [newID, setNewID] = useState(-1)
 		const [searchTerm, setSearchTerm] = useState('')
 		const [userInfo, setUserInfo] = useState<UserInfo>({

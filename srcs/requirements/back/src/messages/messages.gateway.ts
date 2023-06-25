@@ -88,6 +88,12 @@ export class MessagesGateway {
 		return await this.messagesService.findChannels(userId);
 	}
 
+	@SubscribeMessage('findUserInfo')
+	async findAllChfindUserInfoannels(
+		@MessageBody('userName') userName:string,
+	){
+		return await this.messagesService.findUserInfo(-1, userName);
+	}
 	@SubscribeMessage('findAllInvitations')
 	async findAllInvitations(
 		@MessageBody('userId') userId:number,
