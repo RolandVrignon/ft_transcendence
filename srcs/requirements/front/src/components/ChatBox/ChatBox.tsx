@@ -179,6 +179,20 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		setShowProfile(false);
 	};
 
+	const hideJoinForm = () => {
+		//join(joinChatName, joinPassword);
+		setJoinChannelMode(false);
+	};
+
+	const hideCreateForm = () => {
+		//join(joinChatName, joinPassword);
+		setCreateChannelMode(false);
+	};
+
+	const hideChannel = () => {
+		//join(joinChatName, joinPassword);
+		setJoined(false);
+	};
 	let timeout;
 
 	const emitTyping = () => {
@@ -243,6 +257,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						>
 							Join room
 						</button>
+						<button className="solid-frame button-frame text-content text-button"
+						 onClick={hideJoinForm}>return</button>
 					
 					</form>
 				)}
@@ -281,6 +297,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 					>
 						Create room
 					</button>
+					<button className="solid-frame button-frame text-content text-button"
+						 onClick={hideCreateForm}>return</button>
 
 					</form>
 				)}
@@ -383,6 +401,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						>
 							Send
 						</button>
+						<button className="solid-frame button-frame text-content text-button"
+						onClick={hideChannel}>return</button>
 					</form>
 				</div>
 		</SolidFrame>
