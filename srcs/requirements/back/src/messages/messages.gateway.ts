@@ -31,8 +31,6 @@ export class MessagesGateway {
 			try {
 				await this.messagesService.identify(userId, client.id, chatName, password);
 			} catch (serverMessage) {
-				//this.server.to(client.id).emit('serverMessage', serverMessage);
-				console.log(serverMessage);
 				this.server.to(client.id).emit('formFailed', serverMessage);
 				return false;
 			}
@@ -314,7 +312,7 @@ export class MessagesGateway {
 			throw  `Cant find ${target} !`;
 		}
 		else if (user.username == executorChannelProfil.userName) {
-			throw  "You cannot invite yourself."
+			throw  "You cannot invite yourself.";
 		}
 		const alreadyInvited = await prisma.invitation.findFirst({
 			where: {
@@ -326,7 +324,6 @@ export class MessagesGateway {
 			throw  "this user already have been invited here !";
 		}
 		else {
-			console.log("salut");
 			await prisma.invitation.create({
 				data: {
 					type: "chat",
@@ -686,10 +683,10 @@ export class MessagesGateway {
 						banExpiration: { set: new Date(expirationTimestamp) }
 					},
 				})
-				throw `Server: ${targetUser} has been baned.`
+				throw `${targetUser} has been baned.`
 			}
 			else {
-				throw `Server: ${targetUser} is not online.`
+				throw `${targetUser} is not online.`
 			}
 		}
 	}
