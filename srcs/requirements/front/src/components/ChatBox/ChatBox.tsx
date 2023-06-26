@@ -211,7 +211,7 @@ const ChatBox: React.FC = ({
 						>
 							Message:
 						</label>
-						<input
+						<textarea
 							className="solid-frame input-frame text-content text-chatmsg-input text-msg-input"
 							value={messageText}
 							onChange={(e) => setMessageText(e.target.value)}
