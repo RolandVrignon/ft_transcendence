@@ -5,8 +5,9 @@ import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
 import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
+import { useNavigate } from "react-router-dom";
 
-const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
+const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRefObject<number | null>, pongGameHostIDref: React.MutableRefObject<number | null> }> = (props)  => {
 
 	const [selectedUserId, setSelectedUserId] = useState<number>(-1);
 
@@ -39,6 +40,10 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const [sidebarVisible, setSidebarVisible] = useState(true);
 
 	const [showProfile, setShowProfile] = useState(false);
+
+	//Properties for pongGameInvites
+	const navigate = useNavigate();
+	const [showModal, setShowModal] = useState(false);
 
 
 	useEffect(() => {
@@ -75,6 +80,12 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		socket.on('leaveChannel', () => {
 			setJoined(false);
 		});
+
+		//for pong game invites
+		socket.on('pong-game-invite', (hostID: number) => {
+			props.pongGameHostIDref.current = hostID
+			setShowModal(true)
+		})
 
 		return () => {
 			socket.off('formFailed');
@@ -350,8 +361,15 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		return (
 			<>
 				<Profil ID={selectedUserId}/>
-				<button className="solid-frame button-frame-choice text-content text-button-choice">
-					Invite to game
+				<button 
+					className="solid-frame button-frame-choice text-content text-button-choice"
+					onClick={() => {
+							props.pongGameGuestIDref.current = selectedUserId
+							console.log('props.pongGameGuestIDref.current set to ', selectedUserId)
+							navigate("/Pong");  
+						}}
+				>
+					Invite to pong game(higly recommended)
 				</button>
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
@@ -408,6 +426,25 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						onClick={hideChannel}>return</button>
 					</form>
 				</div>
+				
+		    <div>
+			{/* JSX for pong game invites*/}
+			{showModal && (
+			  <div className="modal">
+				<h2>Message to the user</h2>
+				<button onClick={() => {
+					navigate('/Pong')
+					setShowModal(false)
+				}}>
+					Accept
+				</button>
+				<button onClick={() => { 
+					props.pongGameGuestIDref.current = null
+					setShowModal(false)
+				}}>Refuse</button>
+			  </div>
+			)}
+		  </div>
 		</SolidFrame>
 )}
 

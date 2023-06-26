@@ -7,9 +7,11 @@ type Vector = any;
 
 type PongGameProps = {
     userDbID: number;
+	pongGameGuestIDref: React.MutableRefObject<number | null>
+	pongGameHostIDref: React.MutableRefObject<number | null>
 };
 
-export default function PongGame({userDbID}: PongGameProps) { 
+export default function PongGame({userDbID, pongGameGuestIDref, pongGameHostIDref}: PongGameProps) { 
     //possible states: undefined(didn't try anything), in queue, in game, Connection failed, Connection timeout, VICTORY, DEFEAT
     const [sessionState, setsessionState] = useState<string | undefined>(undefined)
     const socketRef = useRef<Socket | null>(null)
@@ -18,10 +20,20 @@ export default function PongGame({userDbID}: PongGameProps) {
 
     // Connect to the socket server on component mount
     useEffect(() => {
-        console.log("UseEffect mount")
+        console.log("PongGame mount")
         if (!socketRef.current) {
             socketRef.current = io('http://localhost:9090');;
-            socketRef.current.on('connect', () => setsessionState('connected'));
+            socketRef.current.on('connect', () => {
+                setsessionState('connected')
+                if (pongGameGuestIDref.current !== null) {
+                    console.log(`Sending invite-request with hostID=${userDbID}, guestID=${pongGameGuestIDref.current}`)
+                    socketRef.current?.emit('invite-request', {hostID: userDbID, guestID: pongGameGuestIDref.current})
+                }
+                else if (pongGameHostIDref.current !== null)
+                    socketRef.current?.emit('join-request', pongGameHostIDref.current, userDbID)
+                else
+                    socketRef.current?.emit('enter-queue', userDbID)
+            });
             socketRef.current.on('in-queue', () => setsessionState('in-queue'));
             socketRef.current.on('start-game', (playerIndex) => {
                 setsessionState('in-game')
@@ -29,13 +41,14 @@ export default function PongGame({userDbID}: PongGameProps) {
             });
             socketRef.current.on('connect_error', () => setsessionState('connection-failed'));
             socketRef.current.on('connect_timeout', () => setsessionState('connection-timeout'));
-            socketRef.current?.emit('enter-queue', userDbID)
             console.log("Created new socketRef.current")
         }
         return () => {
             // console.log("closing connection")
-            console.log("UseEffect UNmount, disconnecting socket")
+            console.log("PongGame unmount, disconnecting socket and setting 'pongGameGuestIDref.current' to null.")
             socketRef.current?.disconnect()
+            pongGameGuestIDref.current = null
+            pongGameHostIDref.current = null
         }
     }, []);
 
@@ -48,6 +61,7 @@ export default function PongGame({userDbID}: PongGameProps) {
         function getSideLength() {
             if (parentRef.current !== null)
                 return Math.min(parentRef.current.offsetHeight, parentRef.current.offsetWidth)
+            console.warn("Warning: parentRef.current is null!")
             return 500
         }
         function getPlayerWidth() {

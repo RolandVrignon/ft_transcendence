@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import SolidFrame from '../SolidFrame/SolidFrame';
 import SideBar from "../SideBar/SideBar";
@@ -15,6 +15,10 @@ type MainPageProps = {
 
 const Content: React.FC<MainPageProps> = (ID) => {
   const location = useLocation();
+
+  //Properties for ponGameInvite
+  const pongGameGuestIDref = useRef<number | null>(null)
+  const pongGameHostIDref = useRef<number | null>(null)
 
   const getTitle = () => {
 	switch(location.pathname) {
@@ -39,11 +43,11 @@ const Content: React.FC<MainPageProps> = (ID) => {
       <SolidFrame frameClass="content-frame">
         <Routes>
 					{/* Set a default route */}
-          <Route path="*" element={<ChatBox userDbID={ID.ID} />} />
+          <Route path="*" element={<ChatBox userDbID={ID.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil ID={ID.ID}/>} />
-          <Route path="/Pong" element={<Pong userDbID={ID.ID} />} />
-          <Route path="/Chat" element={<ChatBox userDbID={ID.ID} />} />
+          <Route path="/Pong" element={<Pong userDbID={ID.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
+          <Route path="/Chat" element={<ChatBox userDbID={ID.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
         </Routes>
       </SolidFrame>
     </SolidFrame>

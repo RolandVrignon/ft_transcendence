@@ -4,10 +4,13 @@ import {
   OnGatewayConnection,
   WebSocketServer,
   OnGatewayDisconnect,
+  MessageBody
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { GameSession } from './gameSession';
 import prisma from '../controllers/login/prisma.client';
+import { MessagesGateway } from 'src/messages/messages.gateway';
+
 
 const interval: number = 1000 / 30
 
@@ -48,7 +51,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   gameSessions: GameSession[] = []
   nextDebugSessionId: number = 0
 
-  constructor() {
+  constructor(private messagesGateway: MessagesGateway) {
     setInterval(() => this.update(), interval)
   }
 
@@ -93,11 +96,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('invite-request')
-  handleInviteRequest(hostSocket: Socket, hostID: number, guestID: number) {
-    console.log(`\nHandling invite request, hostSocket: ${hostSocket}, hostID: ${hostID}, guestID: ${guestID}.`)
+  handleInviteRequest(hostSocket: Socket, @MessageBody('hostID') hostID: number, @MessageBody('guestID') guestID: number) {
+    console.log(`\nHandling invite request, hostSocket: ${hostSocket}, hostID: [${hostID}], guestID: ${guestID}.`)
     //if the host is in the queue, remove him from the queue since the front can't handle multiple game sessions at once.
     this.removeFromQueue(hostSocket)
-    //If there is already a pending invite for the same users, ignore the request to avoid duplicate pending invites.
+    //If there is already a pending invite for the same host and guest, ignore the request to avoid duplicate pending invites.
     if (this.pendingInvites.some(pendingInvite => pendingInvite.hostID === hostID && pendingInvite.guestID === guestID)) {
       console.log(`Request ignored as there is already a pending invite with the same host and guest.`)
       return
@@ -105,13 +108,15 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //If there is already a pending invite for the same users BUT the host and guest are switched, handle the invite request as a join request.
     let correspondingPendingInvite = this.pendingInvites.find(invite => invite.hostID === guestID && invite.guestID === hostID)
     if (correspondingPendingInvite !== undefined) {
-      console.log(`Request corresponds to existing pending invite with switched host and guest IDs, invite handling request as join request...`)
+      console.log(`Request corresponds to existing pending invite with switched host and guest IDs, handling invite request as join request...`)
       this.handleJoinRequest(hostSocket, guestID, hostID)
       return 
     }
     //Otherwise, create a new invite and add it to the pendingInvites array.
     this.pendingInvites.push(new PendingInvite(hostSocket, hostID, guestID, this.nextPendingInviteDebugID++))
-    console.log(`Created pending invite, pending invites length: `, this.pendingInvites.length, `, pending invites: [${this.pendingInvites.map(invite => invite.pendingInviteID)}].`)
+    console.log(`Created pending invite with debugId ${this.nextPendingInviteDebugID - 1}, pending invites length: `, this.pendingInvites.length, `, pending invites: [${this.pendingInvites.map(invite => invite.pendingInviteID)}].`)
+    //Then, transmit emit join request from messages gateway
+    this.messagesGateway.transmitPongGameInviteProposal(hostID, guestID, this.nextPendingInviteDebugID - 1)
   }
 
   @SubscribeMessage('join-request')
@@ -125,12 +130,12 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     let corresponfingPendingInvite = this.pendingInvites.find(invite => invite.hostID === hostID && invite.guestID == guestID)
     if (corresponfingPendingInvite !== undefined) {
-      //Going to create a game sesssion
-      //remove all the pending invite where the guest of this invitation is a host so he can't be in another game session
+      //Going to create a game sesssion...
+      //Remove all the pending invite where the guest of this invitation is a host so he can't be in another game session.
       this.pendingInvites = this.pendingInvites.filter(invite => invite.hostID !== guestID && invite.hostID !== hostID)
-      //remove the guest from the queue
+      //Remove the guest from the queue.
       this.removeFromQueue(guestSocket)
-      //then, actually create the game session
+      //Then, actually create the game session.
       this.createNewGameSession(corresponfingPendingInvite.hostSocket, guestSocket, corresponfingPendingInvite.hostID, guestID)
     }
   }
@@ -140,10 +145,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`Created game session, game sessions length: ${this.gameSessions.length}, game sessions: [${this.gameSessions.map(session => session.debugId)}]`)
   }
   removeFromQueue(clientSocket: Socket) {
-    if (this.playerSocketInQueue === clientSocket)
-    this.playerSocketInQueue = null
-    this.playerIDinQueue = null
-    console.log(`Removed ${clientSocket} from queue`)
+    if (this.playerSocketInQueue === clientSocket) {
+      this.playerSocketInQueue = null
+      this.playerIDinQueue = null
+      console.log(`Removed ${clientSocket} from queue`)
+    }
   }
 
   update() {

@@ -7,6 +7,10 @@ import { DateTime } from 'luxon';
 
 //const COMMAND_HELPER: string = "to mute => /mute targetName durationInMinutes\n to block";
 
+//types for pong game invitations
+type UserSocketMap = { [userId: number]: Socket; };
+
+
 @WebSocketGateway({
 	cors: {
 		origin: '*',
@@ -16,6 +20,8 @@ import { DateTime } from 'luxon';
 export class MessagesGateway {
 	@WebSocketServer()
 	server: Server;
+	//properties for pong game invites
+	userSocketMap: UserSocketMap = {};
 
 	constructor(
 		private readonly messagesService: MessagesService,
@@ -35,6 +41,12 @@ export class MessagesGateway {
 				console.log(serverMessage);
 				this.server.to(client.id).emit('formFailed', serverMessage);
 				return false;
+			}
+			try {
+				console.log(`Added user with ID ${userId} and socket ${client} in messages.gateway.userSocketMap.`)
+				this.userSocketMap[userId] = client
+			} catch (err) {
+				console.error(`Error caught while adding user and socket to userSocketMap: `, err)
 			}
 			return true;
 	}
@@ -691,6 +703,31 @@ export class MessagesGateway {
 			else {
 				throw `Server: ${targetUser} is not online.`
 			}
+		}
+	}
+	
+	//methods for pong game invites
+	handleDisconnect(disconnectedSocket: Socket) {
+		// console.log(`Going to remove user in userSocketMap with socket ${disconnectedSocket}.`)
+		// for (const userId in this.userSocketMap) {
+		// 	if (this.userSocketMap[userId] === disconnectedSocket) {
+		// 		console.log(`Removed element in userSocketMap with userID ${userId} and socket ${disconnectedSocket}.`)
+		// 		delete this.userSocketMap[userId];
+		// 		break; // Exit the loop after finding the socket
+		// 	}
+		// }
+	}
+	//returns true if the invite was succesfully transmitted
+	//returns false otherwise
+	transmitPongGameInviteProposal(hostID: number, guestID: number, inviteDebugID: number): boolean {
+		if (guestID in this.userSocketMap) {
+			const guestSocket = this.userSocketMap[guestID]
+			guestSocket.emit('pong-game-invite', hostID)
+			console.log(`Transmited pong game invite to user ${hostID}.`)
+			return true
+		} else {
+			console.log(`Error: Could not find guestID ${guestID} of pongGameInvite with ID ${inviteDebugID} in userSocketMap.`)
+			return false
 		}
 	}
 }
