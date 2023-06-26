@@ -23,19 +23,20 @@ export class MessagesGateway {
 
 	@SubscribeMessage('join')
 	async joinRoom(
-			@MessageBody('name') name:string,
+			@MessageBody('userId') userId:number,
 			@MessageBody('chatName') chatName:string,
 			@MessageBody('password') password:string,
 			@ConnectedSocket() client: Socket,
 		){
 			try {
-				await this.messagesService.identify(name, client.id, chatName, password);
+				await this.messagesService.identify(userId, client.id, chatName, password);
 			} catch (serverMessage) {
 				//this.server.to(client.id).emit('serverMessage', serverMessage);
-				this.server.to(client.id).emit('message', serverMessage);
-				return (serverMessage);
+				console.log(serverMessage);
+				this.server.to(client.id).emit('formFailed', serverMessage);
+				return false;
 			}
-			return "joined";
+			return true;
 	}
 
 	@SubscribeMessage('createMessageChannel')
@@ -80,6 +81,43 @@ export class MessagesGateway {
 	// 	return this.messagesService.findAll();
 	// }
 
+	@SubscribeMessage('findAllChannels')
+	async findAllChannels(
+		@MessageBody('userId') userId:number,
+	){
+		return await this.messagesService.findChannels(userId);
+	}
+
+	@SubscribeMessage('findUserInfo')
+	async findAllChfindUserInfoannels(
+		@MessageBody('userName') userName:string,
+	){
+		return await this.messagesService.findUserInfo(-1, userName);
+	}
+	@SubscribeMessage('findAllInvitations')
+	async findAllInvitations(
+		@MessageBody('userId') userId:number,
+	){
+		return await this.messagesService.findAllInvitations(userId);
+	}
+
+	@SubscribeMessage('joinInvitation')
+	async joinInvitation(
+		@MessageBody('invitationId') invitationId:number,
+		@MessageBody('accepted') accepted:boolean,
+		@ConnectedSocket() client: Socket,
+	){
+		try {
+			 await this.messagesService.joinInvitation(invitationId, accepted, client.id);
+			 return true;
+		} catch (serverMessage) {
+			//this.server.to(client.id).emit('serverMessage', serverMessage);
+			console.log(serverMessage);
+			this.server.to(client.id).emit('formFailed', serverMessage);
+			false;
+		}
+	}
+
 	@SubscribeMessage('findAllChannelMessages')
 	async findAllChanMsg(
 		@MessageBody('chatName') chatName:string,
@@ -91,7 +129,11 @@ export class MessagesGateway {
 		}
 		catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
-			this.server.to(client.id).emit('message', serverMessage);
+			let serverMsg: CreateMessageDto = new CreateMessageDto();
+			serverMsg.text = serverMessage;
+			serverMsg.name = "SERVER";
+			console.log(serverMessage);
+			this.server.to(client.id).emit('message', serverMsg);
 			return (serverMessage);
 		}
 	}
@@ -99,21 +141,21 @@ export class MessagesGateway {
 
 	@SubscribeMessage('createChannel')
 	async createChannel(
-		@MessageBody('name') name:string,
-		@MessageBody('createChatName') chatName:string,
-		@MessageBody('createChatPassword') password:string,
+		@MessageBody('userId') userID:number,
+		@MessageBody('chatName') chatName:string,
+		@MessageBody('password') password:string,
 		@ConnectedSocket() client: Socket,
 	){
-		console.log("start create");
 		try {
-			await this.messagesService.createChannel(name, client.id, chatName, password);
+			await this.messagesService.createChannel(userID, client.id, chatName, password);
+			//await this.messagesService.identify(name, client.id, chatName, password);
 		}
 		catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
-			this.server.to(client.id).emit('message', serverMessage);
-			return (serverMessage);
+			this.server.to(client.id).emit('formFailed', serverMessage);
+			return (false);
 		}
-		return "created";
+		return true;
 	}
 
 	@SubscribeMessage('typing')
@@ -134,7 +176,11 @@ export class MessagesGateway {
 		}
 		catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
-			this.server.to(client.id).emit('message', serverMessage);
+			let serverMsg: CreateMessageDto = new CreateMessageDto();
+			serverMsg.text = serverMessage;
+			serverMsg.name = "SERVER";
+			console.log(serverMessage);
+			this.server.to(client.id).emit('message', serverMsg);
 			return (serverMessage);
 		}
 	}
@@ -151,7 +197,7 @@ export class MessagesGateway {
 				case "kick":
 					console.log("lets kick");
 					if (commandArgs.length < 3 || !(/^[0-9]+$/.test(commandArgs[2]))){
-						throw "Server: Invalid argument.\n to kick => /kick targetName nbMinutes"
+						throw  "Invalid argument.\n to kick => /kick targetName nbMinutes"
 					}
 					else {
 						await this.kick(commandArgs[1], commandArgs[2], clientId, channelName, channelPass);
@@ -160,7 +206,7 @@ export class MessagesGateway {
 				case "mute":
 					console.log("lets mute");
 					if (commandArgs.length < 3 || !(/^[0-9]+$/.test(commandArgs[2]))){
-						throw "Server: Invalid argument.\n to mute => /mute targetName nbMinutes"
+						throw  "Invalid argument.\n to mute => /mute targetName nbMinutes"
 					}
 					else {
 						await this.mute(commandArgs[1], commandArgs[2], clientId, channelName, channelPass);
@@ -168,7 +214,7 @@ export class MessagesGateway {
 					break;
 				case "ban":
 					if (commandArgs.length < 3 || !(/^[0-9]+$/.test(commandArgs[2]))){
-						throw "Server: Invalid argument.\n to ban => /ban targetName nbMinutes"
+						throw  "Invalid argument.\n to ban => /ban targetName nbMinutes"
 					}
 					else {
 						await this.ban(commandArgs[1], commandArgs[2], clientId, channelName, channelPass);
@@ -177,7 +223,7 @@ export class MessagesGateway {
 				case "block":
 					console.log("lets block");
 					if (commandArgs.length < 2){
-						throw "Server: Invalid argument.\n to block => /block targetName"
+						throw  "Invalid argument.\n to block => /block targetName"
 					}
 					else {
 						await this.block(commandArgs[1], clientId, channelName, channelPass);
@@ -186,7 +232,7 @@ export class MessagesGateway {
 				case "leave":
 					console.log("lets leave");
 					if (commandArgs.length != 1){
-						throw "Server: Invalid argument.\n to leave => /leave "
+						throw  "Invalid argument.\n to leave => /leave "
 					}
 					else {
 						await this.leave(clientId, channelName, channelPass);
@@ -195,7 +241,7 @@ export class MessagesGateway {
 				case "assignAdminRole":
 					console.log("lets assignAdminRole");
 					if (commandArgs.length < 2){
-						throw "Server: Invalid argument.\n to assignAdminRole => /assignAdminRole targetName"
+						throw  "Invalid argument.\n to assignAdminRole => /assignAdminRole targetName"
 					}
 					else {
 						await this.assignAdminRole(commandArgs[1], clientId, channelName, channelPass);
@@ -204,7 +250,7 @@ export class MessagesGateway {
 				case "changeChannelName":
 					console.log("lets changeChannelName");
 					if (commandArgs.length < 2){
-						throw "Server: Invalid argument.\n to changeChannelName => /changeChannelName newName"
+						throw  "Invalid argument.\n to changeChannelName => /changeChannelName newName"
 					}
 					else {
 						await this.changeChannelName(commandArgs[1], clientId, channelName, channelPass);
@@ -213,20 +259,88 @@ export class MessagesGateway {
 				case "changeChannelPass":
 					console.log("lets changeChannelPass");
 					if (commandArgs.length < 2){
-						throw "Server: Invalid argument.\n to changeChannelPass => /changeChannelPass newPass"
+						throw  "Invalid argument.\n to changeChannelPass => /changeChannelPass newPass"
 					}
 					else {
 						await this.changeChannelPass(commandArgs[1], clientId, channelName, channelPass);
 					}
 					break;
+				case "invite":
+					if (commandArgs.length != 2){
+						throw  "Invalid argument.\n to invite => /invite username"
+					}
+					else {
+						await this.invite(commandArgs[1], clientId, channelName, channelPass);
+					}
+					break;
 				default:
-					throw "Server: unknown command."
+					throw  "unknown command."
 			}
 		}
 		else {
-			throw "Server: unknown command."
+			throw  "unknown command."
 		}
 	}
+
+	async invite(target:string, executorId: string, channelName: string, channelPass: string) {
+		const channel = await prisma.channel.findFirst({
+			where: {
+				ChannelName: channelName,
+				password: channelPass
+			},
+			include: {users: true},
+		})
+		if (!channel){
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		else if ( channel.status == "private"
+					&& await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
+			throw  "you need to be the channel owner to execute this command."
+		}
+		const	executorChannelProfil = await prisma.channelUser.findFirst({
+			where: {
+				clientId: executorId,
+				channelId: channel.id
+			}
+		})
+		if (!executorChannelProfil)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const	user = await prisma.user.findFirst({
+			where:{
+				username: target
+			}
+		})
+		if (!user){
+			throw  `Cant find ${target} !`;
+		}
+		else if (user.username == executorChannelProfil.userName) {
+			throw  "You cannot invite yourself."
+		}
+		const alreadyInvited = await prisma.invitation.findFirst({
+			where: {
+				whereID: channel.id,
+				invitedID: user.id,
+			}
+		})
+		if (alreadyInvited){
+			throw  "this user already have been invited here !";
+		}
+		else {
+			console.log("salut");
+			await prisma.invitation.create({
+				data: {
+					type: "chat",
+					whereID: channel.id,
+					whoInviteUserName: executorChannelProfil.userName,
+					invited: {
+						connect: {id: user.id}
+					},
+				},
+			})
+			throw  `${target} have been invited !`;
+		}
+	}
+
 
 	async changeChannelPass(newPass:string, executorId: string, channelName: string, channelPass: string) {
 		const channel = await prisma.channel.findFirst({
@@ -237,10 +351,10 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		else if (await this.messagesService.isOwner(channelName, channelPass, executorId) == false) {
-			throw "Server: you need to be the channel owner to execute this command."
+			throw  "you need to be the channel owner to execute this command."
 		}
 		else {
 			await prisma.channel.update({
@@ -263,10 +377,10 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		else if (await this.messagesService.isOwner(channelName, channelPass, executorId) == false) {
-			throw "Server: you need to be the channel owner to execute this command."
+			throw  "you need to be the channel owner to execute this command."
 		}
 		const isAlreadyExist = await prisma.channel.findFirst({
 			where: {
@@ -274,7 +388,7 @@ export class MessagesGateway {
 			}
 		})
 		if (isAlreadyExist) {
-			throw "Server: a channel with this name already exists"
+			throw  "a channel with this name already exists"
 		}
 		else {
 			await prisma.channel.update({
@@ -297,23 +411,23 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		else if (await this.messagesService.isOwner(channelName, channelPass, executorId) == false) {
-			throw "Server: you need to be the channel owner to execute this command."
+			throw  "you need to be the channel owner to execute this command."
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
 				where: {
-					Name: targetUser,
+					userName: targetUser,
 					channelId: channel.id
 				},
 			})
 			if (!target){
-				throw "Server: You cannot assign admin role to someone who is not in this channel."
+				throw  "You cannot assign admin role to someone who is not in this channel."
 			}
 			else if (target.clientId == executorId) {
-				throw "Server: You cannot mute yourself."
+				throw  "You cannot mute yourself."
 			}
 			else if (target.status == "admin") {
 				await prisma.channelUser.update ({
@@ -341,7 +455,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		else {
 			const executor = await prisma.channelUser.findFirst({
@@ -351,22 +465,22 @@ export class MessagesGateway {
 				},
 			})
 			if (!executor){
-				throw "Server: We experiencing issues. We will get back to you as soon as possible."
+				throw  "We experiencing issues. We will get back to you as soon as possible."
 			}
 			const target = await prisma.channelUser.findFirst({
 				where: {
-					Name: targetUser,
+					userName: targetUser,
 					channelId: channel.id
 				},
 			})
 			if (!target){
-				throw "Server: You cannot block someone who is not in this channel."
+				throw  "You cannot block someone who is not in this channel."
 			}
 			else if (target.id == executor.id){
-				throw "Server: You cannot block yourself."
+				throw  "You cannot block yourself."
 			}
 			else if ( await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false ) {
-				throw "Server: You cannot block the channel owner or an admin."
+				throw  "You cannot block the channel owner or an admin."
 			}
 			const	block = await prisma.block.findFirst({
 				where: {
@@ -412,7 +526,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
@@ -422,9 +536,7 @@ export class MessagesGateway {
 				},
 			})
 			if (this.server.sockets.sockets.has(target.clientId)) {
-				const socket = this.server.sockets.sockets.get(target.clientId);
-			if (socket)
-				socket.disconnect(); // a changer apres ....
+				this.server.to(target.clientId).emit('leaveChannel');
 			}
 		}
 	}
@@ -438,26 +550,26 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		else if (await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
-			throw "Server: you can't mute someone, you are not the channel owner or admin!"
+			throw  "you can't mute someone, you are not the channel owner or admin!"
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
 				where: {
-					Name: targetUser,
+					userName: targetUser,
 					channelId: channel.id
 				},
 			})
 			if (!target){
-				throw "Server: You cannot mute someone who is not in this channel."
+				throw  "You cannot mute someone who is not in this channel."
 			}
 			else if (target.clientId == executorId) {
-				throw "Server: You cannot mute yourself."
+				throw  "You cannot mute yourself."
 			}
 			else if (target.status == "owner" || target.status == "admin") {
-				throw "Server: You cannot mute a SuperUser."
+				throw  "You cannot mute a SuperUser."
 			}
 			else if (target.muted == false) {
 				const expirationTimestamp = DateTime.now().plus({ minutes: parseInt(duration) }).toMillis();
@@ -489,32 +601,28 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		else if (await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
-			throw "Server: you can't kick someone, you are not the channel owner or and admin."
+			throw  "you can't kick someone, you are not the channel owner or and admin."
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
 				where: {
-					Name: targetUser,
+					userName: targetUser,
 					channelId: channel.id
 				},
 			})
 			if (!target){
-				throw "Server: You cannot kick someone who is not in this channel."
+				throw  "You cannot kick someone who is not in this channel."
 			}
 			else if (target.clientId == executorId) {
-				throw "Server: You cannot kick yourself."
+				throw  "You cannot kick yourself."
 			}
 			else if (target.status == "owner" || target.status == "admin") {
-				throw "Server: You cannot kick a SuperUser."
+				throw  "You cannot kick a SuperUser."
 			}
 			else if (this.server.sockets.sockets.has(target.clientId)) {
-				const socket = this.server.sockets.sockets.get(target.clientId);
-				if (socket) {
-					socket.disconnect(); // a changer apres ....
-				}
 				const expirationTimestamp = DateTime.now().plus({ minutes: parseInt(duration) }).toMillis();
 				await prisma.channelUser.update ({
 					where: {id: target.id},
@@ -523,6 +631,10 @@ export class MessagesGateway {
 						kickExpiration: { set: new Date(expirationTimestamp) }
 					},
 				})
+				const socket = this.server.sockets.sockets.get(target.clientId);
+				if (socket) {
+					socket.disconnect(); // a changer apres ....
+				}
 				throw `Server: ${targetUser} has been kicked.`
 			}
 			else {
@@ -540,26 +652,26 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		else if (await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
-			throw "Server: you can't ban someone, you are not the channel owner or and admin."
+			throw  "you can't ban someone, you are not the channel owner or and admin."
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
 				where: {
-					Name: targetUser,
+					userName: targetUser,
 					channelId: channel.id
 				},
 			})
 			if (!target){
-				throw "Server: You cannot ban someone who is not in this channel."
+				throw  "You cannot ban someone who is not in this channel."
 			}
 			else if (target.clientId == executorId) {
-				throw "Server: You cannot ban yourself."
+				throw  "You cannot ban yourself."
 			}
 			else if (target.status == "owner" || target.status == "admin") {
-				throw "Server: You cannot ban a SuperUser."
+				throw  "You cannot ban a SuperUser."
 			}
 			else if (this.server.sockets.sockets.has(target.clientId)) {
 				const socket = this.server.sockets.sockets.get(target.clientId);

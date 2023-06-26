@@ -13,7 +13,7 @@ function App() {
 	return (
 		<div className="App">
 			{ authChecked ?
-				( <MainPage ID={userID} /> )
+				( <MainPage ID={userID} />)
 					: 
 				(	<HomePage log={setAuthChecked} user={setUserID} /> )
 			}

@@ -16,12 +16,15 @@ model User {
   imageLink   String
   username    String
   doubleAuth  String
+  friends     String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   wins        GameSessionOutcome[] @relation("userWins")
   losses      GameSessionOutcome[] @relation("userLosses")
   games1      GameSessionOutcome[] @relation("userGames1")
   games2      GameSessionOutcome[] @relation("userGames2")
+  channelUsers  ChannelUser[]      @relation("user")
+  invitations   invitation[]       @relation("invitedRelation")
 }
 
 
@@ -30,12 +33,22 @@ model Token2FA {
   value       String
 }
 
+model invitation {
+  id                     Int      @id @default(autoincrement())
+  type                   String
+  whereID                 Int
+  whoInviteUserName      String
+  invitedID              Int             @default(-1)
+  invited                User  @relation("invitedRelation", fields: [invitedID], references: [id])
+
+}
+
 model textChannel {
   id        Int      @id @default(autoincrement())
   name      String
   text      String
   channelUserId     Int          @default(-1)
-  channelUser       ChannelUser  @relation("user", fields: [channelUserId], references: [id])
+  channelUser       ChannelUser  @relation("userText", fields: [channelUserId], references: [id])
   channelId         Int          @default(-1)
   channel           Channel      @relation("channel", fields: [channelId], references: [id])
 }
@@ -53,8 +66,11 @@ model block {
 model ChannelUser {
   id              Int      @id @default(autoincrement())
   clientId        String
-  Name            String   @default("unknown")
+  userName        String   @default("unknown")
   status          String   @default("user")
+
+  userID      Int     @default(-1)
+  user        User    @relation("user", fields: [userID], references: [id])
 
   //punishment
   muted           Boolean  @default(false)
@@ -67,9 +83,11 @@ model ChannelUser {
 
   blockedBy       block[]    @relation("BlockedByRelation")
   blockedUser     block[]    @relation("BlockedUserRelation")
-  texts           textChannel[] @relation("user")
+  texts           textChannel[] @relation("userText")
+
   channelId      Int        @default(-1)
   channel        Channel    @relation(fields: [channelId], references: [id])
+
 }
 
 model Channel {

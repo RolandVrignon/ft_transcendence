@@ -1,32 +1,50 @@
+import React, { useState, useEffect, useRef, useContext } from 'react'
+import { click } from '@testing-library/user-event/dist/click'
+import SolidFrame from '../SolidFrame/SolidFrame'
+import Profil from '../Profil/Profil'
+import { io } from 'socket.io-client'
 import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
-import React, { useState, useEffect, useRef } from 'react'
-import { io } from 'socket.io-client'
-import SolidFrame from '../SolidFrame/SolidFrame'
-import './ChatBox.scss'
 
+const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
+	const [selectedUserId, setSelectedUserId] = useState<number>(-1);
 
-const ChatBox: React.FC = ({
-  }) => {
+	const [formFailed, setFormFailed] = useState<boolean>(false);
+	const [fomrError, setFormError] = useState<string>("");
 
-	const messagesContainerRef = useRef<HTMLDivElement>(null);
+	
 	const [socket, setSocket] = useState<any>(null);
 	const [messages, setMessages] = useState<any[]>([]);
 	const [messageText, setMessageText] = useState('');
+
 	const [joined, setJoined] = useState(false);
-	const [name, setName] = useState('');
 	const [typingDisplay, setTypingDisplay] = useState('');
-	const [chatName, setChatName] = useState('');
-	const [password, setPassword] = useState('');
-	const [createChatName, setCreateChatName] = useState('');
-	const [createChatPassword, setCreateChatPassword] = useState('');
+
+	const [channels, setChannels] = useState<any[]>([]);
+	const [invitations, setInvitations] = useState<any[]>([]);
+	
+	const [chatName, setChatName] = useState<string>('');
+	const [password, setPassword] = useState<string>('');
+
+	const [joinChatName, setJoinChatName] = useState<string>('');
+	const [joinPassword, setJoinPassword] = useState<string>('');
+
+	const [createChatName, setCreateChatName] = useState<string>('');
+	const [createPassword, setCreatePassword] = useState<string>('');
+
+	const [createChannelMode ,setCreateChannelMode] = useState<boolean>(false);
+	const [joinChannelMode ,setJoinChannelMode] = useState<boolean>(false);
+
+	const [sidebarVisible, setSidebarVisible] = useState(true);
+
+	const [showProfile, setShowProfile] = useState(false);
+
 
 	useEffect(() => {
 		const socketInstance = io('http://localhost:8080');
 		console.log(socketInstance)
 		setSocket(socketInstance);
-
 		return () => {
 			socketInstance.disconnect();
 		};
@@ -34,11 +52,12 @@ const ChatBox: React.FC = ({
 
 	useEffect(() => {
 		if (!socket) return;
-
+		findAllInvitations();
+		findAllChannels();
 	socket.on('message', (message: any) => {
+		console.log(message);
 		setMessages((prevMessages: any[]) => [...prevMessages, message]);
 		});
-		
 
 		socket.on('typing', ({ name, isTyping }: { name: string, isTyping: boolean }) => {
 		if (isTyping) {
@@ -48,43 +67,71 @@ const ChatBox: React.FC = ({
 		}
 		});
 
+		socket.on('formFailed', (error: string) => {
+			setFormFailed(true);
+			setFormError(error);
+		});
+
+		socket.on('leaveChannel', () => {
+			setJoined(false);
+		});
+
 		return () => {
+			socket.off('formFailed');
 			socket.off('message');
 			socket.off('typing');
 		};
 	}, [socket]);
 
-	const addMessage = (message: any) => {
-		setMessages((prevMessages: any[]) => [...prevMessages, message]);
-
-		// Faire défiler vers le bas
-		if (messagesContainerRef.current) {
-			messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-		}
-	};
-
-	const join = () => {
+	const join = (chatName: string, password: string) => {
 		console.log('try to join');
-		socket.emit('join', { name, chatName, password }, () => {
-			setJoined(true);
-			console.log('joined');
+		socket.emit('join', { userId: props.userDbID, chatName, password }, (response: boolean) => {
+			if (response)
+			{
+				setFormFailed(false);
+				setJoined(true);
+				console.log('joined');
+				const joinPromise = new Promise<void>((resolve) => {
+				resolve();
+				});
 
-		const joinPromise = new Promise<void>((resolve) => {
-		resolve();
-		});
-
-		joinPromise.then(() => {
-		socket.emit('findAllChannelMessages', { chatName, password }, (response: any) => {
-			setMessages(response);
-		});
-		});
+				joinPromise.then(() => {
+				socket.emit('findAllChannelMessages', { chatName, password }, (response: any) => {
+					setMessages(response);
+				});
+				});
+			}
+			else {
+				console.log("can't join");
+			}
 		});
 	};
 
-	const createChannel = () => {
-		console.log('try to channel');
-		const resocket = socket.emit('createChannel', { name, createChatName, createChatPassword }, (response: any) => {});
-		console.log(resocket);
+	const findAllChannels = () => {
+		socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
+			setChannels(response);
+		});
+	};
+
+	const findAllInvitations = () => {
+		socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
+			console.log(response);
+			setInvitations(response);
+		});
+	};
+
+	
+	const createChannel = (chatName: string, password: string) => {
+		socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
+			if (response) {
+				setFormFailed(false);
+				setJoined(true);
+				setMessages([]);
+			}
+			else {
+				console.log("can't create channel");
+			}
+		});
 	};
 
 	const sendMessage = () => {
@@ -93,6 +140,59 @@ const ChatBox: React.FC = ({
 		});
 	};
 
+	const toggleSidebar = () => {
+		setSidebarVisible(!sidebarVisible);
+	  };
+
+	const handleChannelClick = (channelName: string, password: string) => {
+		setChatName(channelName);
+		setPassword(password);
+		console.log(channelName, password);
+		join(channelName, password);
+	};
+
+	const handleInvitationlClick = (invitationId: number, accepted: boolean, type: string) => {
+		socket.emit('joinInvitation', { invitationId, accepted}, (response: boolean) => {
+			console.log(response);
+			if (response) {
+				const updatedInvitations = invitations.filter(invitation => invitation.id !== invitationId);
+				setInvitations(updatedInvitations);
+			}
+		});
+	};
+
+	const handleUserClick = (userName: string) => {
+		console.log("click on profil")
+		socket.emit('findUserInfo', {userName}, (response: any) => {
+			if (response.length != 0)
+			{
+				console.log(response.username);
+				setSelectedUserId(response.id);
+				setShowProfile(true);
+				console.log(selectedUserId);
+			}
+		});
+	};
+
+	const hideProfile = () => {
+		//join(joinChatName, joinPassword);
+		setShowProfile(false);
+	};
+
+	const hideJoinForm = () => {
+		//join(joinChatName, joinPassword);
+		setJoinChannelMode(false);
+	};
+
+	const hideCreateForm = () => {
+		//join(joinChatName, joinPassword);
+		setCreateChannelMode(false);
+	};
+
+	const hideChannel = () => {
+		//join(joinChatName, joinPassword);
+		setJoined(false);
+	};
 	let timeout;
 
 	const emitTyping = () => {
@@ -101,26 +201,37 @@ const ChatBox: React.FC = ({
 		timeout = setTimeout(() => {
 			socket.emit('typing', { isTyping: false, chatName, password });
 		}, 2000);
-	};	  
-	if (!joined) {
+	};
+
+	if (!joined && !showProfile) {
 		return (
 			<SolidFrame frameClass="chat-box" >
-				<form 
-					className="solid-frame user-frame"
-					onSubmit={(e) => {
-					e.preventDefault();
-					join();
-				}}>
-						<label
-							className="solid-frame label-frame text-content text-label"
+				{!createChannelMode && !joinChannelMode && (
+					<div className="button-container">
+						<button
+							className="solid-frame button-frame-choice text-content text-button-choice "
+							onClick={() => setCreateChannelMode(true)}
 						>
-							What's your name?
-						</label>
-						<input
-							className="solid-frame input-frame text-content text-input"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-						/>
+							Create Channel
+						</button>
+						<button
+						className="solid-frame button-frame-choice text-content text-button-choice"
+							onClick={() => setJoinChannelMode(true)}
+						>
+							Join Channel
+						</button>
+					</div>
+				)}
+				{joinChannelMode && (
+					<form
+						className="solid-frame create-chan-frame"
+							onSubmit={(e) => {
+								e.preventDefault();
+								setChatName(joinChatName);
+								setPassword(joinPassword);	
+								join(joinChatName, joinPassword);
+							}}
+					>
 						<label
 							className="solid-frame label-frame text-content text-label"
 						>
@@ -128,8 +239,8 @@ const ChatBox: React.FC = ({
 						</label>
 						<input
 							className="solid-frame input-frame text-content text-input"
-							value={chatName}
-							onChange={(e) => setChatName(e.target.value)} />
+							value={joinChatName}
+							onChange={(e) => setJoinChatName(e.target.value)} />
 						<label
 							className="solid-frame label-frame text-content text-label"
 						>
@@ -137,8 +248,8 @@ const ChatBox: React.FC = ({
 						</label>
 						<input
 							className="solid-frame input-frame text-content text-input"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
+							value={joinPassword}
+							onChange={(e) => setJoinPassword(e.target.value)}
 							type="password" />
 						<button
 							className="solid-frame button-frame text-content text-button"
@@ -146,17 +257,25 @@ const ChatBox: React.FC = ({
 						>
 							Join room
 						</button>
-				</form>
-				<form
-					className="solid-frame create-chan-frame"
-					onSubmit={(e) => {
-					e.preventDefault();
-					createChannel();
-				}}>
+						<button className="solid-frame button-frame text-content text-button"
+						 onClick={hideJoinForm}>return</button>
+					
+					</form>
+				)}
+				{createChannelMode && (
+					<form
+						className="solid-frame user-frame"
+						onSubmit={(e) => {
+							e.preventDefault();
+							setChatName(createChatName);
+							setPassword(createPassword);
+							createChannel(createChatName, createPassword);
+						}}
+					>
 					<label
 						className="solid-frame label-frame text-content text-label"
 					>
-						Create a channel (name) :
+						Chat name :
 					</label>
 					<input
 						className="solid-frame input-frame text-content text-input"
@@ -165,12 +284,12 @@ const ChatBox: React.FC = ({
 					<label
 						className="solid-frame label-frame text-content text-label"
 					>
-						Create a channel (pass) :
+						Chat password:
 					</label>
 					<input
 						className="solid-frame input-frame text-content text-input"
-						value={createChatPassword} 
-						onChange={(e) => setCreateChatPassword(e.target.value)}
+						value={createPassword} 
+						onChange={(e) => setCreatePassword(e.target.value)}
 						type="password" />
 					<button
 						className="solid-frame button-frame text-content text-button"
@@ -178,20 +297,80 @@ const ChatBox: React.FC = ({
 					>
 						Create room
 					</button>
-				</form>
+					<button className="solid-frame button-frame text-content text-button"
+						 onClick={hideCreateForm}>return</button>
+
+					</form>
+				)}
+				{formFailed && (
+					<div className="solid-frame  text-content text-label error-message ">
+						{fomrError}
+					</div>
+				)}
+				
+				<div className=" solid-frame  text-content text-label sidebar">
+					<ul className="channel-list">
+						<li className="channel-item header">channels: </li>
+						<>
+						{ channels.length != 0 ? (
+							channels.map((channel: any) => (
+								<li className="channel-item" key={channel.id}>
+									<div className="channel-name" onClick={() => handleChannelClick(channel.ChannelName, channel.password)}>
+										{channel.ChannelName} 
+									</div>
+								</li>
+							))
+						): (
+							<div className="channel-name"> empty </div>
+						)}
+						<li className="channel-item header">Invitations: </li>
+						
+						{ invitations.length != 0 ? (
+							invitations.map((invitation: any) => (
+								<li className="channel-item" key={invitation.id}>
+									<div className="channel-name">
+										join {invitation.whoInviteUserName}'s {invitation.type} invitation now
+									</div>
+									<div className="invitation-buttons">
+										<button className="button-yes" onClick={() => handleInvitationlClick(invitation.id, true, invitation.type)}>Yes</button>
+										<button className="button-no" onClick={() => handleInvitationlClick(invitation.id, false, invitation.type)}>No</button>
+									</div>
+								</li>
+							))
+						): (
+							<div className="channel-name"> empty </div>
+						)}
+						</>
+					</ul>
+				</div>
 			</SolidFrame>
 		);
 	}
-
+	else if (showProfile)
+		return (
+			<>
+				<Profil ID={selectedUserId}/>
+				<button className="solid-frame button-frame-choice text-content text-button-choice">
+					Invite to game
+				</button>
+				<button className="solid-frame button-frame-choice text-content text-button-choice"
+				 onClick={hideProfile}>return to chat</button>
+			</>
+		)
 	return (
 		<SolidFrame frameClass="chat-box" >
 				<div
 					className="solid-frame messages-container text-content text-container"
-					ref={messagesContainerRef}
 				>
 					{messages.map((message: any, index: number) => (
 						<div key={index}>
-							[<button onClick={() => console.log(`CLIIIICKED, userID: ${message.id}`)}>{message.name}</button>]: {message.text}
+							<span
+							  className="message-name"
+							  onClick={() => handleUserClick(message.name)}
+							>
+							  {message.name}
+							</span>
+							: {message.text}
 						</div>
 					))}
 				</div>
@@ -225,6 +404,8 @@ const ChatBox: React.FC = ({
 						>
 							Send
 						</button>
+						<button className="solid-frame button-frame text-content text-button"
+						onClick={hideChannel}>return</button>
 					</form>
 				</div>
 		</SolidFrame>
