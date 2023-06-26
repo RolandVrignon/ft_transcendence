@@ -109,7 +109,7 @@ export class MessagesService {
 			}
 		})
 		if (!createChannel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. createChannel is null in createChannel"
 		}
 		const user = await this.findUserInfo(userId, null);
 		if (!user)
@@ -132,7 +132,7 @@ export class MessagesService {
 			},
 		})
 		if (!createUser) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. createUser is null in createChannel"
 		}
 	}
 
@@ -146,7 +146,7 @@ export class MessagesService {
 			include: {users: true},
 		})
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. channel is null in findChannelUsersForMe"
 		}
 		const user = await prisma.channelUser.findFirst({
 			where: {
@@ -155,7 +155,7 @@ export class MessagesService {
 			}
 		})
 		if (!user) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. user is null in findChannelUsersForMe, clientID: " + clientId.toString()
 		}
 		const blockedByUsers = await prisma.block.findMany({
 			where: {
@@ -258,7 +258,7 @@ export class MessagesService {
 			include: {users: true},
 		})
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. channel is null in findChannelOwner"
 		}
 		const owner = await prisma.channelUser.findFirst({
 			where:{
@@ -383,7 +383,7 @@ export class MessagesService {
 			}
 		})
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. channel is null in createMessage"
 		}
 		const user = await prisma.channelUser.findFirst({
 			where: {
@@ -392,7 +392,7 @@ export class MessagesService {
 				}
 		})
 		if (!user) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. user is null in createMessage"
 		}
 		else if (user.muted == true) {
 			const dateNow = DateTime.now().toMillis();
@@ -422,7 +422,7 @@ export class MessagesService {
 			}
 		});
 		if (!textChannel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. textChannel is null in createMessage"
 		}
 		return textChannel;
 	}
@@ -436,7 +436,7 @@ export class MessagesService {
 			include: { textChannels: true }
 		})
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. channel is null in findChannelMessages"
 		}
 		return channel.textChannels;
 	}
@@ -450,7 +450,7 @@ export class MessagesService {
 			},
 		})
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. channel is null in findChannelMessagesForMe"
 		}
 		const user = await prisma.channelUser.findFirst({
 			where: {
@@ -459,7 +459,7 @@ export class MessagesService {
 			}
 		})
 		if (!user) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. user is null in findChannelMessagesForMe"
 		}
 		const blockedUsers = await prisma.block.findMany({
 			where: {

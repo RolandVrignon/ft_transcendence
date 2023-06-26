@@ -303,7 +303,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. invite errror, channel is null"
 		}
 		else if ( channel.status == "private"
 					&& await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
@@ -316,7 +316,7 @@ export class MessagesGateway {
 			}
 		})
 		if (!executorChannelProfil)
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. executorChannelProfil is null"
 		const	user = await prisma.user.findFirst({
 			where:{
 				username: target
@@ -363,7 +363,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. channel is null"
 		}
 		else if (await this.messagesService.isOwner(channelName, channelPass, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
@@ -389,7 +389,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. change channel name, channel is null"
 		}
 		else if (await this.messagesService.isOwner(channelName, channelPass, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
@@ -423,7 +423,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. assignAdminRole, channel is null"
 		}
 		else if (await this.messagesService.isOwner(channelName, channelPass, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
@@ -465,9 +465,9 @@ export class MessagesGateway {
 				password: channelPass
 			},
 			include: {users: true},
-		})
+		}) 
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. block, channel is null"
 		}
 		else {
 			const executor = await prisma.channelUser.findFirst({
@@ -477,7 +477,7 @@ export class MessagesGateway {
 				},
 			})
 			if (!executor){
-				throw  "We experiencing issues. We will get back to you as soon as possible."
+				throw  "We experiencing issues. We will get back to you as soon as possible. block, executor is null"
 			}
 			const target = await prisma.channelUser.findFirst({
 				where: {
@@ -538,7 +538,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. leave, channel"
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
@@ -562,7 +562,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. mute, channel"
 		}
 		else if (await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
 			throw  "you can't mute someone, you are not the channel owner or admin!"
@@ -613,7 +613,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. kick, channel"
 		}
 		else if (await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
 			throw  "you can't kick someone, you are not the channel owner or and admin."
@@ -664,7 +664,7 @@ export class MessagesGateway {
 			include: {users: true},
 		})
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. ban, channel"
 		}
 		else if (await this.messagesService.isSuperUser(channelName, channelPass, executorId) == false) {
 			throw  "you can't ban someone, you are not the channel owner or and admin."
