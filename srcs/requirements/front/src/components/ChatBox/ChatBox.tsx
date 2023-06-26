@@ -212,7 +212,7 @@ const ChatBox: React.FC = ({
 							Message:
 						</label>
 						<input
-							className="solid-frame input-frame text-content text-input text-msg-input"
+							className="solid-frame input-frame text-content text-chatmsg-input text-msg-input"
 							value={messageText}
 							onChange={(e) => setMessageText(e.target.value)}
 							onInput={emitTyping}
