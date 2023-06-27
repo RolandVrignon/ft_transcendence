@@ -45,7 +45,7 @@ const Content: React.FC<MainPageProps> = (control) => {
           <Route path="*" element={<ChatBox />} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>} />
-          <Route path="/Pong" element={<Pong userDbID={control.ID} />} />
+          <Route path="/Pong" element={<Pong webToken={control.webToken} userDbID={control.ID} />} />
           <Route path="/Chat" element={<ChatBox />} />
         </Routes>
       </SolidFrame>

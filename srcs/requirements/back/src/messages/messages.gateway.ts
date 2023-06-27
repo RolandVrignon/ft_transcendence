@@ -2,7 +2,7 @@ import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer, Conne
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io'
-import prisma from '../controllers/login/prisma.client';
+import prisma from '../../prisma/prisma.client';
 import { DateTime } from 'luxon';
 
 //const COMMAND_HELPER: string = "to mute => /mute targetName durationInMinutes\n to block";

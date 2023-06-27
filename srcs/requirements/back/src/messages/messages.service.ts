@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
-import prisma from '../controllers/login/prisma.client';
+import prisma from '../../prisma/prisma.client';
 import { Message } from './entities/message.entity';
 import { DateTime } from 'luxon';
 

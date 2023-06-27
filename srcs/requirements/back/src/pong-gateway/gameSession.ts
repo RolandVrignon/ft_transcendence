@@ -7,8 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { clamp, Vector2D } from './simpleMath';
-import prisma from 'src/controllers/login/prisma.client';
-
+import prisma from '../../prisma/prisma.client';
 
 //const
 const interval: number = 1000 / 30

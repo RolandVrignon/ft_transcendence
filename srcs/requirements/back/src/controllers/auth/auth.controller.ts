@@ -1,11 +1,10 @@
 import { Controller, Post, Get, Res, Req, UseGuards } from '@nestjs/common'
 import { Response, Request } from 'express'
-import sendGrid from './sendgrid.service'
-import totp from './totp.service'
-import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import prisma from './prisma.client'
-import { JwtAuthGuard } from '../../jwt.guard'
+import sendGrid from '../../services/sendgrid.service'
+import totp from '../../services/totp.service'
+import { JwtService } from '@nestjs/jwt'
+import prisma from '../../../prisma/prisma.client'
+import { JwtAuthGuard } from '../../jwt/jwt.guard'
 import axios from 'axios'
 
 @Controller('friend')
@@ -56,6 +55,7 @@ export class SocialInteractController	{
 }
 
 @Controller('search')
+@UseGuards(JwtAuthGuard)
 export class SearchController	{
 	@Post('users')	async returnMatchingKnownUsers(@Res() res: Response, @Req() req: Request) {
 		try	{
@@ -70,6 +70,7 @@ export class SearchController	{
 	}
 	@Post('info-user')	async returnUserInformation(@Res() res: Response, @Req() req: Request) {
 		try	{
+			console.log('The request has this form: ', req)
 			const info = await askDataBaseForCreation(req.body.id)
 			res.status(200).json(info)
 		}

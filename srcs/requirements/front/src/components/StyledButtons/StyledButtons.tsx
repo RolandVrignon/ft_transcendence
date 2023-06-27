@@ -37,6 +37,7 @@ const ProfileUserButton = ({webToken, newID, ID}: ProfileUserButtonProps) => {
 				await axios({
 					url: 'http://localhost:8080/friend/remove',
 					method: 'POST',
+					headers: { Authorization: `Bearer ${webToken}` },
 					data: { ID, newID }
 				})
 				break

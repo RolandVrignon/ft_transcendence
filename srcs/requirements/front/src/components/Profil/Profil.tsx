@@ -48,6 +48,7 @@ const Profil: React.FC<ProfilProps> = ({
 					const res = await axios({
 						url: 'http://localhost:8080/search/info-user',
 						method: 'POST',
+						headers: { Authorization: `Bearer ${webToken}` },
 						data: { id: ID }
 					})
 					const updatedUserInfo: UserInfo = {
@@ -79,6 +80,7 @@ const Profil: React.FC<ProfilProps> = ({
 					const res = await axios({
 						url: 'http://localhost:8080/search/info-user',
 						method: 'POST',
+						headers: { Authorization: `Bearer ${webToken}` },
 						data: { id: newID }
 					})
 					const updatedUserInfo: UserInfo = {
@@ -123,7 +125,7 @@ const Profil: React.FC<ProfilProps> = ({
 		<SolidFrame frameClass="search-frame">
 			<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 		</SolidFrame>
-		<SearchList setNewID={setNewID} searchTerm={searchTerm} />
+		<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
 		<ProfileUserButton webToken={webToken} newID={newID} ID={ID}/>
 		{/* display image and username +? 2FA */}
 		<SolidFrame frameClass="user-profil-frame" >
