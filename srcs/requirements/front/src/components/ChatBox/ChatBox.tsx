@@ -8,37 +8,37 @@ import './ChatBox.scss'
 
 const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
-	const [selectedUserId, setSelectedUserId] = useState<number>(-1);
+	const [socket, setSocket] = useState<any>(null);
 
+	const [createChannelMode ,setCreateChannelMode] = useState<boolean>(false);
+	const [joinChannelMode ,setJoinChannelMode] = useState<boolean>(false);
+	const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
+	const [joined, setJoined] = useState<boolean>(false);
+	
 	const [formFailed, setFormFailed] = useState<boolean>(false);
 	const [fomrError, setFormError] = useState<string>("");
-
 	
-	const [socket, setSocket] = useState<any>(null);
+	const [showProfile, setShowProfile] = useState<boolean>(false);
+	const [selectedUserId, setSelectedUserId] = useState<number>(-1);
+	
 	const [messages, setMessages] = useState<any[]>([]);
 	const [messageText, setMessageText] = useState('');
 
-	const [joined, setJoined] = useState(false);
 	const [typingDisplay, setTypingDisplay] = useState('');
 
 	const [channels, setChannels] = useState<any[]>([]);
 	const [invitations, setInvitations] = useState<any[]>([]);
 	
-	const [chatName, setChatName] = useState<string>('');
-	const [password, setPassword] = useState<string>('');
+	const [chatName, setChatName] = useState<string>(''); // remove
+	const [password, setPassword] = useState<string>(''); // remove
+
+	const [channelId, setChannelId] = useState<number>(-1);
 
 	const [joinChatName, setJoinChatName] = useState<string>('');
 	const [joinPassword, setJoinPassword] = useState<string>('');
 
 	const [createChatName, setCreateChatName] = useState<string>('');
 	const [createPassword, setCreatePassword] = useState<string>('');
-
-	const [createChannelMode ,setCreateChannelMode] = useState<boolean>(false);
-	const [joinChannelMode ,setJoinChannelMode] = useState<boolean>(false);
-
-	const [sidebarVisible, setSidebarVisible] = useState(true);
-
-	const [showProfile, setShowProfile] = useState(false);
 
 
 	useEffect(() => {
@@ -52,11 +52,12 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	useEffect(() => {
 		if (!socket) return;
+		updateClientId();
 		findAllInvitations();
 		findAllChannels();
-	socket.on('message', (message: any) => {
-		console.log(message);
-		setMessages((prevMessages: any[]) => [...prevMessages, message]);
+		socket.on('message', (message: any) => {
+			console.log(message);
+			setMessages((prevMessages: any[]) => [...prevMessages, message]);
 		});
 
 		socket.on('typing', ({ name, isTyping }: { name: string, isTyping: boolean }) => {
@@ -77,6 +78,14 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 			}, 2000);
 		});
 
+		socket.on('updateChannels', () => {
+			findAllChannels();
+		});
+
+		socket.on('updateInvitations', () => {
+			findAllInvitations();
+		})
+
 		socket.on('leaveChannel', () => {
 			setJoined(false);
 		});
@@ -88,94 +97,143 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		};
 	}, [socket]);
 
-	const join = (chatName: string, password: string) => {
-		console.log('try to join');
-		socket.emit('join', { userId: props.userDbID, chatName, password }, (response: boolean) => {
-			if (response)
-			{
-				setFormFailed(false);
+	const findChannel = (channelName: string, password: string) => {
+		console.log("name is ", channelName);
+		return new Promise<void>((resolve) => {
+		  socket.emit('findChannel', { channelName, password }, (response: number) => {
+			setChannelId(response);
+			resolve();
+		  });
+		});
+	  };
+	  
+	  const join = () => {
+		return new Promise<void>((resolve, reject) => {
+		  if (channelId != -1) {
+			socket.emit('join', { userId: props.userDbID, channelId }, (response: boolean) => {
+			  if (response) {
 				setJoined(true);
 				console.log('joined');
-				const joinPromise = new Promise<void>((resolve) => {
-				resolve();
+				socket.emit('findAllChannelMessages', { channelId }, (response: any) => {
+				  setMessages(response);
+				  resolve();
 				});
-
-				joinPromise.then(() => {
-				socket.emit('findAllChannelMessages', { chatName, password }, (response: any) => {
-					setMessages(response);
-				});
-				});
-			}
-			else {
-				console.log("can't join");
-			}
+			  } else {
+				reject("join error");
+			  }
+			});
+		  } else {
+			reject("can't join");
+		  }
 		});
+	  };
+	  
+
+	const updateClientId = () => {
+		if (channelId != -1) {
+			return new Promise<void>((resolve) => {
+				socket.emit('updateClientId', { userId: props.userDbID, channelId}, (response: any) => {
+					resolve();
+				});
+			});
+		}
 	};
 
 	const findAllChannels = () => {
-		socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
-			setChannels(response);
-		});
+		return new Promise<void>((resolve) => {
+			socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
+				setChannels(response);
+				resolve();
+			});
+		})
 	};
 
 	const findAllInvitations = () => {
-		socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
-			console.log(response);
-			setInvitations(response);
+		return new Promise<void>((resolve) => {
+			socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
+				setInvitations(response);
+				resolve();
+			});
 		});
 	};
 
-	
 	const createChannel = (chatName: string, password: string) => {
-		socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
-			if (response) {
-				setFormFailed(false);
-				setJoined(true);
-				setMessages([]);
-			}
-			else {
-				console.log("can't create channel");
-			}
+		return new Promise<void>((resolve, reject) => {
+			socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
+				if (response) {
+					resolve();
+				} else {
+					console.log("Can't create channel");
+				}
+			});
+		})
+		.then (() => {
+			findChannel(chatName, password)
+				.then(() => {
+					if (channelId != -1) {
+						setJoined(true);
+						setMessages([]);
+					}
+				})
 		});
 	};
 
 	const sendMessage = () => {
-		socket.emit('createMessageChannel', { text: messageText, chatName, password }, () => {
+		return new Promise<void>((resolve, reject) => {
+			if (channelId != -1) {
+				socket.emit('createMessageChannel', { text: messageText,  channelId}, (response: boolean) => {
+					resolve();
+				});
+			} else {
+				reject();
+			}
+		})
+		.then (() => {
 			setMessageText('');
-		});
+		})
 	};
 
 	const toggleSidebar = () => {
 		setSidebarVisible(!sidebarVisible);
 	  };
 
-	const handleChannelClick = (channelName: string, password: string) => {
-		setChatName(channelName);
-		setPassword(password);
-		console.log(channelName, password);
-		join(channelName, password);
+	const handleChannelClick = (clickedChannelName: string, clickedChannelpassword: string) => {
+
+		findChannel(clickedChannelName, clickedChannelpassword)
+		.then (() => {
+			if (channelId != -1)
+				join()
+				.then (() => {
+					return ;
+				})
+		})
 	};
 
 	const handleInvitationlClick = (invitationId: number, accepted: boolean, type: string) => {
-		socket.emit('joinInvitation', { invitationId, accepted}, (response: boolean) => {
-			console.log(response);
-			if (response) {
-				const updatedInvitations = invitations.filter(invitation => invitation.id !== invitationId);
-				setInvitations(updatedInvitations);
-			}
-		});
+		return new Promise<void>((resolve, reject) => {
+			socket.emit('joinInvitation', { userId: props.userDbID, invitationId, accepted}, (response: boolean) => {
+				if (response) {
+					const updatedInvitations = invitations.filter(invitation => invitation.id !== invitationId);
+					setInvitations(updatedInvitations);
+					resolve();
+				}
+				reject();
+			});
+		})
 	};
 
 	const handleUserClick = (userName: string) => {
-		console.log("click on profil")
-		socket.emit('findUserInfo', {userName}, (response: any) => {
-			if (response.length != 0)
-			{
-				console.log(response.username);
-				setSelectedUserId(response.id);
-				setShowProfile(true);
-				console.log(selectedUserId);
-			}
+		return new Promise<void>((resolve, reject) => {
+			socket.emit('findUserInfo', {userName}, (response: any) => {
+				if (response.length != 0)
+				{
+					console.log(response.username);
+					setSelectedUserId(response.id);
+					setShowProfile(true);
+					console.log(selectedUserId);
+				}
+				resolve();
+			});
 		});
 	};
 
@@ -196,15 +254,16 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	const hideChannel = () => {
 		//join(joinChatName, joinPassword);
+		setChannelId(-1);
 		setJoined(false);
 	};
 	let timeout;
 
 	const emitTyping = () => {
-		socket.emit('typing', { isTyping: true, chatName, password });
+		socket.emit('typing', { isTyping: true, channelId});
 
 		timeout = setTimeout(() => {
-			socket.emit('typing', { isTyping: false, chatName, password });
+			socket.emit('typing', { isTyping: false, channelId });
 		}, 2000);
 	};
 
@@ -232,9 +291,11 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						className="solid-frame create-chan-frame"
 							onSubmit={(e) => {
 								e.preventDefault();
-								setChatName(joinChatName);
-								setPassword(joinPassword);	
-								join(joinChatName, joinPassword);
+								findChannel(joinChatName, joinPassword)
+								.then(() => join())
+								.catch((error) => {
+									console.log('Error:', error);
+								});
 							}}
 					>
 						<label
@@ -272,8 +333,6 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						className="solid-frame user-frame"
 						onSubmit={(e) => {
 							e.preventDefault();
-							setChatName(createChatName);
-							setPassword(createPassword);
 							createChannel(createChatName, createPassword);
 						}}
 					>
