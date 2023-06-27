@@ -5,22 +5,18 @@ import { ConnectController, SearchController, SocialInteractController } from '.
 import { MessagesModule } from './messages/messages.module';
 import { PongGateway } from './pong-gateway/pong-gateway.gateway'
 import { JwtModule } from '@nestjs/jwt'
-import { randomBytes } from 'crypto'
-
-const generateSecretKey = (length: number): string => {
-  return randomBytes(length).toString('hex')
-}
+import { jwtConstants } from './jwt.constant'
 
 @Module({
   imports: [MessagesModule,
     JwtModule.register({
-      secret: generateSecretKey(32),
+      secret: jwtConstants.secret,
       signOptions: { expiresIn: '1h' }
-    })],
-  controllers: [AppController, SearchController, ConnectController, SocialInteractController],
+    })
+  ],
+  controllers: [AppController,
+    SearchController, ConnectController, SocialInteractController],
   providers: [AppService, PongGateway]
 })
 
 export class AppModule {}
-
-

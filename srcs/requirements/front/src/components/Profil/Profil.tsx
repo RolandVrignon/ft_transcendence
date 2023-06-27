@@ -124,7 +124,7 @@ const Profil: React.FC<ProfilProps> = ({
 			<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 		</SolidFrame>
 		<SearchList setNewID={setNewID} searchTerm={searchTerm} />
-		<ProfileUserButton newID={newID} ID={ID}/>
+		<ProfileUserButton webToken={webToken} newID={newID} ID={ID}/>
 		{/* display image and username +? 2FA */}
 		<SolidFrame frameClass="user-profil-frame" >
 			<SolidFrame frameClass="photo-frame" >
@@ -133,7 +133,6 @@ const Profil: React.FC<ProfilProps> = ({
 			<SolidFrame frameClass="user-data-frame" txt1={'Username: ' + userInfo.username} >
 				{children}
 				{ userInfo.id === ID ?
-
 					<div>
 						<p className="twoFA-option-profile">2FA status: {return2FAStatus()}</p><br/>
 					</div>

@@ -1,13 +1,15 @@
-import { Controller, Post, Get, Res, Req } from '@nestjs/common'
+import { Controller, Post, Get, Res, Req, UseGuards } from '@nestjs/common'
 import { Response, Request } from 'express'
 import sendGrid from './sendgrid.service'
 import totp from './totp.service'
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import prisma from './prisma.client'
+import { JwtAuthGuard } from '../../jwt.guard'
 import axios from 'axios'
 
 @Controller('friend')
+@UseGuards(JwtAuthGuard)
 export class SocialInteractController	{
 	@Post('add')	async addFriendOfUser(@Res() res: Response, @Req() req: Request)	{
 		try	{
@@ -91,7 +93,7 @@ export class ConnectController {
 			const userID = await askUserID(accessToken)
 			const userData = await fetchUserData42(accessToken, userID)
 			const userDataState = await askDataBaseForCreation(userID)
-			const jwt = this.generateToken(userData.id, userData.email);
+			const jwt = this.generateToken(userData.id, userData.email)
 			console.log(jwt)
 			const data = {
 				jwtSecureToken: jwt,

@@ -4,15 +4,14 @@ import SolidFrame from '../SolidFrame/SolidFrame';
 import axios from 'axios'
 import { debounce } from 'lodash'
 
-
-
 interface ProfileUserButtonProps	{
+	webToken: string,
 	newID: number,
 	ID: number
 }
 
 
-const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
+const ProfileUserButton = ({webToken, newID, ID}: ProfileUserButtonProps) => {
 	function	whichSendButton(e: React.MouseEvent<HTMLButtonElement>): number	{
 		const target = e.target as HTMLButtonElement;
 		if (target.className === 'solid-frame text-content button-interface-actions-user button-add-friend')
@@ -30,6 +29,7 @@ const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
 				await axios({
 					url: 'http://localhost:8080/friend/add',
 					method: 'POST',
+					headers: { Authorization: `Bearer ${webToken}` },
 					data: { ID, newID }
 				})
 				break
