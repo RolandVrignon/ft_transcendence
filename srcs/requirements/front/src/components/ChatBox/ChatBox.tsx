@@ -1,4 +1,3 @@
-import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
 import React, { useState, useEffect, useRef } from 'react'
 import { io } from 'socket.io-client'
