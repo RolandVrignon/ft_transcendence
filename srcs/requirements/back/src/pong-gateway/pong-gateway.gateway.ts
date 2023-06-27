@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   OnGatewayConnection,
@@ -62,7 +63,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enter-queue')
   async handleEnterQueueRequest(clientSocket: Socket, userID: number)
   {
-    console.log(`\nHandling enter-queue request socket: ${clientSocket},  userID: ${userID}...`)
+    console.log(`\nHandling enter-queue request socket: ${clientSocket.id},  userID: ${userID}...`)
     //If the player is already in a game, refuse the request
     if (this.gameSessions.some(session => session.userIDs.some(playerID => userID === playerID))) {
       console.log(`Refused user enter-queue request because he/she is already in a game session.`)
@@ -96,8 +97,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('invite-request')
-  handleInviteRequest(hostSocket: Socket, @MessageBody('hostID') hostID: number, @MessageBody('guestID') guestID: number) {
-    console.log(`\nHandling invite request, hostSocket: ${hostSocket}, hostID: [${hostID}], guestID: ${guestID}.`)
+  handleInviteRequest(@ConnectedSocket() hostSocket: Socket, @MessageBody('hostID') hostID: number, @MessageBody('guestID') guestID: number) {
+    console.log(`\nHandling invite request, hostSocket: ${hostSocket.id}, hostID: [${hostID}], guestID: ${guestID}.`)
     //if the host is in the queue, remove him from the queue since the front can't handle multiple game sessions at once.
     this.removeFromQueue(hostSocket)
     //If there is already a pending invite for the same host and guest, ignore the request to avoid duplicate pending invites.
@@ -120,11 +121,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('join-request')
-  handleJoinRequest(guestSocket: Socket, hostID: number, guestID: number) {
-    console.log(`\nHandling join request, guestSocket: ${guestSocket}, hostID: ${hostID}, guestID: ${guestID}.`)
+  handleJoinRequest(@ConnectedSocket() guestSocket: Socket, @MessageBody('hostID') hostID: number,  @MessageBody('guestID') guestID: number) {
+    console.log(`\nHandling join request, guestSocket: ${guestSocket.id}, hostID: ${hostID}, guestID: ${guestID}.`)
     //ensure that the player is not already in a game session
     if (this.gameSessions.some(session => session.userIDs.some(id => id === guestID))) {
-      console.log(`Refused join request from socket ${guestSocket}, guestID: ${guestID} because it's already in a gameSession.`)
+      console.log(`Refused join request from socket ${guestSocket.id}, guestID: ${guestID} because it's already in a gameSession.`)
       guestSocket.emit('request-refused')
       return
     }
@@ -148,7 +149,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (this.playerSocketInQueue === clientSocket) {
       this.playerSocketInQueue = null
       this.playerIDinQueue = null
-      console.log(`Removed ${clientSocket} from queue`)
+      console.log(`Removed ${clientSocket.id} from queue`)
     }
   }
 

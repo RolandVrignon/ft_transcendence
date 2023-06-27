@@ -22,17 +22,22 @@ export default function PongGame({userDbID, pongGameGuestIDref, pongGameHostIDre
     useEffect(() => {
         console.log("PongGame mount")
         if (!socketRef.current) {
-            socketRef.current = io('http://localhost:9090');;
+            socketRef.current = io('http://localhost:9090')
             socketRef.current.on('connect', () => {
                 setsessionState('connected')
+                console.log('PongGame socket connected to backend gateway.')
                 if (pongGameGuestIDref.current !== null) {
                     console.log(`Sending invite-request with hostID=${userDbID}, guestID=${pongGameGuestIDref.current}`)
                     socketRef.current?.emit('invite-request', {hostID: userDbID, guestID: pongGameGuestIDref.current})
                 }
-                else if (pongGameHostIDref.current !== null)
-                    socketRef.current?.emit('join-request', pongGameHostIDref.current, userDbID)
-                else
+                else if (pongGameHostIDref.current !== null) {
+                    console.log(`Emiting join-request with hostID=${pongGameHostIDref.current}, guestID=${userDbID}.`) 
+                    socketRef.current?.emit('join-request', {hostID: pongGameHostIDref.current, guestID: userDbID}) 
+                }
+                else {
+                    console.log(`Emitin enter-queue request.`)
                     socketRef.current?.emit('enter-queue', userDbID)
+                }
             });
             socketRef.current.on('in-queue', () => setsessionState('in-queue'));
             socketRef.current.on('start-game', (playerIndex) => {
