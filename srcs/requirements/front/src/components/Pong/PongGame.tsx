@@ -46,6 +46,7 @@ export default function PongGame({userDbID, pongGameGuestIDref, pongGameHostIDre
             });
             socketRef.current.on('connect_error', () => setsessionState('connection-failed'));
             socketRef.current.on('connect_timeout', () => setsessionState('connection-timeout'));
+            socketRef.current.on('waiting-for-guest-answer', () => setsessionState('waiting-for-guest-answer'));
             console.log("Created new socketRef.current")
         }
         return () => {

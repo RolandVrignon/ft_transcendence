@@ -117,7 +117,13 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.pendingInvites.push(new PendingInvite(hostSocket, hostID, guestID, this.nextPendingInviteDebugID++))
     console.log(`Created pending invite with debugId ${this.nextPendingInviteDebugID - 1}, pending invites length: `, this.pendingInvites.length, `, pending invites: [${this.pendingInvites.map(invite => invite.pendingInviteID)}].`)
     //Then, transmit emit join request from messages gateway
-    this.messagesGateway.transmitPongGameInviteProposal(hostID, guestID, this.nextPendingInviteDebugID - 1)
+    if (this.messagesGateway.transmitPongGameInviteProposal(hostID, guestID, this.nextPendingInviteDebugID - 1)) 
+      hostSocket.emit('waiting-for-guest-answer')
+    else {
+      console.log(`Could not tansmit invite to guest, adding host to queue...`)
+      this.handleEnterQueueRequest(hostSocket, hostID)
+    }
+      
   }
 
   @SubscribeMessage('join-request')

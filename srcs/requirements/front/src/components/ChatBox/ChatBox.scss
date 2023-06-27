@@ -201,3 +201,27 @@
   .text-button-choice:hover {
 	background-color: rgb(205, 45, 45); /* Change the background color on hover */
   }
+
+  .modal {
+	position: fixed; /* Fixed/Sticky position */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+	display: flex;
+	justify-content: center; 
+	align-items: center; 
+  }
+  
+  .modal-content {
+	background-color: #fefefe;
+	margin: auto;
+	padding: 20px;
+	border: 1px solid #888;
+	width: 80%; 
+	max-width: 500px; 
+  }
+  

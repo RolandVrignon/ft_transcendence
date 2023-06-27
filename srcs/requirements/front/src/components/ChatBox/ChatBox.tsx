@@ -431,17 +431,19 @@ const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRef
 			{/* JSX for pong game invites*/}
 			{showModal && (
 			  <div className="modal">
-				<h2>Message to the user</h2>
-				<button onClick={() => {
-					navigate('/Pong')
-					setShowModal(false)
-				}}>
-					Accept
-				</button>
-				<button onClick={() => { 
-					props.pongGameGuestIDref.current = null
-					setShowModal(false)
-				}}>Refuse</button>
+				<div className="modal-content">
+					<h2>You received an invite to the play a pong game!</h2>
+					<button onClick={() => {
+						navigate('/Pong')
+						setShowModal(false)
+					}}>
+						Accept
+					</button>
+					<button onClick={() => { 
+						props.pongGameGuestIDref.current = null
+						setShowModal(false)
+					}}>Refuse</button>
+				</div>
 			  </div>
 			)}
 		  </div>
