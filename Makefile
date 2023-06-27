@@ -10,11 +10,6 @@ all:
 	mkdir -p srcs/requirements/db
 	docker-compose --file srcs/docker-compose.yml up --build
 
-env:
-	if [ ! -f "/srcs/.env" ]; then \
-		cp ~/env_ft_transcendence/env ./srcs/.env; \
-	fi
-
 db:
 	docker-compose -f $(COMPOSE_PATH) up -d database
 
