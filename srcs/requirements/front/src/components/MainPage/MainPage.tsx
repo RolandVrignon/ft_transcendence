@@ -8,7 +8,6 @@ import ChatBox from '../ChatBox/ChatBox';
 import Pong from '../Pong/Pong';
 import { Dispatch, SetStateAction } from 'react'
 import Profil from '../Profil/Profil';
-import HomePage from '../HomePage/HomePage';
 
 type MainPageProps = {
   ID: number,
@@ -46,11 +45,11 @@ const Content: React.FC<MainPageProps> = (control) => {
       <SolidFrame frameClass="content-frame">
         <Routes>
 					{/* Set a default route */}
-          <Route path="*" element={<ChatBox userDbID={ID.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
+          <Route path="*" element={<ChatBox userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref} refreshWebToken={control.refreshWebToken} webToken={control.webToken}/>} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>} />
           <Route path="/Pong" element={<Pong webToken={control.webToken} userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
-          <Route path="/Chat" element={<ChatBox userDbID={ID.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
+          <Route path="/Chat" element={<ChatBox userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref} refreshWebToken={control.refreshWebToken} webToken={control.webToken}/>} />
         </Routes>
       </SolidFrame>
     </SolidFrame>

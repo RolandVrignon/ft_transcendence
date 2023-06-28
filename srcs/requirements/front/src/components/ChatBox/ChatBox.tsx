@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
-import { click } from '@testing-library/user-event/dist/click'
 import SolidFrame from '../SolidFrame/SolidFrame'
 import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
-import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
 import { useNavigate } from "react-router-dom";
+import { Dispatch, SetStateAction } from 'react'
 
-const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRefObject<number | null>, pongGameHostIDref: React.MutableRefObject<number | null> }> = (props)  => {
+const ChatBox: React.FC<{
+	 userDbID: number,
+	pongGameGuestIDref: React.MutableRefObject<number | null>,
+	pongGameHostIDref: React.MutableRefObject<number | null>,
+	refreshWebToken:  Dispatch<SetStateAction<string>>, 
+	webToken: string
+	}> = (props)  => {
 
 	const [selectedUserId, setSelectedUserId] = useState<number>(-1);
 
@@ -362,7 +367,7 @@ const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRef
 	else if (showProfile)
 		return (
 			<>
-				<Profil ID={selectedUserId}/>
+				<Profil ID={selectedUserId} refreshWebToken={props.refreshWebToken} webToken={props.webToken}/>
 				{ selectedUserId !== props.userDbID && 
 					<button 
 						className="solid-frame button-frame-choice text-content text-button-choice"

@@ -1,13 +1,8 @@
-import {
-  SubscribeMessage,
-  WebSocketGateway,
-  OnGatewayConnection,
-  WebSocketServer,
-  OnGatewayDisconnect,
-} from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
+import { Socket } from 'socket.io';
 import { clamp, Vector2D } from './simpleMath';
 import prisma from '../../prisma/prisma.client';
+import { UseGuards } from '@nestjs/common'
+import { WebSocketJwtAuthGuard } from '../jwt/jwt.guard'
 
 //const
 const interval: number = 1000 / 30
@@ -141,14 +136,14 @@ export class GameSession {
         loser: { connect: { id: this.userIDs[1 - winnerIndex] } }
       }
   };
-    console.log(`Creating new gameSessionOutcome ${recoredData}.`)
+    console.log(`Creating new gameSessionOutcome record in DB: ${JSON.stringify(recoredData, null, 2)}.`)
     let promise = prisma.gameSessionOutcome.create(recoredData)
     promise.catch(err => console.error(`Caught game session outcome prisma record creation error: ${err}`))
     promise.then(() => console.log('Game session outcome prisma record created.'))
   }
 
   // Method to handle player move events
-  // @SubscribeMessage('player-move')
+  @UseGuards(WebSocketJwtAuthGuard)
   handlePlayerMove(clientSocket: Socket, payload: { y: number }) {
     //find playerIndex with clientSocket (this way, a player can only affect its paddle)
     let playerIndex: number = this.clientSockets.findIndex(cs => cs === clientSocket)

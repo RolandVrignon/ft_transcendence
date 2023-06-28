@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { GameSession } from './gameSession';
-import prisma from '../controllers/login/prisma.client';
+import prisma from '../../prisma/prisma.client'
 import { MessagesGateway } from 'src/messages/messages.gateway';
 import { UseGuards } from '@nestjs/common'
 import { WebSocketJwtAuthGuard } from '../jwt/jwt.guard'
@@ -51,10 +51,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   gameSessions: GameSession[] = []
   nextDebugSessionId: number = 0
 
-  constructor(private messagesGateway: MessagesGateway) {
+  constructor(private messagesGateway: MessagesGateway) { 
     setInterval(() => this.update(), interval)
   }
 
+  @UseGuards(WebSocketJwtAuthGuard)
   handleConnection(clientSocket: Socket) {
     console.log(`\nPong client CONNECTED: ${clientSocket.id}`)
   }
@@ -98,6 +99,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('invite-request')
+  @UseGuards(WebSocketJwtAuthGuard)
   handleInviteRequest(@ConnectedSocket() hostSocket: Socket, @MessageBody('hostID') hostID: number, @MessageBody('guestID') guestID: number) {
     console.log(`\nHandling invite request, hostSocket: ${hostSocket.id}, hostID: [${hostID}], guestID: ${guestID}.`)
     //if the host is in the queue, remove him from the queue since the front can't handle multiple game sessions at once.
@@ -140,6 +142,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('join-request')
+  @UseGuards(WebSocketJwtAuthGuard)
   handleJoinRequest(@ConnectedSocket() guestSocket: Socket, @MessageBody('hostID') hostID: number,  @MessageBody('guestID') guestID: number) {
     console.log(`\nHandling join request, guestSocket: ${guestSocket.id}, hostID: ${hostID}, guestID: ${guestID}.`)
     //ensure that the player is not already in a game session
