@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { click } from '@testing-library/user-event/dist/click'
 import SolidFrame from '../SolidFrame/SolidFrame'
+import SearchList from "../SearchList/SearchList"
+import SearchBar from "../SearchBar/SearchBar"
 import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
 import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
+import userEvent from '@testing-library/user-event'
 
 const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	const [socket, setSocket] = useState<any>(null);
+	const [searchTerm, setSearchTerm] = useState('')
 
 	const [createChannelMode ,setCreateChannelMode] = useState<boolean>(false);
 	const [joinChannelMode ,setJoinChannelMode] = useState<boolean>(false);
@@ -96,6 +100,12 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 			socket.off('typing');
 		};
 	}, [socket]);
+
+	useEffect(() => {
+		if (selectedUserId != -1)
+			setShowProfile(true);
+		console.log(selectedUserId)
+	}, [selectedUserId]);
 
 	const findChannel = (channelName: string, password: string) => {
 		console.log("name is ", channelName);
@@ -239,6 +249,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	const hideProfile = () => {
 		//join(joinChatName, joinPassword);
+		setSelectedUserId(-1);
 		setShowProfile(false);
 	};
 
@@ -267,9 +278,22 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		}, 2000);
 	};
 
+	function	askDbForUsers(event: string)	{
+		setSearchTerm(event)
+	}
+
 	if (!joined && !showProfile) {
 		return (
 			<SolidFrame frameClass="chat-box" >
+				<div className="search-container">
+					<div className='search text-content' > Find your friends:</div>
+					<SolidFrame
+						frameClass="search-frame"
+					>
+						<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
+					</SolidFrame>
+					<SearchList setNewID={setSelectedUserId} searchTerm={searchTerm} />
+				</div>
 				{!createChannelMode && !joinChannelMode && (
 					<div className="button-container">
 						<button

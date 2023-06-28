@@ -208,7 +208,34 @@ export class MessagesService {
 	async findChannels(userId: number) {
 		const channelUsers = await prisma.channelUser.findMany({
 			where: {
-			  userID: userId
+			  userID: userId,
+			  channel: {
+				NOT: {
+					status: "dm"
+				}
+			  }
+			},
+			include: {
+			  channel: true
+			}
+		  });
+		if (channelUsers.length === 0) {
+			return [];
+		}
+		const channelList = channelUsers.map(channelUser => {
+			const { ChannelName, password, id} = channelUser.channel;
+			return { ChannelName, password, id };
+		});
+		return channelList;
+	}
+
+	async findDirectMessageChannels(userId: number) {
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+			  userID: userId,
+			  channel: {
+					status: "dm"
+			  }
 			},
 			include: {
 			  channel: true
