@@ -114,7 +114,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 			  if (response) {
 				setJoined(true);
 				console.log('joined');
-				socket.emit('findAllChannelMessages', { channelId }, (response: any) => {
+				socket.emit('findAllChannelMessages', { userId: props.userDbID, channelId }, (response: any) => {
 				  setMessages(response);
 				  resolve();
 				});
@@ -181,7 +181,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const sendMessage = () => {
 		return new Promise<void>((resolve, reject) => {
 			if (channelId != -1) {
-				socket.emit('createMessageChannel', { text: messageText,  channelId}, (response: boolean) => {
+				socket.emit('createMessageChannel', { text: messageText,  channelId, userId: props.userDbID}, (response: boolean) => {
 					resolve();
 				});
 			} else {
@@ -260,10 +260,10 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	let timeout;
 
 	const emitTyping = () => {
-		socket.emit('typing', { isTyping: true, channelId});
+		socket.emit('typing', {userId: props.userDbID, isTyping: true, channelId});
 
 		timeout = setTimeout(() => {
-			socket.emit('typing', { isTyping: false, channelId });
+			socket.emit('typing', {userId: props.userDbID, isTyping: false, channelId });
 		}, 2000);
 	};
 

@@ -155,24 +155,29 @@ export class MessagesService {
 		}
 	}
 
-	async findChannelUsersForMe(clientId: string, channelId: number)
+	async findChannelUsersForMe(userId: number, clientId: string, channelId: number)
 	{
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		const user = await prisma.channelUser.findFirst({
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-				clientId: clientId,
+				userName: user.username,
 				channelId: channel.id
 			}
 		})
-		if (!user) {
+		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		if (channelUser.clientId != clientId)
+			this.updateClientId(userId, clientId, channelId);
 		const blockedByUsers = await prisma.block.findMany({
 			where: {
-				blockedUserId: user.id,
+				blockedUserId: channelUser.id,
 			},
 			include: {
 				blockedBy: true,
@@ -419,23 +424,29 @@ export class MessagesService {
 		return user.userName;
 	}
 
-	async createMessage(createMessageDto: CreateMessageDto, channelId: number, clientId: string) {
+	async createMessage(createMessageDto: CreateMessageDto, channelId: number, userId: number, clientId: string) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		const user = await prisma.channelUser.findFirst({
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-					clientId: clientId,
-					channelId: channel.id
-				}
+				userName: user.username,
+				channelId: channel.id
+			}
 		})
-		if (!user) {
+		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		else if (user.muted == true) {
+		if (channelUser.clientId != clientId)
+			this.updateClientId(userId, clientId, channelId);
+
+		else if (channelUser.muted == true) {
 			const dateNow = DateTime.now().toMillis();
-			const muteExpirationTimestamp = user.muteExpiration.getTime();
+			const muteExpirationTimestamp = channelUser.muteExpiration.getTime();
 			if (muteExpirationTimestamp > dateNow) {
 				const diffMilliseconds = muteExpirationTimestamp - dateNow;
 				const minutesRemaining = Math.floor(diffMilliseconds / (1000 * 60));
@@ -443,20 +454,20 @@ export class MessagesService {
 			}
 			else { 
 				await prisma.channelUser.update ({
-					where: {id: user.id},
+					where: {id: channelUser.id},
 					data: {muted: false, muteExpiration: null},
 				})
 			}
 		}
 		const textChannel	= await prisma.textChannel.create({
 			data: {
-				name: user.userName,
+				name: channelUser.userName,
 				text: createMessageDto.text,
 				channel: {
 					connect: { id: channel.id }
 				},
 				channelUser: {
-					connect: {id: user.id}
+					connect: {id: channelUser.id}
 				},
 			}
 		});
@@ -474,24 +485,29 @@ export class MessagesService {
 		return channel.textChannels;
 	}
 
-	async findChannelMessagesForMe(channelId: number, clientId: string) {
+	async findChannelMessagesForMe(userId: number, channelId: number, clientId: string) {
 
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		const user = await prisma.channelUser.findFirst({
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-				clientId: clientId,
+				userName: user.username,
 				channelId: channel.id
 			}
 		})
-		if (!user) {
+		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		if (channelUser.clientId != clientId)
+			this.updateClientId(userId, clientId, channelId);
 		const blockedUsers = await prisma.block.findMany({
 			where: {
-				blockerUserId: user.id,
+				blockerUserId: channelUser.id,
 			},
 			include: {
 				blockedUser: true,

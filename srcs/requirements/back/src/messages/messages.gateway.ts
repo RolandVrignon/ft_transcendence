@@ -72,6 +72,7 @@ export class MessagesGateway {
 		@ConnectedSocket() client: Socket,
 	) {
 		const channelId: number = createMessageDto['channelId'];
+		const userId: number = createMessageDto['userId'];
 
 		try {
 			if (createMessageDto.text.startsWith("/")) {
@@ -79,15 +80,15 @@ export class MessagesGateway {
 					return true;
 			}
 			else {
-					const message = await this.messagesService.createMessage(createMessageDto, channelId, client.id);
-					const channelUsers = await this.messagesService.findChannelUsersForMe(client.id, channelId);
+					const message = await this.messagesService.createMessage(createMessageDto, channelId, userId, client.id);
+					const channelUsers = await this.messagesService.findChannelUsersForMe(userId, client.id, channelId);
 					channelUsers.forEach((channelUser) => {
 						const userId = channelUser.clientId;
 						if (this.server.sockets.sockets.has(userId)) {
 							this.server.to(userId).emit('message',message)
 						}
 					})
-					return false;
+					return true;
 				}
 		} 
 		catch (serverMessage) {
@@ -147,11 +148,12 @@ export class MessagesGateway {
 
 	@SubscribeMessage('findAllChannelMessages')
 	async findAllChanMsg(
+		@MessageBody('userId') userId:number,
 		@MessageBody('channelId') channelId: number,
 		@ConnectedSocket() client: Socket,
 	){
 		try {
-			return await this.messagesService.findChannelMessagesForMe(channelId, client.id);
+			return await this.messagesService.findChannelMessagesForMe(userId, channelId, client.id);
 		}
 		catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
@@ -185,13 +187,14 @@ export class MessagesGateway {
 
 	@SubscribeMessage('typing')
 	async typing(
+		@MessageBody('userId') userID:number,
 		@MessageBody('isTyping') isTyping: boolean,
 		@MessageBody('channelId') channelId: number,
 		@ConnectedSocket() client: Socket,
 		) {
 		try {
 			const name = await this.messagesService.getClientName(client.id);
-			const channelUsers = await this.messagesService.findChannelUsersForMe(client.id, channelId);
+			const channelUsers = await this.messagesService.findChannelUsersForMe(userID, client.id, channelId);
 			channelUsers.forEach((channelUser) => {
 				const userId = channelUser.clientId;
 				if (userId != client.id)
