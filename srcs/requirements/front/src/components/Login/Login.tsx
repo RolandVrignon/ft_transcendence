@@ -95,7 +95,7 @@ const Login: React.FC<LoginProps> = (control) => {
       data : {
         info: userApiData
     }})
-    setcheck2FA(true)
+    setcheck2FA(false)
 	}
 
   async function handle2FAVerif() {

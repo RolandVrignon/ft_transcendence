@@ -296,62 +296,41 @@ export class MessagesService {
 		return channelList;
 	}
 
-	async findDirectMessageChannelsd(userId: number) {
+	async findDirectMessageChannels(userId: number) {
 		const channelUsers = await prisma.channelUser.findMany({
 			where: {
-			  userID: userId,
-			  channel: {
+				userID: userId,
+				channel: {
 					status: "dm"
-			  }
+				}
 			},
 			include: {
-			  channel: true
+				channel: {
+					include: {
+						users: {
+							where: {
+								userID: { not: userId }
+							},
+							select: {
+								userName: true,
+								userID: true,
+							},
+							take: 1
+						}
+					}
+				}
 			}
-		  });
+		});
+
 		if (channelUsers.length === 0) {
 			return [];
 		}
-		const channelList = channelUsers.map(channelUser => {
-			const { ChannelName, id} = channelUser.channel;
-			return { ChannelName, id };
-		});
-		return channelList;
-	}
-
-	async findDirectMessageChannels(userId: number) {
-		const channelUsers = await prisma.channelUser.findMany({
-		  where: {
-			userID: userId,
-			channel: {
-			  status: "dm"
-			}
-		  },
-		  include: {
-			channel: {
-			  include: {
-				users: {
-				  where: {
-					userID: { not: userId }
-				  },
-				  select: {
-					userName: true
-				  },
-				  take: 1
-				}
-			  }
-			}
-		  }
-		});
-	  
-		if (channelUsers.length === 0) {
-		  return [];
-		}
 		const channelList = channelUsers.map((channelUser) => {
-		  const { id, users } = channelUser.channel;
-		  const otherUser = users[0]; // Récupérer l'utilisateur de l'index 0 (le seul autre utilisateur dans un DM)
-		  return { id, username: otherUser.userName };
+			const { users } = channelUser.channel;
+			const otherUser = users[0];
+			return { id: otherUser.userID, username: otherUser.userName };
 		});
-	  
+
 		return channelList;
 	}
 

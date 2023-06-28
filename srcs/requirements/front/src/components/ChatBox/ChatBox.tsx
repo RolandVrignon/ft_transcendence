@@ -11,6 +11,8 @@ import userEvent from '@testing-library/user-event'
 
 const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
+	const channelIdRef = useRef<number>(-1);
+
 	const [socket, setSocket] = useState<any>(null);
 	const [searchTerm, setSearchTerm] = useState('')
 	
@@ -39,7 +41,6 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const [invitations, setInvitations] = useState<any[]>([]);
 	const [invitationsVisible, setInvitationsVisible] = useState<boolean>(true)
 
-	const [channelId, setChannelId] = useState<number>(-1);
 
 	const [joinChatName, setJoinChatName] = useState<string>('');
 	const [joinPassword, setJoinPassword] = useState<string>('');
@@ -61,6 +62,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		if (!socket) return;
 		//updateClientId();
 		findDirectMessageChannels();
+		console.log("dm", dm);
 		findAllInvitations();
 		findAllChannels();
 		socket.on('message', (message: any) => {
@@ -112,41 +114,41 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	}, [selectedUserId]);
 
 	const findChannel = (channelName: string, password: string) => {
-		console.log("name is ", channelName);
 		return new Promise<void>((resolve) => {
-		  socket.emit('findChannel', { channelName, password }, (response: number) => {
-			setChannelId(response);
-			resolve();
-		  });
-		});
-	  };
-	  
-	  const join = () => {
-		return new Promise<void>((resolve, reject) => {
-		  if (channelId != -1) {
-			socket.emit('join', { userId: props.userDbID, channelId }, (response: boolean) => {
-			  if (response) {
-				setJoined(true);
-				console.log('joined');
-				socket.emit('findAllChannelMessages', { userId: props.userDbID, channelId }, (response: any) => {
-				  setMessages(response);
-				  resolve();
-				});
-			  } else {
-				reject("join error");
-			  }
+			socket.emit('findChannel', { channelName, password }, (response: number) => {
+				channelIdRef.current = response;
+				resolve();
 			});
-		  } else {
-			reject("can't join");
-		  }
 		});
-	  };
-	  
+	};
+
+	const join = () => {
+		return new Promise<void>((resolve, reject) => {
+			if (channelIdRef.current != -1) {
+				socket.emit('join', { userId: props.userDbID, channelId: channelIdRef.current  }, (response: boolean) => {
+					if (response) {
+						setMessages([]);
+						setJoined(true);
+						console.log('joined');
+						socket.emit('findAllChannelMessages', { userId: props.userDbID, channelId: channelIdRef.current }, (response: any) => {
+							setMessages(response);
+							resolve();
+						});
+					} else {
+						resolve();
+					}
+				});
+			} else {
+				resolve();
+			}
+		});
+	};
+
 
 	const updateClientId = () => {
-		if (channelId != -1) {
+		if (channelIdRef.current != -1) {
 			return new Promise<void>((resolve) => {
-				socket.emit('updateClientId', { userId: props.userDbID, channelId}, (response: any) => {
+				socket.emit('updateClientId', { userId: props.userDbID, channelId: channelIdRef.current}, (response: any) => {
 					resolve();
 				});
 			});
@@ -166,6 +168,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findDirectMessageChannels', { userId: props.userDbID}, (response: any) => {
 				setDm(response);
+				console.log("dm", response);
 				resolve();
 			});
 		})
@@ -183,28 +186,31 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	const createChannel = (chatName: string, password: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
+				setJoined(response);
 				if (response) {
+					setMessages([]);
 					resolve();
 				} else {
-					console.log("Can't create channel");
+					reject("Can't create channel");
 				}
 			});
 		})
-		.then (() => {
-			findChannel(chatName, password)
-				.then(() => {
-					if (channelId != -1) {
-						setJoined(true);
-						setMessages([]);
-					}
-				})
+		.then(() => {
+			findChannel(chatName, password);
+			if (channelIdRef.current !== -1) {
+				setJoined(true);
+				setMessages([]);
+			}
+		})
+		.catch((error) => {
+			console.log(error);
 		});
 	};
 
 	const sendMessage = () => {
 		return new Promise<void>((resolve, reject) => {
-			if (channelId != -1) {
-				socket.emit('createMessageChannel', { text: messageText,  channelId, userId: props.userDbID}, (response: boolean) => {
+			if (channelIdRef.current != -1) {
+				socket.emit('createMessageChannel', { text: messageText,  channelId: channelIdRef.current, userId: props.userDbID}, (response: boolean) => {
 					resolve();
 				});
 			} else {
@@ -225,16 +231,19 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		const dmObject = dm.find((item) => item.id === clickedUserId);
 		
 		if (dmObject) {
-			setChannelId(dmObject.id);
-			if (channelId != -1)
+			channelIdRef.current = dmObject.id;
+			if (channelIdRef.current != -1){
 				join()
+				setShowProfile(false);
+			}
 		}
 		else {
 			return new Promise<void>((resolve, reject) => {
 				socket.emit('createDM', { firstUser: props.userDbID, secondUser: clickedUserId}, (response: any) => {
+					console.log(response);
 					if (response) {
 						setDm((prevDm) => [...prevDm, response]);
-						setChannelId(response.id);
+						channelIdRef.current = response.id;
 						resolve();
 					} else {
 						console.log("Can't create DM");
@@ -242,7 +251,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 				});
 			})
 			.then (() => {
-				if (channelId != -1) {
+				if (channelIdRef.current != -1) {
+					setShowProfile(false);
 					setJoined(true);
 					setMessages([]);
 				}
@@ -250,10 +260,11 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		}
 	};
 
-	const handleChannelClick = (channelId: number) => {
-
-		setChannelId(channelId);
-		if (channelId != -1)
+	const handleChannelClick = (clickedChannelId: number) => {
+		console.log("click", clickedChannelId);
+		channelIdRef.current = clickedChannelId;
+		console.log("check click", channelIdRef.current);
+		if (channelIdRef.current != -1)
 			join()
 	};
 
@@ -303,16 +314,16 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	const hideChannel = () => {
 		//join(joinChatName, joinPassword);
-		setChannelId(-1);
+		channelIdRef.current = -1;
 		setJoined(false);
 	};
 	let timeout;
 
 	const emitTyping = () => {
-		socket.emit('typing', {userId: props.userDbID, isTyping: true, channelId});
+		socket.emit('typing', {userId: props.userDbID, isTyping: true, channelId : channelIdRef.current});
 
 		timeout = setTimeout(() => {
-			socket.emit('typing', {userId: props.userDbID, isTyping: false, channelId });
+			socket.emit('typing', {userId: props.userDbID, isTyping: false, channelId: channelIdRef.current});
 		}, 2000);
 	};
 
