@@ -13,7 +13,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	const [socket, setSocket] = useState<any>(null);
 	const [searchTerm, setSearchTerm] = useState('')
-
+	
 	const [createChannelMode ,setCreateChannelMode] = useState<boolean>(false);
 	const [joinChannelMode ,setJoinChannelMode] = useState<boolean>(false);
 	const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
@@ -27,14 +27,17 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	
 	const [messages, setMessages] = useState<any[]>([]);
 	const [messageText, setMessageText] = useState('');
-
-	const [typingDisplay, setTypingDisplay] = useState('');
-
-	const [channels, setChannels] = useState<any[]>([]);
-	const [invitations, setInvitations] = useState<any[]>([]);
 	
-	const [chatName, setChatName] = useState<string>(''); // remove
-	const [password, setPassword] = useState<string>(''); // remove
+	const [typingDisplay, setTypingDisplay] = useState('');
+	
+	const [channels, setChannels] = useState<any[]>([]);
+	const [channelsVisible, setChannelsVisible] = useState<boolean>(true)
+
+	const [dm, setDm] = useState<any[]>([]);
+	const [DMVisible, setDMVisible] = useState<boolean>(true)
+
+	const [invitations, setInvitations] = useState<any[]>([]);
+	const [invitationsVisible, setInvitationsVisible] = useState<boolean>(true)
 
 	const [channelId, setChannelId] = useState<number>(-1);
 
@@ -56,7 +59,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 
 	useEffect(() => {
 		if (!socket) return;
-		updateClientId();
+		//updateClientId();
+		findDirectMessageChannels();
 		findAllInvitations();
 		findAllChannels();
 		socket.on('message', (message: any) => {
@@ -158,6 +162,15 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		})
 	};
 
+	const findDirectMessageChannels = () => {
+		return new Promise<void>((resolve) => {
+			socket.emit('findDirectMessageChannels', { userId: props.userDbID}, (response: any) => {
+				setDm(response);
+				resolve();
+			});
+		})
+	};
+
 	const findAllInvitations = () => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
@@ -207,16 +220,41 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		setSidebarVisible(!sidebarVisible);
 	  };
 
-	const handleChannelClick = (clickedChannelName: string, clickedChannelpassword: string) => {
-
-		findChannel(clickedChannelName, clickedChannelpassword)
-		.then (() => {
+	const handleDMClick = () => {
+		const clickedUserId = selectedUserId;
+		const dmObject = dm.find((item) => item.id === clickedUserId);
+		
+		if (dmObject) {
+			setChannelId(dmObject.id);
 			if (channelId != -1)
 				join()
-				.then (() => {
-					return ;
-				})
-		})
+		}
+		else {
+			return new Promise<void>((resolve, reject) => {
+				socket.emit('createDM', { firstUser: props.userDbID, secondUser: clickedUserId}, (response: any) => {
+					if (response) {
+						setDm((prevDm) => [...prevDm, response]);
+						setChannelId(response.id);
+						resolve();
+					} else {
+						console.log("Can't create DM");
+					}
+				});
+			})
+			.then (() => {
+				if (channelId != -1) {
+					setJoined(true);
+					setMessages([]);
+				}
+			});
+		}
+	};
+
+	const handleChannelClick = (channelId: number) => {
+
+		setChannelId(channelId);
+		if (channelId != -1)
+			join()
 	};
 
 	const handleInvitationlClick = (invitationId: number, accepted: boolean, type: string) => {
@@ -398,22 +436,42 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 				
 				<div className=" solid-frame  text-content text-label sidebar">
 					<ul className="channel-list">
-						<li className="channel-item header">channels: </li>
 						<>
-						{ channels.length != 0 ? (
+						<li className="channel-item header" onClick={() => setChannelsVisible(!channelsVisible)}>channels: </li>
+						{ (channelsVisible && channels.length !== 0) ? (
 							channels.map((channel: any) => (
 								<li className="channel-item" key={channel.id}>
-									<div className="channel-name" onClick={() => handleChannelClick(channel.ChannelName, channel.password)}>
+									<div className="channel-name" onClick={() => handleChannelClick(channel.id)}>
 										{channel.ChannelName} 
 									</div>
 								</li>
 							))
 						): (
-							<div className="channel-name"> empty </div>
+							channels.length === 0 ? (
+								<div className="channel-name"> empty </div>
+							) : (
+								<div className="channel-name"> --- </div>
+							)
 						)}
-						<li className="channel-item header">Invitations: </li>
-						
-						{ invitations.length != 0 ? (
+						<li className="channel-item header" onClick={() => setDMVisible(!DMVisible)}>DM: </li>
+						{ (DMVisible && dm.length != 0) ? (
+							dm.map((dm: any) => (
+								<li className="channel-item" key={dm.id}>
+									<div className="channel-name" onClick={() => handleChannelClick(dm.id)}>
+										{dm.username}
+									</div>
+								</li>
+							))
+						): (
+							dm.length === 0 ? (
+								<div className="channel-name"> empty </div>
+							) : (
+								<div className="channel-name"> --- </div>
+							)
+						)}
+
+						<li className="channel-item header" onClick={() => setInvitationsVisible(!invitationsVisible)}>Invitations: </li>
+						{ (invitationsVisible && invitations.length !== 0) ? (
 							invitations.map((invitation: any) => (
 								<li className="channel-item" key={invitation.id}>
 									<div className="channel-name">
@@ -425,8 +483,12 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 									</div>
 								</li>
 							))
-						): (
-							<div className="channel-name"> empty </div>
+						): ( 
+							invitations.length === 0 ? (
+								<div className="channel-name"> empty </div>
+							) : (
+								<div className="channel-name"> --- </div>
+							)
 						)}
 						</>
 					</ul>
@@ -438,6 +500,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 		return (
 			<>
 				<Profil ID={selectedUserId}/>
+				<button className="solid-frame button-frame-choice text-content text-button-choice"
+				 onClick={handleDMClick}>DM</button>
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
 			</>

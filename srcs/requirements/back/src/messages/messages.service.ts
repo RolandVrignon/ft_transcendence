@@ -3,6 +3,7 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import prisma from '../controllers/login/prisma.client';
 import { Message } from './entities/message.entity';
 import { DateTime } from 'luxon';
+import { find } from 'rxjs';
 
 @Injectable()
 export class MessagesService {
@@ -108,6 +109,72 @@ export class MessagesService {
 				}
 			}
 		}
+	}
+
+	async createDM(firstUserId: number, clientId: string, secondUserId: number)
+	{
+		const firstUser = await this.findUserInfo(firstUserId, null);
+
+		if (!firstUser)
+			throw "We experiencing issues. We will get back to you as soon as possible."
+		const secondUser = await this.findUserInfo(secondUserId, null);
+
+		if (!secondUser)
+			throw "We experiencing issues. We will get back to you as soon as possible."
+
+		const channelName = firstUser.username + "|" + secondUser.username;
+
+		const createChannel = await prisma.channel.create({
+			data: {
+				ChannelName: channelName,
+				password: "",
+				status: "dm",
+			}
+		})
+		if (!createChannel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const firstUserChannel = await prisma.channelUser.create({
+			data: {
+				clientId: clientId,
+				userName: firstUser.username,
+				status: "user",
+				channel: {
+					connect: {
+						id: createChannel.id,
+					},
+				},
+				user: {
+					connect: {
+						id: firstUser.id,
+					}
+				}
+			},
+		})
+		if (!firstUserChannel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const secondUserChannel = await prisma.channelUser.create({
+			data: {
+				clientId: "",
+				userName: secondUser.username,
+				status: "user",
+				channel: {
+					connect: {
+						id: createChannel.id,
+					},
+				},
+				user: {
+					connect: {
+						id: secondUser.id,
+					}
+				}
+			},
+		})
+		if (!secondUserChannel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		return createChannel;
 	}
 
 	async createChannel(userId: number, clientId: string, ChannelName: string, Channelpass: string)
@@ -229,7 +296,7 @@ export class MessagesService {
 		return channelList;
 	}
 
-	async findDirectMessageChannels(userId: number) {
+	async findDirectMessageChannelsd(userId: number) {
 		const channelUsers = await prisma.channelUser.findMany({
 			where: {
 			  userID: userId,
@@ -245,11 +312,49 @@ export class MessagesService {
 			return [];
 		}
 		const channelList = channelUsers.map(channelUser => {
-			const { ChannelName, password, id} = channelUser.channel;
-			return { ChannelName, password, id };
+			const { ChannelName, id} = channelUser.channel;
+			return { ChannelName, id };
 		});
 		return channelList;
 	}
+
+	async findDirectMessageChannels(userId: number) {
+		const channelUsers = await prisma.channelUser.findMany({
+		  where: {
+			userID: userId,
+			channel: {
+			  status: "dm"
+			}
+		  },
+		  include: {
+			channel: {
+			  include: {
+				users: {
+				  where: {
+					userID: { not: userId }
+				  },
+				  select: {
+					userName: true
+				  },
+				  take: 1
+				}
+			  }
+			}
+		  }
+		});
+	  
+		if (channelUsers.length === 0) {
+		  return [];
+		}
+		const channelList = channelUsers.map((channelUser) => {
+		  const { id, users } = channelUser.channel;
+		  const otherUser = users[0]; // Récupérer l'utilisateur de l'index 0 (le seul autre utilisateur dans un DM)
+		  return { id, username: otherUser.userName };
+		});
+	  
+		return channelList;
+	}
+
 
 	async findChannelByNameAndPass(ChannelName: string, Channelpass: string)
 	{

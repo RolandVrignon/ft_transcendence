@@ -115,6 +115,13 @@ export class MessagesGateway {
 		return await this.messagesService.findChannels(userId);
 	}
 
+	@SubscribeMessage('findDirectMessageChannels')
+	async findDirectMessageChannels(
+		@MessageBody('userId') userId:number,
+	){
+		return await this.messagesService.findDirectMessageChannels(userId);
+	}
+
 	@SubscribeMessage('findUserInfo')
 	async findAllChfindUserInfoannels(
 		@MessageBody('userName') userName:string,
@@ -177,6 +184,22 @@ export class MessagesGateway {
 		try {
 			await this.messagesService.createChannel(userID, client.id, chatName, password);
 			return true;
+		}
+		catch (serverMessage) {
+			//this.server.to(client.id).emit('serverMessage', serverMessage);
+			this.server.to(client.id).emit('formFailed', serverMessage);
+			return false;
+		}
+	}
+
+	@SubscribeMessage('createDM')
+	async createDM(
+		@MessageBody('firstUser') firstUser:number,
+		@MessageBody('secondUser') secondUser:number,
+		@ConnectedSocket() client: Socket,
+	){
+		try {
+			return await this.messagesService.createDM(firstUser, client.id, secondUser);
 		}
 		catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
