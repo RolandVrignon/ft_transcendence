@@ -44,6 +44,7 @@ const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRef
 	//Properties for pongGameInvites
 	const navigate = useNavigate();
 	const [showModal, setShowModal] = useState(false);
+	const pongGameInviteRefusalCallbackRef = useRef<(() => void) | null>(null)
 
 
 	useEffect(() => {
@@ -82,8 +83,9 @@ const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRef
 		});
 
 		//for pong game invites
-		socket.on('pong-game-invite', (hostID: number) => {
+		socket.on('pong-game-invite', (hostID: number, callback: () => void) => {
 			props.pongGameHostIDref.current = hostID
+			pongGameInviteRefusalCallbackRef.current = callback
 			setShowModal(true)
 		})
 
@@ -442,6 +444,12 @@ const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRef
 					<button onClick={() => { 
 						props.pongGameGuestIDref.current = null
 						setShowModal(false)
+						if (pongGameInviteRefusalCallbackRef.current !== null) {
+							pongGameInviteRefusalCallbackRef.current()
+						} else {
+							console.error("Warning: pongGameInviteRefusalCallbackRef.current is null!")
+						}
+						pongGameInviteRefusalCallbackRef.current = null
 					}}>Refuse</button>
 				</div>
 			  </div>

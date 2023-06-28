@@ -70,7 +70,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       clientSocket.emit(`request-refused`)
       return
     }
-    //dubious way of checking if userID exists
+    //dubious way of checking if userID exists...
     let userCount = await prisma.user.count({where: {id: userID}})
     if (userCount) {
       if (this.playerSocketInQueue){ // if there is already a user waiting in the queue create a game session
@@ -81,6 +81,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         console.log(`No other client in queue, adding current client in the queue.`)
         this.playerSocketInQueue = clientSocket
         this.playerIDinQueue = userID
+        clientSocket.emit(`in-queue`)
       }
     } else {
       console.error(`Reiceved enter-queue request with userID ${userID}, but the user ID does not exist in the DB. Closing socket.`)
@@ -117,7 +118,12 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.pendingInvites.push(new PendingInvite(hostSocket, hostID, guestID, this.nextPendingInviteDebugID++))
     console.log(`Created pending invite with debugId ${this.nextPendingInviteDebugID - 1}, pending invites length: `, this.pendingInvites.length, `, pending invites: [${this.pendingInvites.map(invite => invite.pendingInviteID)}].`)
     //Then, transmit emit join request from messages gateway
-    if (this.messagesGateway.transmitPongGameInviteProposal(hostID, guestID, this.nextPendingInviteDebugID - 1)) 
+    const inviteTransmitted = this.messagesGateway.transmitPongGameInviteProposal(hostID, guestID, this.nextPendingInviteDebugID - 1, () => {
+      console.log(`\nGuest of invite ${this.nextDebugSessionId - 1} refused invitation. Adding host with ID ${hostID} and socket ${hostSocket.id} to queue...`)
+      this.handleEnterQueueRequest(hostSocket, hostID)
+    })
+
+    if (inviteTransmitted)
       hostSocket.emit('waiting-for-guest-answer')
     else {
       console.log(`Could not tansmit invite to guest, adding host to queue...`)

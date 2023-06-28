@@ -722,24 +722,15 @@ export class MessagesGateway {
 	}
 	//returns true if the invite was succesfully transmitted
 	//returns false otherwise
-	transmitPongGameInviteProposal(hostID: number, guestID: number, inviteDebugID: number): boolean {
+	transmitPongGameInviteProposal(hostID: number, guestID: number, inviteDebugID: number, inviteRefusalCallback: () => void): boolean {
 		console.log(`Transmitting invite proposal hostID: ${hostID}, guestID: ${guestID}, inviteDebugID: ${inviteDebugID}...`)
 		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.userID === guestID)
 		if (socketUserIdPairIndex === -1) {
 			console.error(`Error: Could not found an socketUserIdPairIndex with the userID ${guestID}!`)
 			return false
 		}
-		this.socketUserIDpairs[socketUserIdPairIndex].socket.emit('pong-game-invite', hostID)
+		this.socketUserIDpairs[socketUserIdPairIndex].socket.emit('pong-game-invite', hostID, () => inviteRefusalCallback())
 		return true
-		// if (guestID in this.userSocketMap) {
-		// 	const guestSocket = this.userSocketMap[guestID]
-		// 	guestSocket.emit('pong-game-invite', hostID)
-		// 	console.log(`Transmited pong game invite to user ${hostID}.`)
-		// 	return true
-		// } else {
-		// 	console.log(`Error: Could not find guestID ${guestID} of pongGameInvite with ID ${inviteDebugID} in userSocketMap.`)
-		// 	return false
-		// }
 	}
 }
 
