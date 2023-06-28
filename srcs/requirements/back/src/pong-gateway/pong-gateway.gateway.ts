@@ -42,8 +42,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   //There is no need to havbe an array of sockets since it will never contain more than one element.
-  // playerSocketInQueue: Socket | null = null;
-  // playerIDinQueue: number = -1
   playerSocketInQueue: Socket | null = null  
   playerIDinQueue: number | null = null
   pendingInvites: PendingInvite[] = []
@@ -102,6 +100,13 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`\nHandling invite request, hostSocket: ${hostSocket.id}, hostID: [${hostID}], guestID: ${guestID}.`)
     //if the host is in the queue, remove him from the queue since the front can't handle multiple game sessions at once.
     this.removeFromQueue(hostSocket)
+    //Assert that the player is not invitting himself, this is not a "gameplay" restriction, but rather a technical restriction give how the back has been implemented
+    //It could be possible to implement reliable sel invitations but it is not necessary and the goal is to finish the project ASAP
+    if (hostID === guestID) {
+      console.log(`Request refused, hostID === guestID. Putting host in queue...`)
+      this.handleEnterQueueRequest(hostSocket, hostID)
+      return
+    }
     //If there is already a pending invite for the same host and guest, ignore the request to avoid duplicate pending invites.
     if (this.pendingInvites.some(pendingInvite => pendingInvite.hostID === hostID && pendingInvite.guestID === guestID)) {
       console.log(`Request ignored as there is already a pending invite with the same host and guest.`)

@@ -363,16 +363,18 @@ const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRef
 		return (
 			<>
 				<Profil ID={selectedUserId}/>
-				<button 
-					className="solid-frame button-frame-choice text-content text-button-choice"
-					onClick={() => {
-							props.pongGameGuestIDref.current = selectedUserId
-							console.log('props.pongGameGuestIDref.current set to ', selectedUserId)
-							navigate("/Pong");  
-						}}
-				>
-					Invite to pong game(higly recommended)
-				</button>
+				{ selectedUserId !== props.userDbID && 
+					<button 
+						className="solid-frame button-frame-choice text-content text-button-choice"
+						onClick={() => {
+								props.pongGameGuestIDref.current = selectedUserId
+								console.log('props.pongGameGuestIDref.current set to ', selectedUserId)
+								navigate("/Pong");  
+							}}
+					>
+						Invite to pong game(higly recommended)
+					</button>
+				}
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
 			</>
