@@ -414,8 +414,8 @@ const ChatBox: React.FC<{ userDbID: number, pongGameGuestIDref: React.MutableRef
 						>
 							Message:
 						</label>
-						<input
-							className="solid-frame input-frame text-content text-input text-msg-input"
+						<textarea
+							className="solid-frame input-frame text-content text-chatmsg-input text-msg-input"
 							value={messageText}
 							onChange={(e) => setMessageText(e.target.value)}
 							onInput={emitTyping}

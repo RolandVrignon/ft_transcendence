@@ -8,7 +8,8 @@ import { AppContext } from '../Context'
 import { GlobalContent } from '../Context'
 
 interface LoginProps {
-  log: Dispatch<SetStateAction<boolean>>
+  log: Dispatch<SetStateAction<boolean>>,
+	controlJwtToken: Dispatch<SetStateAction<string>>,
   ID: Dispatch<SetStateAction<number>>
 }
 
@@ -32,6 +33,16 @@ const Login: React.FC<LoginProps> = (control) => {
   const [check2FA, setcheck2FA] = useState(false)
   const [token2FA, setToken2FA] = useState('')
 
+  function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
+    const target = event.target as HTMLButtonElement
+    target.style.fontSize = '20.7px'
+  }
+
+  function MouseOut(event: React.MouseEvent<HTMLButtonElement>){
+    const target = event.target as HTMLButtonElement
+    target.style.fontSize = '20px'
+  }
+
   async function askDataBaseForCreation(code: string) {
     const checkUserStateURL = 'http://localhost:8080/callback/log'
     const res = await axios({
@@ -46,6 +57,7 @@ const Login: React.FC<LoginProps> = (control) => {
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
+    control.controlJwtToken(res.data.jwtSecureToken)
     control.ID(res.data.apiData.id)
   }
 
@@ -145,8 +157,10 @@ const Login: React.FC<LoginProps> = (control) => {
       <div className="solid-frame two-fa-frame">
         <button
 					className="solid-frame button-frame text-content text-button"
+          onMouseOver={MouseOver}
+          onMouseLeave={MouseOut}
 					onClick={handle2FA}>
-						To make 2FA, press the button!
+						To make 2FA, press here!
 				</button>
       </div>
     )

@@ -11,7 +11,8 @@ import { Socket, Server } from 'socket.io';
 import { GameSession } from './gameSession';
 import prisma from '../controllers/login/prisma.client';
 import { MessagesGateway } from 'src/messages/messages.gateway';
-
+import { UseGuards } from '@nestjs/common'
+import { WebSocketJwtAuthGuard } from '../jwt/jwt.guard'
 
 const interval: number = 1000 / 30
 
@@ -59,6 +60,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   
   @SubscribeMessage('enter-queue')
+  @UseGuards(WebSocketJwtAuthGuard)
   async handleEnterQueueRequest(clientSocket: Socket, userID: number)
   {
     console.log(`\nHandling enter-queue request socket: ${clientSocket.id},  userID: ${userID}...`)

@@ -6,12 +6,13 @@ import { Socket } from 'socket.io-client'; // Import the socket.io client
 type Vector = any;
 
 type PongGameProps = {
+    webToken: string,
     userDbID: number;
 	pongGameGuestIDref: React.MutableRefObject<number | null>
 	pongGameHostIDref: React.MutableRefObject<number | null>
 };
 
-export default function PongGame({userDbID, pongGameGuestIDref, pongGameHostIDref}: PongGameProps) { 
+export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGameHostIDref}: PongGameProps) { 
     //possible states: undefined(didn't try anything), in queue, in game, Connection failed, Connection timeout, VICTORY, DEFEAT
     const [sessionState, setsessionState] = useState<string | undefined>(undefined)
     const socketRef = useRef<Socket | null>(null)
@@ -22,7 +23,12 @@ export default function PongGame({userDbID, pongGameGuestIDref, pongGameHostIDre
     useEffect(() => {
         console.log("PongGame mount")
         if (!socketRef.current) {
-            socketRef.current = io('http://localhost:9090')
+            socketRef.current = io('http://localhost:9090',  {
+                transports: ['websocket'],
+                auth: {
+                  token: `Bearer ${webToken}`,
+                },
+            })
             socketRef.current.on('connect', () => {
                 setsessionState('connected')
                 console.log('PongGame socket connected to backend gateway.')

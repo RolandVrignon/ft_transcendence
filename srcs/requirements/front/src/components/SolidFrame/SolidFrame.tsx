@@ -10,7 +10,7 @@ type SolidFrameProps = {
 	txt2?: string;
 	children?: React.ReactNode;
 	link?: string;
-};
+}
 
 function SolidFrame({
 		frameClass,

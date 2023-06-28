@@ -1,15 +1,19 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ConnectController, SearchController } from './controllers/login/auth.controller';
+import { ConnectController, SearchController, SocialInteractController } from './controllers/auth/auth.controller';
 import { MessagesModule } from './messages/messages.module';
-import { PongGateway } from './pong-gateway/pong-gateway.gateway';
-
+import { PongGateway } from './pong-gateway/pong-gateway.gateway'
+import { JwtModule } from '@nestjs/jwt'
+import { jwtConstants } from './jwt/jwt.constant'
 
 @Module({
-  imports: [MessagesModule],
-  controllers: [AppController, SearchController, ConnectController],
-  providers: [AppService, PongGateway]
+  imports: [MessagesModule,
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '1h' }
+    })
+  ],
+  controllers: [SearchController, ConnectController, SocialInteractController],
+  providers: [PongGateway]
 })
 
 export class AppModule {}

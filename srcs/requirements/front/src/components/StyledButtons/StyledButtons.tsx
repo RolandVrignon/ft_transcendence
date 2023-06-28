@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Dispatch, SetStateAction } from 'react'
 import SolidFrame from '../SolidFrame/SolidFrame';
+import axios from 'axios'
+import { debounce } from 'lodash'
 
 interface ProfileUserButtonProps	{
+	webToken: string,
 	newID: number,
 	ID: number
 }
 
 
-const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
+const ProfileUserButton = ({webToken, newID, ID}: ProfileUserButtonProps) => {
 	function	whichSendButton(e: React.MouseEvent<HTMLButtonElement>): number	{
 		const target = e.target as HTMLButtonElement;
 		if (target.className === 'solid-frame text-content button-interface-actions-user button-add-friend')
@@ -20,22 +23,33 @@ const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
 		return 3
 	}
 
-	function	handleSocialInteract(e: React.MouseEvent<HTMLButtonElement>)	{
+	async function	handleSocialInteract(e: React.MouseEvent<HTMLButtonElement>)	{
 		switch (whichSendButton(e))	{
 			case 0:
-				console.log('button-add-friend')
+				await axios({
+					url: 'http://localhost:8080/friend/add',
+					method: 'POST',
+					headers: { Authorization: `Bearer ${webToken}` },
+					data: { ID, newID }
+				})
 				break
 			case 1:
-				console.log('button-remove-friend')
+				await axios({
+					url: 'http://localhost:8080/friend/remove',
+					method: 'POST',
+					headers: { Authorization: `Bearer ${webToken}` },
+					data: { ID, newID }
+				})
 				break
 			case 2:
 				console.log('button-block-user')
 				break
 			case 3:
 				console.log('button-make-game')
-
 		}
 	}
+
+	const waitHandleSocialInteract = debounce(handleSocialInteract, 500)
 
 	function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
 		const target = event.target as HTMLButtonElement;
@@ -54,10 +68,10 @@ const ProfileUserButton = ({newID, ID}: ProfileUserButtonProps) => {
 			{ newID === -1 || newID === ID ?
 				null :
 				<SolidFrame frameClass="button-interface-actions-user">
-					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="solid-frame text-content button-interface-actions-user button-add-friend" >Add friend</button>
-					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="solid-frame text-content button-interface-actions-user button-remove-friend" >Remove Friend</button>
-					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="solid-frame text-content button-interface-actions-user button-block-user" >Block User</button>
-					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handleSocialInteract} className="solid-frame text-content button-interface-actions-user button-make-game" >Make Game</button>
+					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={waitHandleSocialInteract} className="solid-frame text-content button-interface-actions-user button-add-friend" >Add friend</button>
+					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={waitHandleSocialInteract} className="solid-frame text-content button-interface-actions-user button-remove-friend" >Remove Friend</button>
+					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={waitHandleSocialInteract} className="solid-frame text-content button-interface-actions-user button-block-user" >Block User</button>
+					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={waitHandleSocialInteract} className="solid-frame text-content button-interface-actions-user button-make-game" >Make Game</button>
 			</SolidFrame>}
 		</div>
 	)

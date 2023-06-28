@@ -9,11 +9,12 @@ interface User {
 }
 
 interface SearchListProps	{
+	webToken: string,
 	searchTerm: string,
 	setNewID: Dispatch<SetStateAction<number>>
 }
 
-const SearchList = ({setNewID, searchTerm}: SearchListProps) => {
+const SearchList = ({webToken, setNewID, searchTerm}: SearchListProps) => {
 	const [users, setUsers] = useState<User[]>([])
 	
 	async function askDataBaseForSearchBarContent()	{
@@ -22,6 +23,7 @@ const SearchList = ({setNewID, searchTerm}: SearchListProps) => {
 			const	res = await axios({
 				url: searchResultURL,
 				method: 'POST',
+				headers: { Authorization: `Bearer ${webToken}` },
 				data:	{ searched: searchTerm }
 			})
 			setUsers(res.data)
