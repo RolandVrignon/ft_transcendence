@@ -38,13 +38,15 @@ export class WebSocketJwtAuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const client = context.switchToWs().getClient()
-    const token = this.extractTokenFromClient(client)
+    const token = client.handshake.query.token
     if (!token) {
+      console.log(`WebSocketJwtAuthothification denied, token is null.`)
       throw new WsException('Unauthorized');
     }
-    return this.validateToken(token)
+      return this.validateToken(token)
   }
-    extractTokenFromClient(client: any): string {
+  
+  extractTokenFromClient(client: any): string {
     return client.handshake.query.token || null
   }
 
@@ -54,6 +56,8 @@ export class WebSocketJwtAuthGuard implements CanActivate {
       return true
     } 
     catch (err) {
+      console.error(`Cauhght an error while vrifying authorization(or authentification?) token, returning null.`)
+      console.error(`Error: `, err)
       return false
     }
   }

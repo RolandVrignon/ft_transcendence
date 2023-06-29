@@ -2,15 +2,24 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { click } from '@testing-library/user-event/dist/click'
 
-import { Dispatch, SetStateAction } from 'react'
 import SolidFrame from '../SolidFrame/SolidFrame'
 import SearchList from "../SearchList/SearchList"
 import SearchBar from "../SearchBar/SearchBar"
 import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
 import './ChatBox.scss'
+import { useNavigate } from "react-router-dom";
+import { Dispatch, SetStateAction } from 'react'
 
-const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: Dispatch<SetStateAction<string>> }> = (props)  => {
+const ChatBox: React.FC<{
+	 userDbID: number,
+	pongGameGuestIDref: React.MutableRefObject<number | null>,
+	pongGameHostIDref: React.MutableRefObject<number | null>,
+	refreshWebToken:  Dispatch<SetStateAction<string>>, 
+	webToken: string
+	}> = (props)  => {
+
+
 
 	const channelIdRef = useRef<number>(-1);
 
@@ -48,6 +57,11 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 
 	const [createChatName, setCreateChatName] = useState<string>('');
 	const [createPassword, setCreatePassword] = useState<string>('');
+
+	//fields for pongGame
+	const navigate = useNavigate();
+	const [showModal, setShowModal] = useState(false);
+	const pongGameInviteRefusalCallbackRef = useRef<(() => void) | null>(null)
 
 
 	useEffect(() => {
@@ -511,9 +525,25 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 	else if (showProfile)
 		return (
 			<>
-				<Profil ID={selectedUserId} webToken={props.webToken} refreshWebToken={props.refreshWebToken}/>
-				<button className="solid-frame button-frame-choice text-content text-button-choice"
-				 onClick={handleDMClick}>DM</button>
+				<Profil ID={selectedUserId} refreshWebToken={props.refreshWebToken} webToken={props.webToken}/>
+				{/* { selectedUserId !== props.userDbID &&  */}
+					<button 
+						className="solid-frame button-frame-choice text-content text-button-choice"
+						onClick={() => {
+								props.pongGameGuestIDref.current = selectedUserId
+								console.log('props.pongGameGuestIDref.current set to ', selectedUserId)
+								navigate("/Pong");  
+							}}
+					>
+						Invite to pong game(higly recommended)
+					</button>
+				{/* } */}
+				<button 
+					className="solid-frame button-frame-choice text-content text-button-choice"
+				 	onClick={handleDMClick}
+				>
+					DM
+				</button>
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
 			</>
@@ -569,6 +599,33 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 						onClick={hideChannel}>return</button>
 					</form>
 				</div>
+				
+		    <div>
+			{/* JSX for pong game invites*/}
+			{showModal && (
+			  <div className="modal">
+				<div className="modal-content">
+					<h2>You received an invite to the play a pong game!</h2>
+					<button onClick={() => {
+						navigate('/Pong')
+						setShowModal(false)
+					}}>
+						Accept
+					</button>
+					<button onClick={() => { 
+						props.pongGameGuestIDref.current = null
+						setShowModal(false)
+						if (pongGameInviteRefusalCallbackRef.current !== null) {
+							pongGameInviteRefusalCallbackRef.current()
+						} else {
+							console.error("Warning: pongGameInviteRefusalCallbackRef.current is null!")
+						}
+						pongGameInviteRefusalCallbackRef.current = null
+					}}>Refuse</button>
+				</div>
+			  </div>
+			)}
+		  </div>
 		</SolidFrame>
 )}
 

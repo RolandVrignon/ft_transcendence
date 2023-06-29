@@ -7,6 +7,10 @@ import { DateTime } from 'luxon';
 
 //const COMMAND_HELPER: string = "to mute => /mute targetName durationInMinutes\n to block";
 
+//types for pong game invitations
+type SocketUserIDpair = {socket: Socket, userID: number}
+
+
 @WebSocketGateway({
 	cors: {
 		origin: '*',
@@ -16,6 +20,11 @@ import { DateTime } from 'luxon';
 export class MessagesGateway {
 	@WebSocketServer()
 	server: Server;
+	//properties for pong game invites
+	//This Array is used to map userIds to socket and vice versa.
+	//We're not using dictionnaries so we can have duplicates,
+	//this is usefull(maybe even necessary) for testing on the same machine with the same stud account.
+	socketUserIDpairs: SocketUserIDpair[] = [];
 
 	constructor(
 		private readonly messagesService: MessagesService,
@@ -62,6 +71,13 @@ export class MessagesGateway {
 			} catch (serverMessage) {
 				this.server.to(client.id).emit('formFailed', serverMessage);
 				return false;
+			}
+			//Code for pong game
+			try {
+				console.log(`Added user with ID ${userId} and socket ${client.id} in socketUserIDpairs.`)
+				this.socketUserIDpairs.push({socket: client, userID: userId})
+			} catch (err) {
+				console.error(`Error caught while adding user and socket to userSocketMap: `, err)
 			}
 			return true;
 	}
@@ -117,19 +133,6 @@ export class MessagesGateway {
 		return await this.messagesService.findDirectMessageChannels(userId);
 	}
 
-	@SubscribeMessage('findUserInfo')
-	async findAllChfindUserInfoannels(
-		@MessageBody('userName') userName:string,
-	){
-		return await this.messagesService.findUserInfo(-1, userName);
-	}
-	@SubscribeMessage('findAllInvitations')
-	async findAllInvitations(
-		@MessageBody('userId') userId:number,
-	){
-		return await this.messagesService.findAllInvitations(userId);
-	}
-
 	@SubscribeMessage('joinInvitation')
 	async joinInvitation(
 		@MessageBody('userId') userId:number,
@@ -146,6 +149,19 @@ export class MessagesGateway {
 			this.server.to(client.id).emit('formFailed', serverMessage);
 			false;
 		}
+	}
+
+	@SubscribeMessage('findUserInfo')
+	async findAllChfindUserInfoannels(
+		@MessageBody('userName') userName:string,
+	){
+		return await this.messagesService.findUserInfo(-1, userName);
+	}
+	@SubscribeMessage('findAllInvitations')
+	async findAllInvitations(
+		@MessageBody('userId') userId:number,
+	){
+		return await this.messagesService.findAllInvitations(userId);
 	}
 
 	@SubscribeMessage('findAllChannelMessages')
@@ -516,7 +532,7 @@ export class MessagesGateway {
 				},
 			})
 			if (!executor){
-				throw  "We experiencing issues. We will get back to you as soon as possible."
+				throw  "We experiencing issues. We will get back to you as soon as possible. block, executor is null"
 			}
 			const target = await prisma.channelUser.findFirst({
 				where: {
@@ -571,7 +587,7 @@ export class MessagesGateway {
 	async leave(executorId: string, channelId: number){
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. leave, channel is null"
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
@@ -589,7 +605,7 @@ export class MessagesGateway {
 	async mute(targetUser: string, duration: string, executorId: string, channelId: number){
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. mute, channel is null"
 		}
 		else if (await this.messagesService.isSuperUser(channelId, executorId) == false) {
 			throw  "you can't mute someone, you are not the channel owner or admin!"
@@ -634,7 +650,7 @@ export class MessagesGateway {
 	async kick(targetUser: string, duration: string, executorId: string, channelId: number){
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. kick, channel not found in db"
 		}
 		else if (await this.messagesService.isSuperUser(channelId, executorId) == false) {
 			throw  "you can't kick someone, you are not the channel owner or and admin."
@@ -679,7 +695,7 @@ export class MessagesGateway {
 	async ban(targetUser: string, duration: string, executorId: string, channelId: number){
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. ban, channel not found in db"
 		}
 		else if (await this.messagesService.isSuperUser(channelId, executorId) == false) {
 			throw  "you can't ban someone, you are not the channel owner or and admin."
@@ -719,6 +735,29 @@ export class MessagesGateway {
 				throw `${targetUser} is not online.`
 			}
 		}
+	}
+	
+	//methods for pong game invites
+	handleDisconnect(disconnectedSocket: Socket) {
+		console.log(`\nHandling disconnection from chat: Going to remove user with socket ${disconnectedSocket.id} from socketUserIDpairs....`)
+		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.socket === disconnectedSocket)
+		if (socketUserIdPairIndex === -1) {
+			console.error(`Error: Could not found an socketUserIdPairIndex with the socket ${disconnectedSocket.id}!`)
+			return
+		}
+		this.socketUserIDpairs.splice(socketUserIdPairIndex, 1)
+	}
+	//returns true if the invite was succesfully transmitted
+	//returns false otherwise
+	transmitPongGameInviteProposal(hostID: number, guestID: number, inviteDebugID: number, inviteRefusalCallback: () => void): boolean {
+		console.log(`Transmitting invite proposal hostID: ${hostID}, guestID: ${guestID}, inviteDebugID: ${inviteDebugID}...`)
+		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.userID === guestID)
+		if (socketUserIdPairIndex === -1) {
+			console.error(`Error: Could not found an socketUserIdPairIndex with the userID ${guestID}!`)
+			return false
+		}
+		this.socketUserIDpairs[socketUserIdPairIndex].socket.emit('pong-game-invite', hostID, () => inviteRefusalCallback())
+		return true
 	}
 }
 
