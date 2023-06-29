@@ -2,7 +2,6 @@ $user-height: 25%;
 
 .profil-frame {
 	height: 100%;
-
 }
 
 $border-width: 2px;
@@ -73,6 +72,16 @@ $border-width: 2px;
 	flex-direction: row;
 	height: $user-height;
 
+	.twoFA-option-profile	{
+		font-family: 'Arcade';
+		color: white;
+		background-color: black;
+		font-size: 16px;
+		border-width: 1px;
+		border-color: white;
+		text-align: center;
+	}
+
 	.photo-frame {
 		width: 400px;
 	}
@@ -85,9 +94,6 @@ $border-width: 2px;
 	height: calc( ( 100% - #{$user-height} ) / 2);
 }
 
-.history-frame {
-
-}
 
 .profil-title-frame {
 	border-width: 2px;
@@ -98,6 +104,6 @@ $border-width: 2px;
 	font-size: 28px;
 }
 
-.text-data-profil {
-	// Style 
-}
+.history-frame {}
+
+.text-data-profil {}

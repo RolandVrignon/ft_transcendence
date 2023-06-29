@@ -150,9 +150,11 @@
 }
 
 .messages-container {
+	padding: 3px;
 	flex-grow: 1;
 	border-width: 1px;
 	justify-content: start;
+	overflow-wrap: break-word;
 }
 
 .text-container {
@@ -171,12 +173,15 @@
 		justify-content: start;
 		border-width: 1px;
 	}
-	.text-input {
+	.text-chatmsg-input {
+		padding: 5px;
+		resize: none;
 		text-align: start;
 		align-items: start;
 		justify-content: start;
 	}
 	.button-frame {
+		align-items: center;
 		height: 50px;
 	}
 	.text-button {

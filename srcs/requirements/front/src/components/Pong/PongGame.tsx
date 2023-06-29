@@ -8,10 +8,11 @@ import p5Type from '@p5-wrapper/react'; // This imports the type
 type Vector = any;
 
 type PongGameProps = {
-    userDbID: number;
-};
+    webToken: string,
+    userDbID: number
+}
 
-export default function PongGame({userDbID}: PongGameProps) { 
+export default function PongGame({webToken, userDbID}: PongGameProps) { 
     //possible states: undefined(didn't try anything), in queue, in game, Connection failed, Connection timeout, VICTORY, DEFEAT
     const [sessionState, setsessionState] = useState<string | undefined>(undefined)
     const socketRef = useRef<Socket | null>(null)
@@ -22,7 +23,12 @@ export default function PongGame({userDbID}: PongGameProps) {
     useEffect(() => {
         console.log("UseEffect")
         if (!socketRef.current) {
-            socketRef.current = io('http://localhost:9090');;
+            socketRef.current = io('http://localhost:9090',  {
+                transports: ['websocket'],
+                auth: {
+                  token: `Bearer ${webToken}`,
+                },
+            })
             socketRef.current.on('connect', () => setsessionState('connected'));
             socketRef.current.on('in-queue', () => setsessionState('in-queue'));
             socketRef.current.on('start-game', (playerIndex) => {

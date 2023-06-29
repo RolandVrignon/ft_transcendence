@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { click } from '@testing-library/user-event/dist/click'
+
 import SolidFrame from '../SolidFrame/SolidFrame'
 import SearchList from "../SearchList/SearchList"
 import SearchBar from "../SearchBar/SearchBar"
@@ -552,8 +554,8 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 						>
 							Message:
 						</label>
-						<input
-							className="solid-frame input-frame text-content text-input text-msg-input"
+						<textarea
+							className="solid-frame input-frame text-content text-chatmsg-input text-msg-input"
 							value={messageText}
 							onChange={(e) => setMessageText(e.target.value)}
 							onInput={emitTyping}

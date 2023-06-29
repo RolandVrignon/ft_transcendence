@@ -6,17 +6,22 @@ import Title from "../Title/Title";
 import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import './Profil.scss'
+import { debounce } from 'lodash'
+import { Dispatch, SetStateAction } from 'react'
 
 interface UserInfo {
 	id?: number,
 	first_name?: string,
 	last_name?: string,
 	imageLink?: string,
-	username?: string
+	username?: string,
+	doubleAuth?: string
 }
 
 type ProfilProps = {
 	ID: number,
+	refreshWebToken: Dispatch<SetStateAction<string>>,
+	webToken: string,
 	username?: string,
 	stats?: string,
 	matchHistory?: string,
@@ -25,35 +30,35 @@ type ProfilProps = {
 
 const Profil: React.FC<ProfilProps> = ({
 	ID,
+	webToken,
+	refreshWebToken,
 	stats = "Some user stats",
 	matchHistory = "Some match history data",
 	children
 	}) => {
 		const [newID, setNewID] = useState(-1)
 		const [searchTerm, setSearchTerm] = useState('')
-		const [userInfo, setUserInfo] = useState<UserInfo>({
-			id: -1,
-		first_name: '',
-		last_name: '',
-		imageLink: '',
-		username: ''
-	})
+		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: ''})
 
 	useEffect(() => {
 		const fetchUserInformationDisplay = async () => {
 			try {
-				const res = await axios({
-					url: 'http://localhost:8080/search/info-user',
-					method: 'POST',
-					data: { id: ID }
-				})
-				const updatedUserInfo: UserInfo = {
-					id: ID,
-					first_name: res.data.firstName,
-					imageLink: res.data.imageLink,
-					username: res.data.username
+				if (newID === -1)	{
+					const res = await axios({
+						url: 'http://localhost:8080/search/info-user',
+						method: 'POST',
+						headers: { Authorization: `Bearer ${webToken}` },
+						data: { id: ID }
+					})
+					const updatedUserInfo: UserInfo = {
+						id: ID,
+						first_name: res.data.firstName,
+						imageLink: res.data.imageLink,
+						username: res.data.username,
+						doubleAuth: res.data.doubleAuth
+					}
+					setUserInfo(updatedUserInfo)
 				}
-				setUserInfo(updatedUserInfo)
 			}
 			catch (err)	{
 				console.log(err)
@@ -69,17 +74,20 @@ const Profil: React.FC<ProfilProps> = ({
 	useEffect(() => {
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
+				console.log(newID)
 				if (newID !== -1)	{
 					const res = await axios({
 						url: 'http://localhost:8080/search/info-user',
 						method: 'POST',
+						headers: { Authorization: `Bearer ${webToken}` },
 						data: { id: newID }
 					})
 					const updatedUserInfo: UserInfo = {
 						id: newID,
 						first_name: res.data.firstName,
 						imageLink: res.data.imageLink,
-						username: res.data.username
+						username: res.data.username,
+						doubleAuth: res.data.doubleAuth
 					}
 					setUserInfo(updatedUserInfo)
 				}
@@ -91,34 +99,47 @@ const Profil: React.FC<ProfilProps> = ({
 		fetchOtherUserInformationDisplay()
 	}, [newID])
 
+	function	return2FAStatus()	{
+		if (userInfo.doubleAuth?.length)
+			return 'enabled'
+		return 'disabled'
+	}
+
+	async function	handle2FAUpdate(e: React.MouseEvent<HTMLParagraphElement>)	{
+		let twoFaStatus
+		if ((e.target as HTMLParagraphElement).textContent === 'Enable 2FA on my account')
+			twoFaStatus = 'Enable'
+		else
+			twoFaStatus = 'Disable'
+		const	res = await axios({
+			url: 'http://localhost:8080/callback/change-two-fa', method: 'POST',
+			data: { twoFaStatus, ID }
+		})
+		setUserInfo(res.data)
+	}
+	const waithandle2FAUpdate = debounce(handle2FAUpdate, 500)
 
 	return (
-	<SolidFrame
-		frameClass="profil-frame"
-	>
-		<SolidFrame
-			frameClass="search-frame"
-		>
+	<SolidFrame frameClass="profil-frame">
+		<SolidFrame frameClass="search-frame">
 			<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
-			{/* { newID === -1 || newID === ID ? null
-				:
-				<button className="solid-frame search-frame button-search-frame text-content">
-					Add Friend
-				</button>
-			} */}
 		</SolidFrame>
-		<SearchList setNewID={setNewID} searchTerm={searchTerm} />
-		<ProfileUserButton newID={newID} ID={ID}/>
+		<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
+		<ProfileUserButton webToken={webToken} newID={newID} ID={ID}/>
 		{/* display image and username +? 2FA */}
-		<SolidFrame frameClass="user-profil-frame">
-			<SolidFrame frameClass="photo-frame">
+		<SolidFrame frameClass="user-profil-frame" >
+			<SolidFrame frameClass="photo-frame" >
 				<img src={userInfo.imageLink} />
 			</SolidFrame>
-			<SolidFrame
-				frameClass="user-data-frame"
-				txt1={'Username: ' + userInfo.username}
-			>
+			<SolidFrame frameClass="user-data-frame" txt1={'Username: ' + userInfo.username} >
 				{children}
+				{ userInfo.id === ID ?
+					<div>
+						<p className="twoFA-option-profile">2FA status: {return2FAStatus()}</p><br/>
+					</div>
+					:
+					null
+				}
 			</SolidFrame>
 		</SolidFrame>
 		{/* display stats of the user concerned */}

@@ -18,6 +18,10 @@
 p {
 	padding: 0px;
 	margin: 0px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 // To stylize NavLink that render a <a> ... </a>
@@ -30,8 +34,13 @@ input:focus {
 	outline: none;
 }
 
+textarea:focus {
+	outline: none;
+}
+
 ::-webkit-scrollbar {
-	width: 10px;
+	width: 5px;
+	height: 5px;
 }
 
 ::-webkit-scrollbar-thumb {

@@ -4,10 +4,12 @@ import {
   OnGatewayConnection,
   WebSocketServer,
   OnGatewayDisconnect,
-} from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
-import { GameSession } from './gameSession';
-import prisma from '../controllers/login/prisma.client';
+} from '@nestjs/websockets'
+import { UseGuards } from '@nestjs/common'
+import { Socket, Server } from 'socket.io'
+import { GameSession } from './gameSession'
+import prisma from '../../prisma/prisma.client'
+import { WebSocketJwtAuthGuard } from '../jwt/jwt.guard'
 
 const interval: number = 1000 / 30
 
@@ -25,7 +27,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // clientSocket connections list
 
   //There is no need to havbe an array of sockets since it will never contain more than one element.
-  clientSocketInQueue: Socket | null = null;
+  clientSocketInQueue: Socket | null = null
   userDbIdInQueue: number = -1
   // clientSocketsQueue: Socket[] = [];
   gameSessions: GameSession[] = []
@@ -57,6 +59,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   
   @SubscribeMessage('enter-queue')
+  @UseGuards(WebSocketJwtAuthGuard)
   async handleEnterQueueRequest(clientSocket: Socket, userDbId)
   {
     //dubious way of checking if userDbId exists
