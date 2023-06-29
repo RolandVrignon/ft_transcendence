@@ -109,7 +109,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 	}, [socket]);
 
 	useEffect(() => {
-		if (selectedUserId != -1)
+		if (selectedUserId !== -1)
 			setShowProfile(true);
 		console.log(selectedUserId)
 	}, [selectedUserId]);
@@ -125,7 +125,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 
 	const join = () => {
 		return new Promise<void>((resolve, reject) => {
-			if (channelIdRef.current != -1) {
+			if (channelIdRef.current !== -1) {
 				socket.emit('join', { userId: props.userDbID, channelId: channelIdRef.current  }, (response: boolean) => {
 					if (response) {
 						setMessages([]);
@@ -147,7 +147,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 
 
 	const updateClientId = () => {
-		if (channelIdRef.current != -1) {
+		if (channelIdRef.current !== -1) {
 			return new Promise<void>((resolve) => {
 				socket.emit('updateClientId', { userId: props.userDbID, channelId: channelIdRef.current}, (response: any) => {
 					resolve();
@@ -210,7 +210,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 
 	const sendMessage = () => {
 		return new Promise<void>((resolve, reject) => {
-			if (channelIdRef.current != -1) {
+			if (channelIdRef.current !== -1) {
 				socket.emit('createMessageChannel', { text: messageText,  channelId: channelIdRef.current, userId: props.userDbID}, (response: boolean) => {
 					resolve();
 				});
@@ -232,8 +232,13 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		const dmObject = dm.find((item) => item.otherUserId === clickedUserId);
 		
 		if (dmObject) {
+<<<<<<< HEAD
 			channelIdRef.current = dmObject.channelId;
 			if (channelIdRef.current != -1){
+=======
+			channelIdRef.current = dmObject.id;
+			if (channelIdRef.current !== -1){
+>>>>>>> b070c19 ([simple commit])
 				join()
 				setShowProfile(false);
 			}
@@ -252,7 +257,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				});
 			})
 			.then (() => {
-				if (channelIdRef.current != -1) {
+				if (channelIdRef.current !== -1) {
 					setShowProfile(false);
 					setJoined(true);
 					setMessages([]);
@@ -265,7 +270,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		console.log("click", clickedChannelId);
 		channelIdRef.current = clickedChannelId;
 		console.log("check click", channelIdRef.current);
-		if (channelIdRef.current != -1)
+		if (channelIdRef.current !== -1)
 			join()
 	};
 
@@ -285,7 +290,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 	const handleUserClick = (userName: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('findUserInfo', {userName}, (response: any) => {
-				if (response.length != 0)
+				if (response.length !== 0)
 				{
 					console.log(response.username);
 					setSelectedUserId(response.id);
@@ -466,7 +471,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 							)
 						)}
 						<li className="channel-item header" onClick={() => setDMVisible(!DMVisible)}>DM: </li>
-						{ (DMVisible && dm.length != 0) ? (
+						{ (DMVisible && dm.length !== 0) ? (
 							dm.map((dm: any) => (
 								<li className="channel-item" key={dm.channelId}>
 									<div className="channel-name" onClick={() => handleChannelClick(dm.channelId)}>

@@ -95,7 +95,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       session.update()
       return session.gameIsOver === false
     })
-    if (nbSessions != this.gameSessions.length)
+    if (nbSessions !== this.gameSessions.length)
       console.log(`New session count: ${this.gameSessions.length}, sessions: [${this.gameSessions}]`)
   }
 }

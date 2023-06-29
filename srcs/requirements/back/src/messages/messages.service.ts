@@ -43,7 +43,7 @@ export class MessagesService {
 				channelId: channel.id,
 			},
 		})
-		if (!channelUser && channel.status != "public" && channel.status != "protected")
+		if (!channelUser && channel.status !== "public" && channel.status !== "protected")
 			throw "you cannot join this channel !"
 		else if (!channelUser)
 		{
@@ -240,7 +240,7 @@ export class MessagesService {
 		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		if (channelUser.clientId != clientId)
+		if (channelUser.clientId !== clientId)
 			this.updateClientId(userId, clientId, channelId);
 		const blockedByUsers = await prisma.block.findMany({
 			where: {
@@ -462,7 +462,7 @@ export class MessagesService {
 	}
 
 	async findUserInfo(userID: number, userName: string) {
-		if (userName != null)
+		if (userName !== null)
 		{
 			const user = await prisma.user.findFirst({
 				where: {
@@ -552,7 +552,7 @@ export class MessagesService {
 		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		if (channelUser.clientId != clientId)
+		if (channelUser.clientId !== clientId)
 			this.updateClientId(userId, clientId, channelId);
 
 		else if (channelUser.muted == true) {
@@ -614,7 +614,7 @@ export class MessagesService {
 		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		if (channelUser.clientId != clientId)
+		if (channelUser.clientId !== clientId)
 			this.updateClientId(userId, clientId, channelId);
 		const blockedUsers = await prisma.block.findMany({
 			where: {

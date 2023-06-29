@@ -215,7 +215,7 @@ export class MessagesGateway {
 			const channelUsers = await this.messagesService.findChannelUsersForMe(userID, client.id, channelId);
 			channelUsers.forEach((channelUser) => {
 				const userId = channelUser.clientId;
-				if (userId != client.id)
+				if (userId !== client.id)
 					this.server.to(userId).emit('typing', {name, isTyping})
 			})
 			return true;
@@ -277,7 +277,7 @@ export class MessagesGateway {
 					break;
 				case "leave":
 					console.log("lets leave");
-					if (commandArgs.length != 1){
+					if (commandArgs.length !== 1){
 						throw  "Invalid argument.\n to leave => /leave "
 					}
 					else {
@@ -312,7 +312,7 @@ export class MessagesGateway {
 					}
 					break;
 				case "invite":
-					if (commandArgs.length != 2){
+					if (commandArgs.length !== 2){
 						throw  "Invalid argument.\n to invite => /invite username"
 					}
 					else {
