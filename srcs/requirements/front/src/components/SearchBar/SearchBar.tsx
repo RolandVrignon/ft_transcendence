@@ -7,8 +7,8 @@ interface SearchBarProps {
 
 const SearchBar = ({ searchTerm, onChange }: SearchBarProps) => {
 	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const newSearchTerm = event.target.value;
-		onChange(newSearchTerm);
+		const newSearchTerm = event.target.value
+		onChange(newSearchTerm)
 	}
 
 	return (

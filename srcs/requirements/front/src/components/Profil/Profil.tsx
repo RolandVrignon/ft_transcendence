@@ -112,7 +112,7 @@ const Profil: React.FC<ProfilProps> = ({
 		else
 			twoFaStatus = 'Disable'
 		const	res = await axios({
-			url: 'http://localhost:8080/callback/change-two-fa', method: 'POST',
+			url: 'http://localhost:8080/secure/change-two-fa', method: 'POST',
 			data: { twoFaStatus, ID }
 		})
 		setUserInfo(res.data)

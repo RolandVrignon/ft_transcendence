@@ -12,7 +12,6 @@ import AuthService from 'src/services/auth.service'
 @UseGuards(JwtAuthGuard)
 export class SearchController	{
 	constructor(private auth: AuthService)	{}
-
 	@Post('users')	async returnMatchingKnownUsers(@Res() res: Response, @Req() req: Request) {
 		try	{
 			const users = await prisma.user.findMany({
