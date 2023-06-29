@@ -1,86 +1,183 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import prisma from '../../prisma/prisma.client';
 import { Message } from './entities/message.entity';
 import { DateTime } from 'luxon';
+import { find } from 'rxjs';
 
 @Injectable()
 export class MessagesService {
-	async identify(name: string, clientId: string, ChannelName: string, Channelpass: string) {
-		const channel = await prisma.channel.findFirst({
+
+	async updateClientId(userId: number, clientId: string, channelId: number)
+	{
+		const channel = await this.findChannelById(channelId);
+		if (!channel)
+			throw `this channel does not exist.`
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw "cant find user."
+		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-				ChannelName: ChannelName,
-				password: Channelpass
+				userName: user.username,
+				channelId: channel.id,
 			},
-			include: {users: true},
 		})
-		if (!channel) {
-			throw "Server: this channel does not exist."
-		}
-		else {
-			const user = await prisma.channelUser.findFirst({
-				where: {
-					Name: name,
-					channelId: channel.id,
-				},
-			})
-			if (!user)
-			{
-				const createUser = await prisma.channelUser.create({
-					data: {
-						clientId: clientId,
-						Name: name,
-						channel: {
-							connect: { id: channel.id}
-						}
+		if (!channelUser)
+			throw "cant find user in this channel."
+		await prisma.channelUser.update({
+			where: {id: channelUser.id},
+			data: {clientId: clientId}
+		})
+	}
+
+	async identify(userId: number, clientId: string, channelId: number) {
+		const channel = await this.findChannelById(channelId);
+		if (!channel)
+			throw `this channel does not exist.`
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw "cant find user."
+		const channelUser = await prisma.channelUser.findFirst({
+			where: {
+				userName: user.username,
+				channelId: channel.id,
+			},
+		})
+		if (!channelUser && channel.status != "public" && channel.status != "protected")
+			throw "you cannot join this channel !"
+		else if (!channelUser)
+		{
+			const createUser = await prisma.channelUser.create({
+				data: {
+					clientId: clientId,
+					userName: user.username,
+					user: {
+						connect: { id: user.id}
+					},
+					channel: {
+						connect: { id: channel.id}
 					}
-				})
-				await prisma.channel.update({
-					where: {id: channel.id},
-					data: {
-						users: {
-							connect: {id: createUser.id}
-						}
-					}
-				})
-			}
-			else
-			{
-				await prisma.channelUser.update({
-					where: {id: user.id},
-					data: {clientId: clientId}
-				})
-			}
-			if (user.banned == true || user.kicked == true) {
-				const dateNow = DateTime.now().toMillis();
-				const punishExpirationTimestamp = user.banned == true ? user.banExpiration.getTime() : user.kickExpiration.getTime();
-				if (punishExpirationTimestamp > dateNow) {
-					const diffMilliseconds = punishExpirationTimestamp - dateNow;
-					const minutesRemaining = Math.floor(diffMilliseconds / (1000 * 60));
-					if (user.banned == true)
-						throw `Server: you are banned, remaining time = ${minutesRemaining} minutes`;
-					else
-						throw `Server: you are kicked, remaining time = ${minutesRemaining} minutes`;
 				}
-				else { 
-					if (user.banned == true){
-						await prisma.channelUser.update ({
-							where: {id: user.id},
-							data: {banned: false, banExpiration: null},
-						})
+			})
+			await prisma.user.update({
+				where: {id: user.id},
+				data : {
+					channelUsers: {
+						 connect: {id: createUser.id}
 					}
-					else {
-						await prisma.channelUser.update ({
-							where: {id: user.id},
-							data: {kicked: false, kickExpiration: null},
-						})
+				}
+			})
+			await prisma.channel.update({
+				where: {id: channel.id},
+				data: {
+					users: {
+						connect: {id: createUser.id}
 					}
+				}
+			})
+		}
+		else
+		{
+			await prisma.channelUser.update({
+				where: {id: channelUser.id},
+				data: {clientId: clientId}
+			})
+		}
+		if (channelUser && (channelUser.banned == true || channelUser.kicked == true)) {
+			const dateNow = DateTime.now().toMillis();
+			const punishExpirationTimestamp = channelUser.banned == true ? channelUser.banExpiration.getTime() : channelUser.kickExpiration.getTime();
+			if (punishExpirationTimestamp > dateNow) {
+				const diffMilliseconds = punishExpirationTimestamp - dateNow;
+				const minutesRemaining = Math.floor(diffMilliseconds / (1000 * 60));
+				if (channelUser.banned == true)
+					throw `you are banned, remaining time = ${minutesRemaining} minutes`;
+				else
+					throw `you are kicked, remaining time = ${minutesRemaining} minutes`;
+			}
+			else { 
+				if (channelUser.banned == true){
+					await prisma.channelUser.update ({
+						where: {id: user.id},
+						data: {banned: false, banExpiration: null},
+					})
+				}
+				else {
+					await prisma.channelUser.update ({
+						where: {id: user.id},
+						data: {kicked: false, kickExpiration: null},
+					})
 				}
 			}
 		}
 	}
 
-	async createChannel(name: string, clientId: string, ChannelName: string, Channelpass: string)
+	async createDM(firstUserId: number, clientId: string, secondUserId: number)
+	{
+		const firstUser = await this.findUserInfo(firstUserId, null);
+
+		if (!firstUser)
+			throw "We experiencing issues. We will get back to you as soon as possible."
+		const secondUser = await this.findUserInfo(secondUserId, null);
+
+		if (!secondUser)
+			throw "We experiencing issues. We will get back to you as soon as possible."
+
+		const channelName = firstUser.username + "|" + secondUser.username;
+
+		const createChannel = await prisma.channel.create({
+			data: {
+				ChannelName: channelName,
+				password: "",
+				status: "dm",
+			}
+		})
+		if (!createChannel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const firstUserChannel = await prisma.channelUser.create({
+			data: {
+				clientId: clientId,
+				userName: firstUser.username,
+				status: "user",
+				channel: {
+					connect: {
+						id: createChannel.id,
+					},
+				},
+				user: {
+					connect: {
+						id: firstUser.id,
+					}
+				}
+			},
+		})
+		if (!firstUserChannel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const secondUserChannel = await prisma.channelUser.create({
+			data: {
+				clientId: "",
+				userName: secondUser.username,
+				status: "user",
+				channel: {
+					connect: {
+						id: createChannel.id,
+					},
+				},
+				user: {
+					connect: {
+						id: secondUser.id,
+					}
+				}
+			},
+		})
+		if (!secondUserChannel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		return createChannel;
+	}
+
+	async createChannel(userId: number, clientId: string, ChannelName: string, Channelpass: string)
 	{
 		console.log('app-back: creating channel.')
 		const channel = await prisma.channel.findFirst({
@@ -89,60 +186,65 @@ export class MessagesService {
 			},
 		})
 		if (channel){
-			throw "Server: a channel with this name already exists"
+			throw  `a channel with "${ChannelName}" as name already exists`
 		}
-		console.log('app-back: didnt find channel, creating a new one.')
 		const createChannel = await prisma.channel.create({
 			data: {
 				ChannelName: ChannelName,
 				password: Channelpass,
 			}
 		})
-		console.log(createChannel)
 		if (!createChannel) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw "cant find user."
 		const createUser = await prisma.channelUser.create({
 			data: {
 				clientId: clientId,
-				Name: name,
+				userName: user.username,
 				status: "owner",
 				channel: {
 					connect: {
 						id: createChannel.id,
 					},
 				},
+				user: {
+					connect: {
+						id: user.id,
+					}
+				}
 			},
 		})
 		if (!createUser) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 	}
 
-	async findChannelUsersForMe(clientId: string, chatName: string, password: string)
+	async findChannelUsersForMe(userId: number, clientId: string, channelId: number)
 	{
-		const channel = await prisma.channel.findFirst({
-			where: {
-				ChannelName: chatName,
-				password: password
-			},
-			include: {users: true},
-		})
+		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		const user = await prisma.channelUser.findFirst({
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-				clientId: clientId,
+				userName: user.username,
 				channelId: channel.id
 			}
 		})
-		if (!user) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+		if (!channelUser) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		if (channelUser.clientId != clientId)
+			this.updateClientId(userId, clientId, channelId);
 		const blockedByUsers = await prisma.block.findMany({
 			where: {
-				blockedUserId: user.id,
+				blockedUserId: channelUser.id,
 			},
 			include: {
 				blockedBy: true,
@@ -170,16 +272,171 @@ export class MessagesService {
 		return channelUsers;
 	}
 
-	async findChannelOwner(chatName: string, password: string) {
+	async findChannels(userId: number) {
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+			  userID: userId,
+			  channel: {
+				NOT: {
+					status: "dm"
+				}
+			  }
+			},
+			include: {
+			  channel: true
+			}
+		  });
+		if (channelUsers.length === 0) {
+			return [];
+		}
+		const channelList = channelUsers.map(channelUser => {
+			const { ChannelName, password, id} = channelUser.channel;
+			return { ChannelName, password, id };
+		});
+		return channelList;
+	}
+
+	async findDirectMessageChannels(userId: number) {
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+				userID: userId,
+				channel: {
+					status: "dm"
+				}
+			},
+			include: {
+				channel: {
+					include: {
+						users: {
+							where: {
+								userID: { not: userId }
+							},
+							select: {
+								userName: true,
+								userID: true,
+							},
+							take: 1
+						}
+					}
+				}
+			}
+		});
+
+		if (channelUsers.length === 0) {
+			return [];
+		}
+		const channelList = channelUsers.map((channelUser) => {
+			const { users } = channelUser.channel;
+			const otherUser = users[0];
+			return { id: otherUser.userID, username: otherUser.userName };
+		});
+
+		return channelList;
+	}
+
+
+	async findChannelByNameAndPass(ChannelName: string, Channelpass: string)
+	{
 		const channel = await prisma.channel.findFirst({
 			where: {
-				ChannelName: chatName,
-				password: password
+				ChannelName: ChannelName,
+				password: Channelpass
 			},
-			include: {users: true},
+			include: {users: true, textChannels: true},
 		})
+		if (!channel)
+			throw ` (${ChannelName}) channel does not exist.`
+		return channel;
+	}
+
+	async findChannelById(ChannelId: number)
+	{
+		const channel = await prisma.channel.findUnique({
+			where: {
+				id: ChannelId
+			},
+			include: {users: true, textChannels: true},
+		})
+		return channel;
+	}
+
+	async findAllInvitations(userId: number) {
+		const invitations = await prisma.invitation.findMany({
+			where: {
+				invitedID: userId
+			},
+		  });
+		if (invitations.length === 0) {
+			return [];
+		}
+		console.log("salut" , invitations);
+		return invitations;
+	}
+
+	async joinInvitation(userId: number, invitationId: number, accepted: boolean, clientId: string) {
+		if (accepted == false)
+		{
+			await prisma.invitation.delete({
+				where: {
+					id: invitationId
+				}
+			})
+			return ;
+		}
+		const invitation = await prisma.invitation.findUnique({
+			where: {
+				id: invitationId
+			},
+		});
+		if (!invitation)
+			return ;
+		if (invitation.type == "chat")
+		{
+			const user = await this.findUserInfo(userId, null);
+			if (!user)
+				throw "cant find user."	
+			const channel = await prisma.channel.findUnique({
+				where: {id: invitation.whereID}
+			})
+			const createUser = await prisma.channelUser.create({
+				data: {
+					clientId: clientId,
+					userName: user.username,
+					user: {
+						connect: { id: user.id}
+					},
+					channel: {
+						connect: { id: channel.id}
+					}
+				}
+			})
+			await prisma.user.update({
+				where: {id: user.id},
+				data : {
+					channelUsers: {
+						 connect: {id: createUser.id}
+					}
+				}
+			})
+			await prisma.channel.update({
+				where: {id: channel.id},
+				data: {
+					users: {
+						connect: {id: createUser.id}
+					}
+				}
+			})
+			await prisma.invitation.delete({
+				where: {id: invitation.id}
+			})
+			return ;
+		}
+	}
+
+	async findChannelOwner(channelId: number) {
+		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		const owner = await prisma.channelUser.findFirst({
 			where:{
@@ -190,14 +447,8 @@ export class MessagesService {
 		return owner;
 	}
 
-	async findChannelAdmins(chatName: string, password: string) {
-		const channel = await prisma.channel.findFirst({
-			where: {
-				ChannelName: chatName,
-				password: password
-			},
-			include: {users: true},
-		})
+	async findChannelAdmins(channelId: number) {
+		const channel = await this.findChannelById(channelId);
 		if (!channel) {
 			return null;
 		}
@@ -210,14 +461,26 @@ export class MessagesService {
 		return admins;
 	}
 
-	async isSuperUser(chatName: string, password: string, clientId:string) {
-		const channel = await prisma.channel.findFirst({
+	async findUserInfo(userID: number, userName: string) {
+		if (userName != null)
+		{
+			const user = await prisma.user.findFirst({
+				where: {
+					username: userName
+				}
+			})
+			return user;
+		}
+		const user = await prisma.user.findUnique({
 			where: {
-				ChannelName: chatName,
-				password: password
-			},
-			include: {users: true},
-		});
+				id: userID,
+			}
+		})
+		return user;
+	}
+
+	async isSuperUser(channelId: number, clientId:string) {
+		const channel = await this.findChannelById(channelId);
 		if (!channel) {
 			return false;
 		}
@@ -229,10 +492,10 @@ export class MessagesService {
 		});
 		if (!user)
 			return false;
-		const owner = await this.findChannelOwner(chatName, password);
+		const owner = await this.findChannelOwner(channelId);
 		if (owner.id == user.id)
 			return true;
-		const admins = await this.findChannelAdmins(chatName, password);
+		const admins = await this.findChannelAdmins(channelId);
 		if (!admins)
 			return false;
 		admins.forEach((admin) => {
@@ -242,14 +505,8 @@ export class MessagesService {
 		return false;
 	}
 
-	async isOwner(chatName:string, password:string, clientId:string) {
-		const channel = await prisma.channel.findFirst({
-			where: {
-				ChannelName: chatName,
-				password: password
-			},
-			include: {users: true},
-		});
+	async isOwner(channelId, clientId:string) {
+		const channel = await this.findChannelById(channelId);
 		if (!channel) {
 			return false;
 		}
@@ -261,7 +518,7 @@ export class MessagesService {
 		});
 		if (!user)
 			return false;
-		const owner = await this.findChannelOwner(chatName, password);
+		const owner = await this.findChannelOwner(channelId);
 		if (owner.id == user.id)
 			return true;
 		return false;
@@ -275,31 +532,32 @@ export class MessagesService {
 		})
 		if (!user)
 			return "unknown";
-		return user.Name;
+		return user.userName;
 	}
 
-	async createMessage(createMessageDto: CreateMessageDto, ChannelName: string, Channelpass: string, clientId: string) {
-		const channel = await prisma.channel.findFirst({
+	async createMessage(createMessageDto: CreateMessageDto, channelId: number, userId: number, clientId: string) {
+		const channel = await this.findChannelById(channelId);
+		if (!channel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-				ChannelName: ChannelName,
-				password: Channelpass
+				userName: user.username,
+				channelId: channel.id
 			}
 		})
-		if (!channel) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+		if (!channelUser) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		const user = await prisma.channelUser.findFirst({
-			where: {
-					clientId: clientId,
-					channelId: channel.id
-				}
-		})
-		if (!user) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
-		}
-		else if (user.muted == true) {
+		if (channelUser.clientId != clientId)
+			this.updateClientId(userId, clientId, channelId);
+
+		else if (channelUser.muted == true) {
 			const dateNow = DateTime.now().toMillis();
-			const muteExpirationTimestamp = user.muteExpiration.getTime();
+			const muteExpirationTimestamp = channelUser.muteExpiration.getTime();
 			if (muteExpirationTimestamp > dateNow) {
 				const diffMilliseconds = muteExpirationTimestamp - dateNow;
 				const minutesRemaining = Math.floor(diffMilliseconds / (1000 * 60));
@@ -307,73 +565,67 @@ export class MessagesService {
 			}
 			else { 
 				await prisma.channelUser.update ({
-					where: {id: user.id},
+					where: {id: channelUser.id},
 					data: {muted: false, muteExpiration: null},
 				})
 			}
 		}
 		const textChannel	= await prisma.textChannel.create({
 			data: {
-				name: user.Name,
+				name: channelUser.userName,
 				text: createMessageDto.text,
 				channel: {
 					connect: { id: channel.id }
 				},
 				channelUser: {
-					connect: {id: user.id}
+					connect: {id: channelUser.id}
 				},
 			}
 		});
 		if (!textChannel) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		return textChannel;
 	}
 
-	async findChannelMessages(ChannelName: string, Channelpass: string) {
-		const channel = await prisma.channel.findFirst({
-			where: {
-				ChannelName: ChannelName,
-				password: Channelpass
-			},
-			include: { textChannels: true }
-		})
+	async findChannelMessages(channelId: number) {
+		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		return channel.textChannels;
 	}
 
-	async findChannelMessagesForMe(ChannelName: string, Channelpass: string, clientId: string) {
+	async findChannelMessagesForMe(userId: number, channelId: number, clientId: string) {
 
-		const channel = await prisma.channel.findFirst({
-			where: {
-				ChannelName: ChannelName,
-				password: Channelpass
-			},
-		})
+		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		const user = await prisma.channelUser.findFirst({
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-				clientId: clientId,
+				userName: user.username,
 				channelId: channel.id
 			}
 		})
-		if (!user) {
-			throw "Server: We experiencing issues. We will get back to you as soon as possible."
+		if (!channelUser) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		if (channelUser.clientId != clientId)
+			this.updateClientId(userId, clientId, channelId);
 		const blockedUsers = await prisma.block.findMany({
 			where: {
-				blockerUserId: user.id,
+				blockerUserId: channelUser.id,
 			},
 			include: {
 				blockedUser: true,
 			}
 		})
 		if (!blockedUsers) {
-			return await this.findChannelMessages(ChannelName, Channelpass);
+			return await this.findChannelMessages(channelId);
 		}
 		const textChannels = await prisma.textChannel.findMany({
 			where: {

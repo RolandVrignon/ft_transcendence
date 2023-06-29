@@ -1,0 +1,7 @@
+<div className="sidebar-container">
+      <button onClick={toggleSidebar}>Toggle Sidebar</button>
+
+      <div className={`solid-frame text-content text-label ${sidebarVisible ? "sidebar" : "sidebar hidden"}`}>
+        {/* Sidebar content */}
+      </div>
+    </div>
