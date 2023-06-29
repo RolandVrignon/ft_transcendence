@@ -102,12 +102,6 @@ export class MessagesGateway {
 		}
 	}
 
-	// @SubscribeMessage('findAllMessages')
-	// findAll() {
-	// 	console.log("findall");
-	// 	return this.messagesService.findAll();
-	// }
-
 	@SubscribeMessage('findAllChannels')
 	async findAllChannels(
 		@MessageBody('userId') userId:number,

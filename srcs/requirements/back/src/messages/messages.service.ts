@@ -326,9 +326,9 @@ export class MessagesService {
 			return [];
 		}
 		const channelList = channelUsers.map((channelUser) => {
-			const { users } = channelUser.channel;
+			const { id, users } = channelUser.channel;
 			const otherUser = users[0];
-			return { id: otherUser.userID, username: otherUser.userName };
+			return {channelId: id, otherUserId: otherUser.userID, otherUserUsername: otherUser.userName };
 		});
 
 		return channelList;

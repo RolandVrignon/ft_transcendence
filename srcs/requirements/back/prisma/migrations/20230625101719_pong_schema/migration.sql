@@ -1,5 +1,5 @@
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "friends" TEXT[];
+-- -- AlterTable
+-- ALTER TABLE "User" ADD COLUMN     "friends" TEXT[];
 
 -- CreateTable
 CREATE TABLE "invitation" (

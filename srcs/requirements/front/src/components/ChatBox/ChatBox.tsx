@@ -229,10 +229,10 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 
 	const handleDMClick = () => {
 		const clickedUserId = selectedUserId;
-		const dmObject = dm.find((item) => item.id === clickedUserId);
+		const dmObject = dm.find((item) => item.otherUserId === clickedUserId);
 		
 		if (dmObject) {
-			channelIdRef.current = dmObject.id;
+			channelIdRef.current = dmObject.channelId;
 			if (channelIdRef.current != -1){
 				join()
 				setShowProfile(false);
@@ -468,9 +468,9 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 						<li className="channel-item header" onClick={() => setDMVisible(!DMVisible)}>DM: </li>
 						{ (DMVisible && dm.length != 0) ? (
 							dm.map((dm: any) => (
-								<li className="channel-item" key={dm.id}>
-									<div className="channel-name" onClick={() => handleChannelClick(dm.id)}>
-										{dm.username}
+								<li className="channel-item" key={dm.channelId}>
+									<div className="channel-name" onClick={() => handleChannelClick(dm.channelId)}>
+										{dm.otherUserUsername}
 									</div>
 								</li>
 							))
