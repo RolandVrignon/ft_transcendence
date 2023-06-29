@@ -232,13 +232,8 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		const dmObject = dm.find((item) => item.otherUserId === clickedUserId);
 		
 		if (dmObject) {
-<<<<<<< HEAD
 			channelIdRef.current = dmObject.channelId;
 			if (channelIdRef.current != -1){
-=======
-			channelIdRef.current = dmObject.id;
-			if (channelIdRef.current !== -1){
->>>>>>> b070c19 ([simple commit])
 				join()
 				setShowProfile(false);
 			}
