@@ -136,7 +136,7 @@ export class GameSession {
         loser: { connect: { id: this.userIDs[1 - winnerIndex] } }
       }
   };
-    console.log(`Creating new gameSessionOutcome record in DB: ${JSON.stringify(recoredData, null, 2)}.`)
+    // console.log(`Creating new gameSessionOutcome record in DB: ${JSON.stringify(recoredData, null, 2)}.`)
     let promise = prisma.gameSessionOutcome.create(recoredData)
     promise.catch(err => console.error(`Caught game session outcome prisma record creation error: ${err}`))
     promise.then(() => console.log('Game session outcome prisma record created.'))

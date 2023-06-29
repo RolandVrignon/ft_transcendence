@@ -133,19 +133,6 @@ export class MessagesGateway {
 		return await this.messagesService.findDirectMessageChannels(userId);
 	}
 
-	@SubscribeMessage('findUserInfo')
-	async findAllChfindUserInfoannels(
-		@MessageBody('userName') userName:string,
-	){
-		return await this.messagesService.findUserInfo(-1, userName);
-	}
-	@SubscribeMessage('findAllInvitations')
-	async findAllInvitations(
-		@MessageBody('userId') userId:number,
-	){
-		return await this.messagesService.findAllInvitations(userId);
-	}
-
 	@SubscribeMessage('joinInvitation')
 	async joinInvitation(
 		@MessageBody('userId') userId:number,
@@ -164,13 +151,6 @@ export class MessagesGateway {
 		}
 	}
 
-	@SubscribeMessage('findAllChannels')
-	async findAllChannels(
-		@MessageBody('userId') userId:number,
-	){
-		return await this.messagesService.findChannels(userId);
-	}
-
 	@SubscribeMessage('findUserInfo')
 	async findAllChfindUserInfoannels(
 		@MessageBody('userName') userName:string,
@@ -182,23 +162,6 @@ export class MessagesGateway {
 		@MessageBody('userId') userId:number,
 	){
 		return await this.messagesService.findAllInvitations(userId);
-	}
-
-	@SubscribeMessage('joinInvitation')
-	async joinInvitation(
-		@MessageBody('invitationId') invitationId:number,
-		@MessageBody('accepted') accepted:boolean,
-		@ConnectedSocket() client: Socket,
-	){
-		try {
-			 await this.messagesService.joinInvitation(invitationId, accepted, client.id);
-			 return true;
-		} catch (serverMessage) {
-			//this.server.to(client.id).emit('serverMessage', serverMessage);
-			console.log(serverMessage);
-			this.server.to(client.id).emit('formFailed', serverMessage);
-			false;
-		}
 	}
 
 	@SubscribeMessage('findAllChannelMessages')
@@ -690,7 +653,7 @@ export class MessagesGateway {
 			throw  "We experiencing issues. We will get back to you as soon as possible. kick, channel not found in db"
 		}
 		else if (await this.messagesService.isSuperUser(channelId, executorId) == false) {
-0			throw  "you can't kick someone, you are not the channel owner or and admin."
+			throw  "you can't kick someone, you are not the channel owner or and admin."
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({

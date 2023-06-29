@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { click } from '@testing-library/user-event/dist/click'
 
-import { Dispatch, SetStateAction } from 'react'
 import SolidFrame from '../SolidFrame/SolidFrame'
 import SearchList from "../SearchList/SearchList"
 import SearchBar from "../SearchBar/SearchBar"
@@ -58,6 +57,11 @@ const ChatBox: React.FC<{
 
 	const [createChatName, setCreateChatName] = useState<string>('');
 	const [createPassword, setCreatePassword] = useState<string>('');
+
+	//fields for pongGame
+	const navigate = useNavigate();
+	const [showModal, setShowModal] = useState(false);
+	const pongGameInviteRefusalCallbackRef = useRef<(() => void) | null>(null)
 
 
 	useEffect(() => {
@@ -522,7 +526,7 @@ const ChatBox: React.FC<{
 		return (
 			<>
 				<Profil ID={selectedUserId} refreshWebToken={props.refreshWebToken} webToken={props.webToken}/>
-				{ selectedUserId !== props.userDbID && 
+				{/* { selectedUserId !== props.userDbID &&  */}
 					<button 
 						className="solid-frame button-frame-choice text-content text-button-choice"
 						onClick={() => {
@@ -533,7 +537,7 @@ const ChatBox: React.FC<{
 					>
 						Invite to pong game(higly recommended)
 					</button>
-				}
+				{/* } */}
 				<button 
 					className="solid-frame button-frame-choice text-content text-button-choice"
 				 	onClick={handleDMClick}
