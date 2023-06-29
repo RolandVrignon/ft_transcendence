@@ -8,6 +8,7 @@ import axios from 'axios'
 import './Profil.scss'
 import { debounce } from 'lodash'
 import { Dispatch, SetStateAction } from 'react'
+import MatchHistory from "../MatchHistory/MatchHistory";
 
 interface UserInfo {
 	id?: number,
@@ -134,9 +135,9 @@ const Profil: React.FC<ProfilProps> = ({
 			<SolidFrame frameClass="user-data-frame" txt1={'Username: ' + userInfo.username} >
 				{children}
 				{ userInfo.id === ID ?
-					<div>
+		<div>
 						<p className="twoFA-option-profile">2FA status: {return2FAStatus()}</p><br/>
-					</div>
+		</div>
 					:
 					null
 				}
@@ -148,7 +149,7 @@ const Profil: React.FC<ProfilProps> = ({
 				frameClass="profil-title-frame"
 				txtClass="text-profil-title"
 				txt2="Stats"
-			/>
+			/>  
 			<SolidFrame
 				frameClass="history-frame"
 				txtClass="text-data-profil"
@@ -166,12 +167,11 @@ const Profil: React.FC<ProfilProps> = ({
 			<SolidFrame
 				frameClass="history-frame"
 				txtClass="text-data-profil"
-				txt1={matchHistory}
 			/>
-			{children}
+			<MatchHistory userID={ID} token={webToken} />
 		</SolidFrame>
 	</SolidFrame>
-			);
+	);
 };
 
 export default Profil
