@@ -40,7 +40,6 @@ model invitation {
   whoInviteUserName      String
   invitedID              Int             @default(-1)
   invited                User  @relation("invitedRelation", fields: [invitedID], references: [id])
-
 }
 
 model textChannel {

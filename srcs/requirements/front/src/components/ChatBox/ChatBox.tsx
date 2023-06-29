@@ -1,5 +1,11 @@
+
 import React, { useState, useEffect, useRef, useContext } from 'react'
+import { click } from '@testing-library/user-event/dist/click'
+
+import { Dispatch, SetStateAction } from 'react'
 import SolidFrame from '../SolidFrame/SolidFrame'
+import SearchList from "../SearchList/SearchList"
+import SearchBar from "../SearchBar/SearchBar"
 import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
 import './ChatBox.scss'
@@ -14,42 +20,44 @@ const ChatBox: React.FC<{
 	webToken: string
 	}> = (props)  => {
 
-	const [selectedUserId, setSelectedUserId] = useState<number>(-1);
 
+
+	const channelIdRef = useRef<number>(-1);
+
+	const [socket, setSocket] = useState<any>(null);
+	const [searchTerm, setSearchTerm] = useState('')
+	
+	const [createChannelMode ,setCreateChannelMode] = useState<boolean>(false);
+	const [joinChannelMode ,setJoinChannelMode] = useState<boolean>(false);
+	const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
+	const [joined, setJoined] = useState<boolean>(false);
+	
 	const [formFailed, setFormFailed] = useState<boolean>(false);
 	const [fomrError, setFormError] = useState<string>("");
-
 	
-	const [socket, setSocket] = useState<any>(null);
+	const [showProfile, setShowProfile] = useState<boolean>(false);
+	const [selectedUserId, setSelectedUserId] = useState<number>(-1);
+	
 	const [messages, setMessages] = useState<any[]>([]);
 	const [messageText, setMessageText] = useState('');
-
-	const [joined, setJoined] = useState(false);
-	const [typingDisplay, setTypingDisplay] = useState('');
-
-	const [channels, setChannels] = useState<any[]>([]);
-	const [invitations, setInvitations] = useState<any[]>([]);
 	
-	const [chatName, setChatName] = useState<string>('');
-	const [password, setPassword] = useState<string>('');
+	const [typingDisplay, setTypingDisplay] = useState('');
+	
+	const [channels, setChannels] = useState<any[]>([]);
+	const [channelsVisible, setChannelsVisible] = useState<boolean>(true)
+
+	const [dm, setDm] = useState<any[]>([]);
+	const [DMVisible, setDMVisible] = useState<boolean>(true)
+
+	const [invitations, setInvitations] = useState<any[]>([]);
+	const [invitationsVisible, setInvitationsVisible] = useState<boolean>(true)
+
 
 	const [joinChatName, setJoinChatName] = useState<string>('');
 	const [joinPassword, setJoinPassword] = useState<string>('');
 
 	const [createChatName, setCreateChatName] = useState<string>('');
 	const [createPassword, setCreatePassword] = useState<string>('');
-
-	const [createChannelMode ,setCreateChannelMode] = useState<boolean>(false);
-	const [joinChannelMode ,setJoinChannelMode] = useState<boolean>(false);
-
-	const [sidebarVisible, setSidebarVisible] = useState(true);
-
-	const [showProfile, setShowProfile] = useState(false);
-
-	//Properties for pongGameInvites
-	const navigate = useNavigate();
-	const [showModal, setShowModal] = useState(false);
-	const pongGameInviteRefusalCallbackRef = useRef<(() => void) | null>(null)
 
 
 	useEffect(() => {
@@ -63,11 +71,14 @@ const ChatBox: React.FC<{
 
 	useEffect(() => {
 		if (!socket) return;
+		//updateClientId();
+		findDirectMessageChannels();
+		console.log("dm", dm);
 		findAllInvitations();
 		findAllChannels();
-	socket.on('message', (message: any) => {
-		console.log(message);
-		setMessages((prevMessages: any[]) => [...prevMessages, message]);
+		socket.on('message', (message: any) => {
+			console.log(message);
+			setMessages((prevMessages: any[]) => [...prevMessages, message]);
 		});
 
 		socket.on('typing', ({ name, isTyping }: { name: string, isTyping: boolean }) => {
@@ -81,18 +92,24 @@ const ChatBox: React.FC<{
 		socket.on('formFailed', (error: string) => {
 			setFormFailed(true);
 			setFormError(error);
+
+			setTimeout(() => {
+				setFormFailed(false);
+				setFormError("");
+			}, 2000);
 		});
+
+		socket.on('updateChannels', () => {
+			findAllChannels();
+		});
+
+		socket.on('updateInvitations', () => {
+			findAllInvitations();
+		})
 
 		socket.on('leaveChannel', () => {
 			setJoined(false);
 		});
-
-		//for pong game invites
-		socket.on('pong-game-invite', (hostID: number, callback: () => void) => {
-			props.pongGameHostIDref.current = hostID
-			pongGameInviteRefusalCallbackRef.current = callback
-			setShowModal(true)
-		})
 
 		return () => {
 			socket.off('formFailed');
@@ -101,99 +118,198 @@ const ChatBox: React.FC<{
 		};
 	}, [socket]);
 
-	const join = (chatName: string, password: string) => {
-		console.log('try to join');
-		socket.emit('join', { userId: props.userDbID, chatName, password }, (response: boolean) => {
-			if (response)
-			{
-				setFormFailed(false);
-				setJoined(true);
-				console.log('joined');
-				const joinPromise = new Promise<void>((resolve) => {
-				resolve();
-				});
+	useEffect(() => {
+		if (selectedUserId !== -1)
+			setShowProfile(true);
+		console.log(selectedUserId)
+	}, [selectedUserId]);
 
-				joinPromise.then(() => {
-				socket.emit('findAllChannelMessages', { chatName, password }, (response: any) => {
-					setMessages(response);
+	const findChannel = (channelName: string, password: string) => {
+		return new Promise<void>((resolve) => {
+			socket.emit('findChannel', { channelName, password }, (response: number) => {
+				channelIdRef.current = response;
+				resolve();
+			});
+		});
+	};
+
+	const join = () => {
+		return new Promise<void>((resolve, reject) => {
+			if (channelIdRef.current !== -1) {
+				socket.emit('join', { userId: props.userDbID, channelId: channelIdRef.current  }, (response: boolean) => {
+					if (response) {
+						setMessages([]);
+						setJoined(true);
+						console.log('joined');
+						socket.emit('findAllChannelMessages', { userId: props.userDbID, channelId: channelIdRef.current }, (response: any) => {
+							setMessages(response);
+							resolve();
+						});
+					} else {
+						resolve();
+					}
 				});
-				});
-			}
-			else {
-				console.log("can't join");
+			} else {
+				resolve();
 			}
 		});
+	};
+
+
+	const updateClientId = () => {
+		if (channelIdRef.current !== -1) {
+			return new Promise<void>((resolve) => {
+				socket.emit('updateClientId', { userId: props.userDbID, channelId: channelIdRef.current}, (response: any) => {
+					resolve();
+				});
+			});
+		}
 	};
 
 	const findAllChannels = () => {
-		socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
-			setChannels(response);
-		});
+		return new Promise<void>((resolve) => {
+			socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
+				setChannels(response);
+				resolve();
+			});
+		})
+	};
+
+	const findDirectMessageChannels = () => {
+		return new Promise<void>((resolve) => {
+			socket.emit('findDirectMessageChannels', { userId: props.userDbID}, (response: any) => {
+				setDm(response);
+				console.log("dm", response);
+				resolve();
+			});
+		})
 	};
 
 	const findAllInvitations = () => {
-		socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
-			console.log(response);
-			setInvitations(response);
+		return new Promise<void>((resolve) => {
+			socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
+				setInvitations(response);
+				resolve();
+			});
 		});
 	};
 
-	
 	const createChannel = (chatName: string, password: string) => {
-		socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
-			if (response) {
-				setFormFailed(false);
+		return new Promise<void>((resolve, reject) => {
+			socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
+				setJoined(response);
+				if (response) {
+					setMessages([]);
+					resolve();
+				} else {
+					reject("Can't create channel");
+				}
+			});
+		})
+		.then(() => {
+			findChannel(chatName, password);
+			if (channelIdRef.current !== -1) {
 				setJoined(true);
 				setMessages([]);
 			}
-			else {
-				console.log("can't create channel");
-			}
+		})
+		.catch((error) => {
+			console.log(error);
 		});
 	};
 
 	const sendMessage = () => {
-		socket.emit('createMessageChannel', { text: messageText, chatName, password }, () => {
+		return new Promise<void>((resolve, reject) => {
+			if (channelIdRef.current !== -1) {
+				socket.emit('createMessageChannel', { text: messageText,  channelId: channelIdRef.current, userId: props.userDbID}, (response: boolean) => {
+					resolve();
+				});
+			} else {
+				reject();
+			}
+		})
+		.then (() => {
 			setMessageText('');
-		});
+		})
 	};
 
 	const toggleSidebar = () => {
 		setSidebarVisible(!sidebarVisible);
 	  };
 
-	const handleChannelClick = (channelName: string, password: string) => {
-		setChatName(channelName);
-		setPassword(password);
-		console.log(channelName, password);
-		join(channelName, password);
+	const handleDMClick = () => {
+		const clickedUserId = selectedUserId;
+		const dmObject = dm.find((item) => item.otherUserId === clickedUserId);
+		
+		if (dmObject) {
+			channelIdRef.current = dmObject.channelId;
+			if (channelIdRef.current != -1){
+				join()
+				setShowProfile(false);
+			}
+		}
+		else {
+			return new Promise<void>((resolve, reject) => {
+				socket.emit('createDM', { firstUser: props.userDbID, secondUser: clickedUserId}, (response: any) => {
+					console.log(response);
+					if (response) {
+						setDm((prevDm) => [...prevDm, response]);
+						channelIdRef.current = response.id;
+						resolve();
+					} else {
+						console.log("Can't create DM");
+					}
+				});
+			})
+			.then (() => {
+				if (channelIdRef.current !== -1) {
+					setShowProfile(false);
+					setJoined(true);
+					setMessages([]);
+				}
+			});
+		}
+	};
+
+	const handleChannelClick = (clickedChannelId: number) => {
+		console.log("click", clickedChannelId);
+		channelIdRef.current = clickedChannelId;
+		console.log("check click", channelIdRef.current);
+		if (channelIdRef.current !== -1)
+			join()
 	};
 
 	const handleInvitationlClick = (invitationId: number, accepted: boolean, type: string) => {
-		socket.emit('joinInvitation', { invitationId, accepted}, (response: boolean) => {
-			console.log(response);
-			if (response) {
-				const updatedInvitations = invitations.filter(invitation => invitation.id !== invitationId);
-				setInvitations(updatedInvitations);
-			}
-		});
+		return new Promise<void>((resolve, reject) => {
+			socket.emit('joinInvitation', { userId: props.userDbID, invitationId, accepted}, (response: boolean) => {
+				if (response) {
+					const updatedInvitations = invitations.filter(invitation => invitation.id !== invitationId);
+					setInvitations(updatedInvitations);
+					resolve();
+				}
+				reject();
+			});
+		})
 	};
 
 	const handleUserClick = (userName: string) => {
-		console.log("click on profil")
-		socket.emit('findUserInfo', {userName}, (response: any) => {
-			if (response.length != 0)
-			{
-				console.log(response.username);
-				setSelectedUserId(response.id);
-				setShowProfile(true);
-				console.log(selectedUserId);
-			}
+		return new Promise<void>((resolve, reject) => {
+			socket.emit('findUserInfo', {userName}, (response: any) => {
+				if (response.length !== 0)
+				{
+					console.log(response.username);
+					setSelectedUserId(response.id);
+					setShowProfile(true);
+					console.log(selectedUserId);
+				}
+				resolve();
+			});
 		});
 	};
 
 	const hideProfile = () => {
 		//join(joinChatName, joinPassword);
+		setSelectedUserId(-1);
 		setShowProfile(false);
 	};
 
@@ -209,21 +325,35 @@ const ChatBox: React.FC<{
 
 	const hideChannel = () => {
 		//join(joinChatName, joinPassword);
+		channelIdRef.current = -1;
 		setJoined(false);
 	};
 	let timeout;
 
 	const emitTyping = () => {
-		socket.emit('typing', { isTyping: true, chatName, password });
+		socket.emit('typing', {userId: props.userDbID, isTyping: true, channelId : channelIdRef.current});
 
 		timeout = setTimeout(() => {
-			socket.emit('typing', { isTyping: false, chatName, password });
+			socket.emit('typing', {userId: props.userDbID, isTyping: false, channelId: channelIdRef.current});
 		}, 2000);
 	};
+
+	function	askDbForUsers(event: string)	{
+		setSearchTerm(event)
+	}
 
 	if (!joined && !showProfile) {
 		return (
 			<SolidFrame frameClass="chat-box" >
+				<div className="search-container">
+					<div className='search text-content' > Find your friends:</div>
+					<SolidFrame
+						frameClass="search-frame"
+					>
+						<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
+					</SolidFrame>
+					<SearchList webToken={props.webToken} setNewID={setSelectedUserId} searchTerm={searchTerm} />
+				</div>
 				{!createChannelMode && !joinChannelMode && (
 					<div className="button-container">
 						<button
@@ -245,9 +375,11 @@ const ChatBox: React.FC<{
 						className="solid-frame create-chan-frame"
 							onSubmit={(e) => {
 								e.preventDefault();
-								setChatName(joinChatName);
-								setPassword(joinPassword);	
-								join(joinChatName, joinPassword);
+								findChannel(joinChatName, joinPassword)
+								.then(() => join())
+								.catch((error) => {
+									console.log('Error:', error);
+								});
 							}}
 					>
 						<label
@@ -285,8 +417,6 @@ const ChatBox: React.FC<{
 						className="solid-frame user-frame"
 						onSubmit={(e) => {
 							e.preventDefault();
-							setChatName(createChatName);
-							setPassword(createPassword);
 							createChannel(createChatName, createPassword);
 						}}
 					>
@@ -328,22 +458,42 @@ const ChatBox: React.FC<{
 				
 				<div className=" solid-frame  text-content text-label sidebar">
 					<ul className="channel-list">
-						<li className="channel-item header">channels: </li>
 						<>
-						{ channels.length != 0 ? (
+						<li className="channel-item header" onClick={() => setChannelsVisible(!channelsVisible)}>channels: </li>
+						{ (channelsVisible && channels.length !== 0) ? (
 							channels.map((channel: any) => (
 								<li className="channel-item" key={channel.id}>
-									<div className="channel-name" onClick={() => handleChannelClick(channel.ChannelName, channel.password)}>
+									<div className="channel-name" onClick={() => handleChannelClick(channel.id)}>
 										{channel.ChannelName} 
 									</div>
 								</li>
 							))
 						): (
-							<div className="channel-name"> empty </div>
+							channels.length === 0 ? (
+								<div className="channel-name"> empty </div>
+							) : (
+								<div className="channel-name"> --- </div>
+							)
 						)}
-						<li className="channel-item header">Invitations: </li>
-						
-						{ invitations.length != 0 ? (
+						<li className="channel-item header" onClick={() => setDMVisible(!DMVisible)}>DM: </li>
+						{ (DMVisible && dm.length !== 0) ? (
+							dm.map((dm: any) => (
+								<li className="channel-item" key={dm.channelId}>
+									<div className="channel-name" onClick={() => handleChannelClick(dm.channelId)}>
+										{dm.otherUserUsername}
+									</div>
+								</li>
+							))
+						): (
+							dm.length === 0 ? (
+								<div className="channel-name"> empty </div>
+							) : (
+								<div className="channel-name"> --- </div>
+							)
+						)}
+
+						<li className="channel-item header" onClick={() => setInvitationsVisible(!invitationsVisible)}>Invitations: </li>
+						{ (invitationsVisible && invitations.length !== 0) ? (
 							invitations.map((invitation: any) => (
 								<li className="channel-item" key={invitation.id}>
 									<div className="channel-name">
@@ -355,8 +505,12 @@ const ChatBox: React.FC<{
 									</div>
 								</li>
 							))
-						): (
-							<div className="channel-name"> empty </div>
+						): ( 
+							invitations.length === 0 ? (
+								<div className="channel-name"> empty </div>
+							) : (
+								<div className="channel-name"> --- </div>
+							)
 						)}
 						</>
 					</ul>
@@ -380,6 +534,12 @@ const ChatBox: React.FC<{
 						Invite to pong game(higly recommended)
 					</button>
 				}
+				<button 
+					className="solid-frame button-frame-choice text-content text-button-choice"
+				 	onClick={handleDMClick}
+				>
+					DM
+				</button>
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
 			</>
