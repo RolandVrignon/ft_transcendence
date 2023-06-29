@@ -2,16 +2,15 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { click } from '@testing-library/user-event/dist/click'
 
+import { Dispatch, SetStateAction } from 'react'
 import SolidFrame from '../SolidFrame/SolidFrame'
 import SearchList from "../SearchList/SearchList"
 import SearchBar from "../SearchBar/SearchBar"
 import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
-import MsgBox from '../MsgBox/MsgBox'
 import './ChatBox.scss'
-import userEvent from '@testing-library/user-event'
 
-const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
+const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: Dispatch<SetStateAction<string>> }> = (props)  => {
 
 	const channelIdRef = useRef<number>(-1);
 
@@ -343,7 +342,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 					>
 						<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 					</SolidFrame>
-					<SearchList setNewID={setSelectedUserId} searchTerm={searchTerm} />
+					<SearchList webToken={props.webToken} setNewID={setSelectedUserId} searchTerm={searchTerm} />
 				</div>
 				{!createChannelMode && !joinChannelMode && (
 					<div className="button-container">
@@ -512,7 +511,7 @@ const ChatBox: React.FC<{ userDbID: number }> = (props)  => {
 	else if (showProfile)
 		return (
 			<>
-				<Profil ID={selectedUserId}/>
+				<Profil ID={selectedUserId} webToken={props.webToken} refreshWebToken={props.refreshWebToken}/>
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={handleDMClick}>DM</button>
 				<button className="solid-frame button-frame-choice text-content text-button-choice"

@@ -42,11 +42,11 @@ const Content: React.FC<MainPageProps> = (control) => {
       <SolidFrame frameClass="content-frame">
         <Routes>
 					{/* Set a default route */}
-          <Route path="*" element={<ChatBox userDbID={ID.ID} />} />
+          <Route path="*" element={<ChatBox webToken={control.webToken} userDbID={control.ID} refreshWebToken={control.refreshWebToken}/>} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>} />
           <Route path="/Pong" element={<Pong webToken={control.webToken} userDbID={control.ID} />} />
-          <Route path="/Chat" element={<ChatBox userDbID={ID.ID} />} />
+          <Route path="/Chat" element={<ChatBox webToken={control.webToken} userDbID={control.ID} refreshWebToken={control.refreshWebToken} />} />
         </Routes>
       </SolidFrame>
     </SolidFrame>
