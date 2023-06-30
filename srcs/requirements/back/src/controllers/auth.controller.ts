@@ -23,6 +23,7 @@ export class Api42ConnectController {
 				apiData: userData,
 				dbData: userDataState
 			}
+			console.log(data)
 			res.status(200).json(data).json()
 		}
 		catch (err)	{

@@ -5,49 +5,36 @@ import prisma from '../../prisma/prisma.client'
 
 @Injectable()
 export default class AuthService {
-    	async	exchangeCodeForToken(access_code: string)	{
-        try	{
-          const qs = require('qs')
-          let url = process.env.CODE_FOR_TOKEN
-          const requestBody = {
-            grant_type: 'authorization_code',
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET,
-            code: access_code,
-            redirect_uri: process.env.URL_API_CONTROLLER
-          }
-          let res = await axios.post(url, qs.stringify(requestBody))
-          const accessToken = res.data.access_token
-          return accessToken
+    async	exchangeCodeForToken(access_code: string)	{
+      try	{
+        const qs = require('qs')
+        let url = process.env.CODE_FOR_TOKEN
+        const requestBody = {
+          grant_type: 'authorization_code',
+          client_id: process.env.CLIENT_ID,
+          client_secret: process.env.CLIENT_SECRET,
+          code: access_code,
+          redirect_uri: process.env.URL_API_CONTROLLER
         }
-        catch (err)	{
-          console.log(err)
-        }
+        let res = await axios.post(url, qs.stringify(requestBody))
+        const accessToken = res.data.access_token
+        return accessToken
       }
-      
-      async	askUserID(accessToken: string)	{
-        const url = process.env.TOKEN_INFO_URL
-        const res = await axios.get(url, {
-          headers: { 'Authorization' : `Bearer ${accessToken}`
-        }})
-        const resourceOwnerId = res.data.resource_owner_id
-        return resourceOwnerId
-      }
-      
-      async	fetchUserData42(accessToken: string, resourceOwnerId: string)	{
-        const url = process.env.USER_INFO_42URL + "/" + resourceOwnerId
-        const res = await axios.get(url, {
-          headers: {
-            'Authorization' : `Bearer ${accessToken}`
-          }
-        })
-        return res.data
-      }
-      
-      async	askDataBaseForCreation(userId: number) : Promise<object>	{
-        const	user = await prisma.user.findUnique({
-          where: { id: userId }
-        })
-        return user
-      }
+      catch (err)	{ console.log(err) }
+    }
+    async	askUserID(accessToken: string)	{
+      const url = process.env.TOKEN_INFO_URL
+      const res = await axios.get(url, { headers: { 'Authorization' : `Bearer ${accessToken}`} })
+      const resourceOwnerId = res.data.resource_owner_id
+      return resourceOwnerId
+    }
+    async	fetchUserData42(accessToken: string, resourceOwnerId: string)	{
+      const url = process.env.USER_INFO_42URL + "/" + resourceOwnerId
+      const res = await axios.get(url, { headers: { 'Authorization' : `Bearer ${accessToken}` } })
+      return res.data
+    }
+    async	askDataBaseForCreation(userId: number) : Promise<object>	{
+      const	user = await prisma.user.findUnique({ where: { id: userId } })
+      return user
+    }
 }

@@ -65,10 +65,8 @@ const Login: React.FC<LoginProps> = (control) => {
       try {
         const queryParams = new URLSearchParams(window.location.search)
         const code = queryParams.get('code')
-        if (code !== null)  {
-          askDataBaseForCreation(code)
-          
-        }
+        if (code !== null)  { askDataBaseForCreation(code) }
+        else console.log('login: useEffect triggered')
       }
       catch (err) {
           console.log(err)
@@ -198,7 +196,7 @@ const Login: React.FC<LoginProps> = (control) => {
   else
   {
     control.log(true)
-    navigate('/Profil')
+    window.history.replaceState(null, '', '/')
   }
 
   return renderer
