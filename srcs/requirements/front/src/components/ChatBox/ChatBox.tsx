@@ -347,7 +347,7 @@ const ChatBox: React.FC<{
 		return (
 			<SolidFrame frameClass="chat-box" >
 				<div className="search-container">
-					<div className='search text-content' > Find your friends:</div>
+					<div className="solid-frame search text-content" >Find your friends:</div>
 					<SolidFrame
 						frameClass="search-frame"
 					>
