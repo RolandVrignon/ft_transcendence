@@ -2,7 +2,10 @@
 .chat-box {
 	height: 100%;
 	border-width: 0px;
-	max-width: 75%;
+}
+
+.in-row {
+	flex-direction: row;
 }
 
 .search-container {
@@ -15,14 +18,8 @@
 }
 
 .sidebar {
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	max-width: 19%;
-	width: 300px;
-	background-color: rgb(5, 5, 5);
-	color: rgb(241, 231, 231);
+	width: 40%;
+	margin-left: 5px;
 	border: 1px solid rgb(249, 245, 245);
 	/* Autres styles de la sidebar */
 }

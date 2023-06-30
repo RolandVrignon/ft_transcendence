@@ -346,6 +346,8 @@ const ChatBox: React.FC<{
 	if (!joined && !showProfile) {
 		return (
 			<SolidFrame frameClass="chat-box" >
+				<SolidFrame frameClass="in-row">
+				<SolidFrame frameClass="">
 				<div className="solid-frame search-container">
 					<div className="solid-frame search text-content" >Find your friends:</div>
 					<SolidFrame
@@ -456,8 +458,9 @@ const ChatBox: React.FC<{
 						{fomrError}
 					</div>
 				)}
-				
-				<div className=" solid-frame  text-content text-label sidebar">
+				</SolidFrame>
+				<SolidFrame frameClass="sidebar">
+				<div className="solid-frame text-content text-label">
 					<ul className="channel-list">
 						<>
 						<li className="channel-item header" onClick={() => setChannelsVisible(!channelsVisible)}>channels: </li>
@@ -516,6 +519,8 @@ const ChatBox: React.FC<{
 						</>
 					</ul>
 				</div>
+				</SolidFrame>	
+				</SolidFrame>	
 			</SolidFrame>
 		);
 	}
