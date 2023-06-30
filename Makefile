@@ -1,12 +1,6 @@
 COMPOSE_PATH = srcs/docker-compose.yml
 
 all:
-	if [ ! -f "/src/.env" ]; then \
-		cp ~/env_ft_transcendence/env ./srcs/.env; \
-	fi
-	if [! -f "/src/requirements/back/.env"]; then \
-		cp ~/env_ft_transcendence/env_back ./srcs/requirements/back/.env; \
-	fi
 	mkdir -p srcs/requirements/db
 	docker compose --file srcs/docker-compose.yml up --build
 
