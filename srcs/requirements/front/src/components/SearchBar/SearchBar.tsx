@@ -13,7 +13,7 @@ const SearchBar = ({ searchTerm, onChange }: SearchBarProps) => {
 
 	return (
 		<input
-			className='solid-frame search-frame search-input-frame text-content'
+			className="solid-frame search-frame search-input-frame text-content"
 			value={searchTerm}
 			onChange={handleInputChange}
 		/>
