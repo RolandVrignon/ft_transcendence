@@ -346,10 +346,10 @@ const ChatBox: React.FC<{
 	if (!joined && !showProfile) {
 		return (
 			<SolidFrame frameClass="chat-box" >
-				<div className="search-container">
+				<div className="solid-frame search-container">
 					<div className="solid-frame search text-content" >Find your friends:</div>
 					<SolidFrame
-						frameClass="search-frame"
+						frameClass="solid-frame search-frame"
 					>
 						<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 					</SolidFrame>
