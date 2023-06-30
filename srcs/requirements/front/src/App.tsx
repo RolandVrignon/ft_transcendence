@@ -4,7 +4,7 @@ import './App.scss';
 import MainPage from './components/MainPage/MainPage'
 import HomePage from './components/HomePage/HomePage';
 import './components/ChatBox/ChatBox.scss'
-//import { set } from 'lodash';
+//import { set } from 'lodash'
 
 
 function App() {
@@ -14,9 +14,9 @@ function App() {
 
 	return (
 		<div className="App">
-			{ authChecked ?
+			{ sessionToken ?
 				( <MainPage ID={userID} refreshWebToken={setSessionToken} webToken={sessionToken} /> )
-					: 
+					:
 				( <HomePage log={setAuthChecked} user={setUserID} controlJwtToken={setSessionToken}/> )
 			}
 		</div>
