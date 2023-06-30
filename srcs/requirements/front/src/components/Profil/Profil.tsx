@@ -9,6 +9,7 @@ import './Profil.scss'
 import { debounce } from 'lodash'
 import { Dispatch, SetStateAction } from 'react'
 import MatchHistory from "../MatchHistory/MatchHistory";
+import { isConstTypeReference } from "typescript";
 
 interface UserInfo {
 	id?: number,
@@ -135,9 +136,9 @@ const Profil: React.FC<ProfilProps> = ({
 			<SolidFrame frameClass="user-data-frame" txt1={'Username: ' + userInfo.username} >
 				{children}
 				{ userInfo.id === ID ?
-		<div>
+					<div>
 						<p className="twoFA-option-profile">2FA status: {return2FAStatus()}</p><br/>
-		</div>
+					</div>
 					:
 					null
 				}
@@ -168,7 +169,7 @@ const Profil: React.FC<ProfilProps> = ({
 				frameClass="history-frame"
 				txtClass="text-data-profil"
 			/>
-			<MatchHistory userID={ID} token={webToken} />
+			{/* <MatchHistory userID={ID} token={webToken} /> */}
 		</SolidFrame>
 	</SolidFrame>
 	);

@@ -25,7 +25,6 @@ export class SearchController	{
 	}
 	@Post('info-user')	async returnUserInformation(@Res() res: Response, @Req() req: Request) {
 		try	{
-			// console.log('The request has this form: ', req)
 			const info = await this.auth.askDataBaseForCreation(req.body.id)
 			res.status(200).json(info)
 		}
@@ -33,7 +32,6 @@ export class SearchController	{
 			console.log(err)
 		}
 	}
-	//Post because the front must send the userID
 	@Post('user-match-history')
 	async getUserMatchHistory(@Res() res: Response, @Req() req: Request) {
 	  const userId = req.body.id;
