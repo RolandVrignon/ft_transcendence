@@ -92,7 +92,7 @@ model ChannelUser {
 model Channel {
   id               Int      @id  @default(autoincrement())
   status           String        @default("public")
-  ChannelName      String
+  ChannelName      String        @unique
   password         String        @default("")
   users            ChannelUser[]
   textChannels     textChannel[] @relation("channel")

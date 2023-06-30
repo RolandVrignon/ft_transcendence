@@ -4,10 +4,13 @@ import prisma from '../../prisma/prisma.client';
 import { Message } from './entities/message.entity';
 import { DateTime } from 'luxon';
 import { find } from 'rxjs';
+import * as bcrypt from 'bcrypt';
+
+export const saltOrRounds = 10;
 
 @Injectable()
 export class MessagesService {
-
+	
 	async updateClientId(userId: number, clientId: string, channelId: number)
 	{
 		const channel = await this.findChannelById(channelId);
@@ -124,10 +127,12 @@ export class MessagesService {
 
 		const channelName = firstUser.username + "|" + secondUser.username;
 
+		const hashedEmptyChannelPassword = await bcrypt.hash("", saltOrRounds);
+		console.log(`\nCreating DM channel with name [${channelName}] and password [${hashedEmptyChannelPassword}].`)
 		const createChannel = await prisma.channel.create({
 			data: {
 				ChannelName: channelName,
-				password: "",
+				password: hashedEmptyChannelPassword,
 				status: "dm",
 			}
 		})
@@ -188,10 +193,12 @@ export class MessagesService {
 		if (channel){
 			throw  `a channel with "${ChannelName}" as name already exists`
 		}
+		const hashedChannelPassword = await bcrypt.hash(Channelpass, saltOrRounds);
+		console.log(`\nCreating channel with name [${ChannelName}] and password [${hashedChannelPassword}].`)
 		const createChannel = await prisma.channel.create({
 			data: {
 				ChannelName: ChannelName,
-				password: Channelpass,
+				password: hashedChannelPassword,
 			}
 		})
 		if (!createChannel) {
@@ -290,8 +297,8 @@ export class MessagesService {
 			return [];
 		}
 		const channelList = channelUsers.map(channelUser => {
-			const { ChannelName, password, id} = channelUser.channel;
-			return { ChannelName, password, id };
+			const { ChannelName, id} = channelUser.channel;
+			return { ChannelName, id };
 		});
 		return channelList;
 	}
@@ -337,15 +344,23 @@ export class MessagesService {
 
 	async findChannelByNameAndPass(ChannelName: string, Channelpass: string)
 	{
+		const hashedChannelPassword = await bcrypt.hash(Channelpass, saltOrRounds);
+		console.log(`\nSearching for channel with name [${ChannelName}] and password [${hashedChannelPassword}].`)
+		//First find the channel by name
 		const channel = await prisma.channel.findFirst({
 			where: {
 				ChannelName: ChannelName,
-				password: Channelpass
+				// password: hashedChannelPassword
 			},
 			include: {users: true, textChannels: true},
 		})
 		if (!channel)
 			throw ` (${ChannelName}) channel does not exist.`
+		//Then check if the provided password matches the hashed password
+		const passwordsMatch = await bcrypt.compare(Channelpass, channel.password)
+		console.log(`passwordsMatch is ${passwordsMatch}`)
+		if (passwordsMatch === false)
+			throw `Provided password does not match ${ChannelName}'s password.`
 		return channel;
 	}
 

@@ -4,6 +4,8 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io'
 import prisma from '../../prisma/prisma.client';
 import { DateTime } from 'luxon';
+import { saltOrRounds } from './messages.service';
+import * as bcrypt from 'bcrypt';
 
 //const COMMAND_HELPER: string = "to mute => /mute targetName durationInMinutes\n to block";
 
@@ -411,13 +413,14 @@ export class MessagesGateway {
 		else if (await this.messagesService.isOwner(channelId, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
 		}
+		const hashedEmptyPassword = await bcrypt.hash("", saltOrRounds)
 		await prisma.channel.update({
 			where: {
 				id: channel.id
 			},
 			data: {
 				status: newStatus,
-				password: ""
+				password: hashedEmptyPassword
 			}
 		})
 		if (newStatus == "public"){
@@ -441,13 +444,14 @@ export class MessagesGateway {
 			throw  "you need to be the channel owner to execute this command."
 		}
 		else {
+			const newHashedChannelPassword = await bcrypt.hash(newPass, saltOrRounds)
 			await prisma.channel.update({
 				where: {
 					id: channel.id
 				},
 				data: {
 					status: "protected",
-					password: newPass,
+					password: newHashedChannelPassword,
 				}
 			})
 		}
