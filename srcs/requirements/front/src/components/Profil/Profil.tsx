@@ -3,13 +3,12 @@ import SearchBar from "../SearchBar/SearchBar"
 import SearchList from "../SearchList/SearchList"
 import ProfileUserButton from "../StyledButtons/StyledButtons"
 import Title from "../Title/Title";
-import React, { useState, useEffect, useContext } from 'react'
+import React, { ChangeEvent, useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import './Profil.scss'
 import { debounce } from 'lodash'
 import { Dispatch, SetStateAction } from 'react'
 import MatchHistory from "../MatchHistory/MatchHistory";
-import { isConstTypeReference } from "typescript";
 
 interface UserInfo {
 	id?: number,
@@ -40,6 +39,7 @@ const Profil: React.FC<ProfilProps> = ({
 	}) => {
 		const [newID, setNewID] = useState(-1)
 		const [searchTerm, setSearchTerm] = useState('')
+		const [uploadedFile, setUploadedFile] = useState<File|null>(null)
 		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: ''})
 
 	useEffect(() => {
@@ -101,75 +101,66 @@ const Profil: React.FC<ProfilProps> = ({
 		fetchOtherUserInformationDisplay()
 	}, [newID])
 
-	function	return2FAStatus()	{
-		if (userInfo.doubleAuth?.length)
-			return 'enabled'
-		return 'disabled'
+	async	function handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) setUploadedFile(e.target.files[0]) }
+	async	function changeAvatarProfil()	{
+		const fileSender = new FormData()
+		if (uploadedFile)	{
+			fileSender.append('data', uploadedFile)
+			console.log(fileSender)
+			const res = await axios({ url: 'http://localhost:8080/upload/avatar',
+				method: 'POST',
+				headers: { Authorization: `Bearer ${webToken}`, 'Content-Type': 'multipart/form-data'},
+				data: fileSender
+			})
+		}
 	}
-
-	async function	handle2FAUpdate(e: React.MouseEvent<HTMLParagraphElement>)	{
-		let twoFaStatus
-		if ((e.target as HTMLParagraphElement).textContent === 'Enable 2FA on my account')
-			twoFaStatus = 'Enable'
-		else
-			twoFaStatus = 'Disable'
-		const	res = await axios({
-			url: 'http://localhost:8080/secure/change-two-fa', method: 'POST',
-			data: { twoFaStatus, ID }
-		})
-		setUserInfo(res.data)
-	}
-	const waithandle2FAUpdate = debounce(handle2FAUpdate, 500)
 
 	return (
-	<SolidFrame frameClass="profil-frame">
-		<SolidFrame frameClass="search-frame">
+	<SolidFrame frameClass='profil-frame'>
+		<div className='search-frame'>
 			<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
-		</SolidFrame>
+		</div>
 		<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
 		<ProfileUserButton webToken={webToken} newID={newID} ID={ID}/>
-		{/* display image and username +? 2FA */}
-		<SolidFrame frameClass="user-profil-frame" >
-			<SolidFrame frameClass="photo-frame" >
-				<img src={userInfo.imageLink} />
-			</SolidFrame>
-			<SolidFrame frameClass="user-data-frame" txt1={'Username: ' + userInfo.username} >
-				{children}
-				{ userInfo.id === ID ?
-					<div>
-						<p className="twoFA-option-profile">2FA status: {return2FAStatus()}</p><br/>
+		<div className='user-profil-frame'>
+			<div className='photo-frame'>
+				<div className='avatar-container-profil'>
+					<img src={userInfo.imageLink} />
+				</div>
+				<div className='container-avatar-change'>
+					<input className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
+					<button onClick={changeAvatarProfil}></button>
+					<p>Change avatar</p>
+				</div>
+			</div>
+			<div className='user-data-div-display'>
+				<div className='user-profile-info'>
+					<h1>User information</h1><br/>
+					<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42</p>
+				</div>
+				<div className='display-2fa-option'>
+					<div className='text-2fa-option'>
 					</div>
-					:
-					null
-				}
-			</SolidFrame>
-		</SolidFrame>
-		{/* display stats of the user concerned */}
-		<SolidFrame frameClass="info-frame">
-			<Title
-				frameClass="profil-title-frame"
-				txtClass="text-profil-title"
-				txt2="Stats"
-			/>  
-			<SolidFrame
-				frameClass="history-frame"
-				txtClass="text-data-profil"
-				txt1={stats}
-			/>
+					<div className='switch-2fa'>
+						<label className='form-switch'>
+							2FA&nbsp;
+							<input type='checkbox' />
+							<i></i>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<SolidFrame frameClass='info-frame'>
+			<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Stats' />  
+			<SolidFrame frameClass='history-frame' txtClass='text-data-profil' txt1={stats} />
 			{children}
 		</SolidFrame>
-		{/* display the match history of the user */}
-		<SolidFrame frameClass="info-frame">
-			<Title
-				frameClass="profil-title-frame"
-				txtClass="text-profil-title"
-				txt2="Match history" 
-			/>
-			<SolidFrame
-				frameClass="history-frame"
-				txtClass="text-data-profil"
-			/>
-			{/* <MatchHistory userID={ID} token={webToken} /> */}
+		<SolidFrame frameClass='info-frame'>
+			<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Match history' />
+			<SolidFrame frameClass='history-frame' txtClass='text-data-profil'>
+				<MatchHistory userID={ID} token={webToken} />
+			</ SolidFrame>
 		</SolidFrame>
 	</SolidFrame>
 	);
