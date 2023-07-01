@@ -6,8 +6,8 @@ import AuthService from '../services/auth.service'
 @Controller('42api')
 export class Api42ConnectController {
 	constructor(private readonly jwtService: JwtService, private auth: AuthService) {}
-	generateToken(userId: string, email: string): string {
-		const payload = { userId, email }
+	generateToken(id: string, email: string): string {
+		const payload = { id, email }
 		return this.jwtService.sign(payload)
 	}
 
@@ -18,12 +18,7 @@ export class Api42ConnectController {
 			const userData = await this.auth.fetchUserData42(accessToken, userID)
 			const userDataState = await this.auth.askDataBaseForCreation(userID)
 			const jwt = this.generateToken(userData.id, userData.email)
-			const data = {
-				jwtSecureToken: jwt,
-				apiData: userData,
-				dbData: userDataState
-			}
-			console.log(data)
+			const data = { jwtSecureToken: jwt, apiData: userData, dbData: userDataState }
 			res.status(200).json(data).json()
 		}
 		catch (err)	{

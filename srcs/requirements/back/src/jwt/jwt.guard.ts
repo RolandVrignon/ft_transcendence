@@ -53,7 +53,7 @@ export class WebSocketJwtAuthGuard implements CanActivate {
 
   async validateToken(token: string): Promise<boolean> {
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync(token)
       return true
     } 
     catch (err) {
