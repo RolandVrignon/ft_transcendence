@@ -66,16 +66,25 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		findAllInvitations();
 		findAllChannels();
 
-		socket.on('updateChannels', (newChannel: any) => {
-			setChannels((prevChannels: any[]) => [...prevChannels, newChannel]);
+		socket.on('updateChannels', (option: string, newChannel: any) => {
+			if (option === 'add')
+				setChannels((prevChannels: any[]) => [...prevChannels, newChannel]);
+			else if (option === 'remove')
+				setChannels((prevChannels: any[]) => prevChannels.filter((channel) => channel.id !== newChannel.id));
 		});
 
-		socket.on('updateInvitations', (newInvitation: any) => {
-			setInvitations((prevInvitations: any[]) => [...prevInvitations, newInvitation]);
+		socket.on('updateInvitations', (option: string, newInvitation: any) => {
+			if (option === 'add')
+				setInvitations((prevInvitations: any[]) => [...prevInvitations, newInvitation]);
+			else if (option === 'remove')
+				setInvitations((prevInvitations: any[]) => prevInvitations.filter((invitation) => invitation.channelId !== newInvitation.channelId));
 		});
 
-		socket.on('updateDM', (newDM: any) => {
-			setDm((prevDM: any[]) => [...prevDM, newDM]);
+		socket.on('updateDM', (option: string, newDM: any) => {
+			if (option === 'add')
+				setDm((prevDM: any[]) => [...prevDM, newDM]);
+			else if (option === 'remove')
+				setDm((prevDM: any[]) => prevDM.filter((DM) => DM.id !== newDM.id));
 		});
 
 		socket.on('message', (message: any) => {
@@ -254,7 +263,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				socket.emit('createDM', { firstUser: props.userDbID, secondUser: clickedUserId}, (response: any) => {
 					console.log(response);
 					if (response) {
-						channelIdRef.current = response.id;
+						channelIdRef.current = response.channelId;
 						resolve();
 					} else {
 						console.log("Can't create DM");

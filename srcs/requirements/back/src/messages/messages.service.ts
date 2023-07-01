@@ -155,7 +155,7 @@ export class MessagesService {
 		if (!secondUserChannel) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		return createChannel;
+		return {channelId: createChannel.id, firstUserUserName: firstUser.username, secondUserUserName: secondUser.username };
 	}
 
 	async createChannel(userId: number, ChannelName: string, Channelpass: string)
@@ -620,11 +620,12 @@ export class MessagesService {
 	async removeChannelUser(channelId: number, channelUserId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  `We experiencing issues. We will get back to you as soon as possible.`
 		}
+
 		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-				id: channelUserId,
+				userID: channelUserId,
 				channelId: channel.id
 			}
 		})

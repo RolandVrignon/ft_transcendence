@@ -76,7 +76,7 @@ export class MessagesGateway {
 				this.updateSocketUserIDpairs(client, userId);
 				if (await this.messagesService.findChannelUser(userId, channelId)) {
 					const channelInfo = await this.messagesService.identify(userId, channelId);
-					this.server.to(client.id).emit('updateChannels', channelInfo);
+					this.server.to(client.id).emit('updateChannels', "add", channelInfo);
 				}
 			} catch (serverMessage) {
 				this.server.to(client.id).emit('formFailed', serverMessage);
@@ -166,6 +166,8 @@ export class MessagesGateway {
 		try {
 			this.updateSocketUserIDpairs(client, userId);
 			 await this.messagesService.joinInvitation(userId, invitationId, accepted);
+			 if (client.connected)
+				 client.emit("updateInvitations", "remove", {id: invitationId});
 			 return true;
 		} catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
@@ -207,7 +209,7 @@ export class MessagesGateway {
 		try {
 			this.updateSocketUserIDpairs(client, userID);
 			const channelInfo = await this.messagesService.createChannel(userID, chatName, password);
-			this.server.to(client.id).emit('updateChannels', channelInfo);
+			this.server.to(client.id).emit('updateChannels', "add", channelInfo);
 			return true;
 		}
 		catch (serverMessage) {
@@ -229,11 +231,20 @@ export class MessagesGateway {
 			const firstUserSocket = this.getUserSocket(firstUser);
 			const secondUserSocket = this.getUserSocket(secondUser);
 			if (firstUserSocket && this.server.sockets.sockets.has(firstUserSocket.id)) {
-				this.server.to(firstUserSocket.id).emit('updateDM', dmInfo);
+				this.server.to(firstUserSocket.id).emit('updateDM', "add", {
+					channelId: dmInfo.channelId,
+					otherUserId: secondUser,
+					otherUserUsername: dmInfo.secondUserUserName,
+				});
 			}
 			if (secondUserSocket && this.server.sockets.sockets.has(secondUserSocket.id)) {
-				this.server.to(secondUserSocket.id).emit('updateDM', dmInfo);
+				this.server.to(secondUserSocket.id).emit('updateDM', "add", {
+					channelId: dmInfo.channelId,
+					otherUserId: firstUser,
+					otherUserUsername: dmInfo.firstUserUserName,
+				});
 			}
+			return dmInfo
 		}
 		catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
@@ -409,7 +420,7 @@ export class MessagesGateway {
 		const invitationInfo = await this.messagesService.createInvitaion(executorId, targetInfo.id, "chat", channel.id);
 		const targetSocket = this.getUserSocket(targetInfo.id);
 		if (targetSocket && targetSocket.connected) {
-			targetSocket.emit("updateInvitations", invitationInfo);
+			targetSocket.emit("updateInvitations", "add", invitationInfo);
 		}
 		throw  `${target} have been invited !`;
 	}
@@ -605,7 +616,7 @@ export class MessagesGateway {
 	async leave(executorId: number, channelId: number){
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  `We experiencing issues. We will get back to you as soon as possible.`
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
@@ -618,6 +629,10 @@ export class MessagesGateway {
 				await this.messagesService.removeChannelUser(channelId, executorId);
 				const targetSocket = this.getChannelUserSocket(target)
 				if (targetSocket && targetSocket.connected) {
+					if (channel.status == "dm")
+						targetSocket.emit('updateDM', "remove", {channelId: channel.id});
+					else
+						targetSocket.emit('updateChannels', "remove", {id: channel.id, name: channel.ChannelName});
 					targetSocket.emit('leaveChannel');
 				}
 			}
