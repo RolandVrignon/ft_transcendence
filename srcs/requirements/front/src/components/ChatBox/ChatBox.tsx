@@ -63,11 +63,22 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		if (!socket) return;
 		//updateClientId();
 		findDirectMessageChannels();
-		console.log("dm", dm);
 		findAllInvitations();
 		findAllChannels();
+
+		socket.on('updateChannels', (newChannel: any) => {
+			setChannels((prevChannels: any[]) => [...prevChannels, newChannel]);
+		});
+
+		socket.on('updateInvitations', (newInvitation: any) => {
+			setInvitations((prevInvitations: any[]) => [...prevInvitations, newInvitation]);
+		});
+
+		socket.on('updateDM', (newDM: any) => {
+			setDm((prevDM: any[]) => [...prevDM, newDM]);
+		});
+
 		socket.on('message', (message: any) => {
-			console.log(message);
 			setMessages((prevMessages: any[]) => [...prevMessages, message]);
 		});
 
@@ -243,11 +254,11 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				socket.emit('createDM', { firstUser: props.userDbID, secondUser: clickedUserId}, (response: any) => {
 					console.log(response);
 					if (response) {
-						setDm((prevDm) => [...prevDm, response]);
 						channelIdRef.current = response.id;
 						resolve();
 					} else {
 						console.log("Can't create DM");
+						resolve();
 					}
 				});
 			})
