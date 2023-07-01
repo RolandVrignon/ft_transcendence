@@ -507,7 +507,7 @@ export class MessagesService {
 				id: userID,
 			}
 		})
-		console.log(user)
+		// console.log(user)
 		return user;
 	}
 
