@@ -168,10 +168,12 @@ export class MessagesGateway {
 	){
 		try {
 			this.updateSocketUserIDpairs(client, userId);
-			 await this.messagesService.joinInvitation(userId, invitationId, accepted);
-			 if (client.connected)
+			const chatInfo = await this.messagesService.joinInvitation(userId, invitationId, accepted);
+			if (client.connected)
 				 client.emit("updateInvitations", "remove", {id: invitationId});
-			 return true;
+			if (accepted && chatInfo)
+				client.emit(`updateChannels`, `add`, chatInfo)
+			return true;
 		} catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
 			this.server.to(client.id).emit('formFailed', serverMessage);
@@ -415,11 +417,19 @@ export class MessagesGateway {
 				username: target
 			}
 		})
+		//Variable used to check if the target is already in the channel
+		const targetInChannel = await prisma.channelUser.findFirst({
+			where:{
+				userName: target,
+				channelId: channelId
+			}
+		})
 		if (!targetInfo){
 			throw  `Cant find ${target} !`;
-		}
-		else if (targetInfo.username == executorChannelProfil.userName) {
+		} else if (targetInfo.username == executorChannelProfil.userName) {
 			throw  "You cannot invite yourself.";
+		} else if (targetInChannel) {
+			throw `user ${target} is already in the channel.`
 		}
 		const invitationInfo = await this.messagesService.createInvitaion(executorId, targetInfo.id, "chat", channel.id);
 		const targetSocket = this.getUserSocket(targetInfo.id);

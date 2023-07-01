@@ -292,8 +292,8 @@ export class MessagesService {
 			return [];
 		}
 		const channelList = channelUsers.map(channelUser => {
-			const { ChannelName, password, id} = channelUser.channel;
-			return { ChannelName, password, id };
+			const { ChannelName, id} = channelUser.channel;
+			return { ChannelName, id };
 		});
 		return channelList;
 	}
@@ -415,7 +415,7 @@ export class MessagesService {
 					id: invitationId
 				}
 			})
-			return ;
+			return false;
 		}
 		const invitation = await prisma.invitation.findUnique({
 			where: {
@@ -423,7 +423,7 @@ export class MessagesService {
 			},
 		});
 		if (!invitation)
-			return ;
+			return false;
 		if (invitation.type == "chat")
 		{
 			const user = await this.findUserInfo(userId, null);
@@ -462,7 +462,7 @@ export class MessagesService {
 			await prisma.invitation.delete({
 				where: {id: invitation.id}
 			})
-			return ;
+			return { ChannelName: channel.ChannelName, id: channel.id };
 		}
 	}
 
