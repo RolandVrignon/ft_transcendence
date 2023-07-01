@@ -152,7 +152,9 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 						setJoined(true);
 						console.log('joined');
 						socket.emit('findAllChannelMessages', { userId: props.userDbID, channelId: channelIdRef.current }, (response: any) => {
-							setMessages(response);
+							// setMessages(response);
+							setMessages(Array.isArray(response) ? response : [response]);
+							console.log(`Messages set to ${JSON.stringify(response)} in findAllChannelMessages callback in join`)
 							resolve();
 						});
 					} else {
@@ -543,17 +545,23 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				<div
 					className="solid-frame messages-container text-content text-container"
 				>
-					{messages.map((message: any, index: number) => (
+					{
+					(() => {
+					console.log(`Messages: `, JSON.stringify(messages, null, 2));
+					return messages.map((message: any, index: number) => (
 						<div key={index}>
-							<span
-							  className="message-name"
-							  onClick={() => handleUserClick(message.name)}
-							>
-							  {message.name}
-							</span>
-							: {message.text}
+						<span
+							className="message-name"
+							onClick={() => handleUserClick(message.name)}
+						>
+							{message.name}
+						</span>
+						: {message.text}
 						</div>
-					))}
+					));
+					})()
+					}
+
 				</div>
 
 				{typingDisplay && <div>{typingDisplay}</div>}
