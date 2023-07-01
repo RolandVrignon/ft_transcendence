@@ -299,11 +299,10 @@ export class MessagesGateway {
 			switch (command) {
 				case "kick":
 					console.log("lets kick");
-					if (commandArgs.length < 3 || !(/^[0-9]+$/.test(commandArgs[2]))){
-						throw  "Invalid argument.\n to kick => /kick targetName nbMinutes"
-					}
-					else {
-						await this.punish(command, commandArgs[1], commandArgs[2], userId, channelId);
+					if (commandArgs.length < 2 ){
+						throw  "Invalid argument.\n to kick => /kick targetName"
+					} else {
+						await this.punish(command, commandArgs[1], '', userId, channelId);
 					}
 					break;
 				case "mute":
@@ -558,7 +557,7 @@ export class MessagesGateway {
 				throw  "You cannot assign admin role to someone who is not in this channel."
 			}
 			else if (target.userID == executorId) {
-				throw  "You cannot mute yourself."
+				throw  "You cannot assign yourself as admin."
 			}
 			else if (target.status == "admin") {
 				await prisma.channelUser.update ({
@@ -684,7 +683,7 @@ export class MessagesGateway {
 		else if (channel.status == "dm") {
 			throw  "You cannot execute this command in dm channel."
 		}
-		else if (await this.messagesService.isSuperUser(channelId, executorId) == false) {
+		else if (await this.messagesService.isSuperUser(channelId, executorId) === false) {
 			throw  `you can't ${type} someone, you are not the channel owner or admin!`
 		}
 		else {
@@ -717,24 +716,29 @@ export class MessagesGateway {
 				throw `${targetUser} ${type} punishment has been removed.`
 			}
 			else {
-				const expirationTimestamp = DateTime.now().plus({ minutes: parseInt(duration) }).toMillis();
-				await prisma.punishment.create({
-					data: {
-						type: type,
-						punishedId: target.userID,
-						punishmentExpiration: new Date(expirationTimestamp).toISOString(),
-						channel: {
-							connect: { id: channelId}
-						}
-					},
-				})
-				if (type == "ban" || type == "kick") {
+				if (type !== 'kick') {
+					const expirationTimestamp = DateTime.now().plus({ minutes: parseInt(duration) }).toMillis();
+					await prisma.punishment.create({
+						data: {
+							type: type,
+							punishedId: target.userID,
+							punishmentExpiration: new Date(expirationTimestamp).toISOString(),
+							channel: {
+								connect: { id: channelId}
+							}
+						},
+					})
+				}
+				if (type === "ban" || type === `kick`) {
 					const targetSocket = this.getChannelUserSocket(target)
 					if (targetSocket && targetSocket.connected) {
 						targetSocket.emit('leaveChannel');
 					}
 				}
-				throw `Server: ${targetUser} has been ${type} for ${duration} minutes.`
+				if (type !== 'kick')
+					throw `Server: ${targetUser} has been ${type} for ${duration} minutes.`
+				else
+					throw `Server: ${targetUser} has been ${type}.`
 			}
 		}
 	}

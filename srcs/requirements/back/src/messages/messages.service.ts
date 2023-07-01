@@ -54,6 +54,7 @@ export class MessagesService {
 			})
 		}
 		const isPunished = await this.checkUserPunishment(userId, channel.id);
+		console.log(`User ${userId} isPunished: ${isPunished}.`)
 		if (isPunished && isPunished.type != "mute") {
 			throw `you are ${isPunished.type}, remaining time = ${isPunished.minutesRemaining} minutes`;
 		}
@@ -69,16 +70,13 @@ export class MessagesService {
 		})
 		if (!userPunishments)
 			return null;
-		let index = userPunishments.findIndex((punishment) => { punishment.type == "ban"});
-		if (index == -1) {
-			index = userPunishments.findIndex((punishment) => { punishment.type == "kick"});
+		let index = userPunishments.findIndex(punishment => punishment.type === "ban");
+		if (index === -1) {
+			index = userPunishments.findIndex(punishment => punishment.type === "mute");
 		}
-		else if (index == -1) {
-			index = userPunishments.findIndex((punishment) => { punishment.type == "mute"});
-		}
-		if (index == -1)
+		// console.log(`index: ${index} ,punishments: ${JSON.stringify(userPunishments)}`)
+		if (index === -1)
 			return null;
-
 		const punishment = userPunishments[index];
 		const dateNow = DateTime.now().toMillis();
 		if (punishment.punishmentExpiration > dateNow) {
@@ -516,6 +514,7 @@ export class MessagesService {
 	async isSuperUser(channelId: number, channelUserId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
+			console.log(`Channel is null`)
 			return false;
 		}
 		const user = await prisma.channelUser.findFirst({
@@ -524,19 +523,22 @@ export class MessagesService {
 				channelId: channelId,
 			}
 		});
-		if (!user)
+		if (!user) {
+			console.log(`user is null`)
 			return false;
+		}
 		const owner = await this.findChannelOwner(channelId);
-		if (owner.id == user.id)
+		if (owner.id == user.id) {
+			console.log(`owner.id == user.id`)
 			return true;
+		}
 		const admins = await this.findChannelAdmins(channelId);
-		if (!admins)
+		if (!admins) {
+			console.log(`Did not found any channel admins`)
 			return false;
-		admins.forEach((admin) => {
-			if (admin.id == user.id)
-				return true;
-		})
-		return false;
+		}
+		console.log(`admins.some(admin => admin.id == user.id): `, admins.some(admin => admin.id == user.id) )
+		return admins.some(admin => admin.id === user.id) 
 	}
 
 	async isOwner(channelId, channelUserId: number) {
