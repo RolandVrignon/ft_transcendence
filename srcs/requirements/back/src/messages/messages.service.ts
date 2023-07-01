@@ -160,7 +160,6 @@ export class MessagesService {
 
 	async createChannel(userId: number, ChannelName: string, Channelpass: string)
 	{
-		console.log('app-back: creating channel.')
 		const channel = await prisma.channel.findFirst({
 			where: {
 				ChannelName: ChannelName,
@@ -171,6 +170,7 @@ export class MessagesService {
 		}
 		const createChannel = await prisma.channel.create({
 			data: {
+				status: "protected",
 				ChannelName: ChannelName,
 				password: Channelpass,
 			}
@@ -615,6 +615,66 @@ export class MessagesService {
 			}
 		});
 		return textChannels;
+	}
+
+	async nobodyInChannel(channelId: number) {
+		const channel = await this.findChannelById(channelId);
+		if (!channel) 
+			return false;
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+				channelId: channel.id
+			}
+		})
+		if (channelUsers.length == 0)
+			return true;
+		return false;
+	}
+
+	async setNewChannelOwner(channelId: number) {
+		const channel = await this.findChannelById(channelId);
+		if (!channel) {
+			return ;
+		}
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+				channelId: channel.id,
+				status: { not: "owner"}
+			}
+		})
+		if (channelUsers.length == 0)
+			return ;
+		const newOwner = await prisma.channelUser.update({
+			where: {
+				id: channelUsers[0].id
+			},
+			data: {
+				status: "owner"
+			}
+		})
+		return newOwner;
+	}
+
+	async removeChannel(channelId: number) {
+		const channel = await this.findChannelById(channelId);
+		if (!channel) {
+			return ;
+		}
+		await prisma.textChannel.deleteMany({
+			where: {
+				channelId: channel.id
+			}
+		})
+		await prisma.channelUser.deleteMany({
+			where: {
+				channelId: channel.id
+			}
+		})
+		await prisma.channel.delete({
+			where: {
+				id: channel.id
+			}
+		})
 	}
 
 	async removeChannelUser(channelId: number, channelUserId: number) {

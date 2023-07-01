@@ -171,7 +171,6 @@ export class MessagesGateway {
 			 return true;
 		} catch (serverMessage) {
 			//this.server.to(client.id).emit('serverMessage', serverMessage);
-			console.log(serverMessage);
 			this.server.to(client.id).emit('formFailed', serverMessage);
 			false;
 		}
@@ -213,7 +212,6 @@ export class MessagesGateway {
 			return true;
 		}
 		catch (serverMessage) {
-			//this.server.to(client.id).emit('serverMessage', serverMessage);
 			this.server.to(client.id).emit('formFailed', serverMessage);
 			return false;
 		}
@@ -394,6 +392,9 @@ export class MessagesGateway {
 		if (!channel){
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		else if ( channel.status == "dm") {
+			throw  "You cannot invite someone in a dm channel."
+		}
 		else if ( channel.status == "private"
 					&& await this.messagesService.isSuperUser(channelId, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
@@ -430,6 +431,9 @@ export class MessagesGateway {
 		if (!channel){
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		else if ( channel.status == "dm") {
+			throw  "You cannot execute this command in dm channel."
+		}
 		else if (await this.messagesService.isOwner(channelId, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
 		}
@@ -462,6 +466,9 @@ export class MessagesGateway {
 		if (!channel){
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		else if ( channel.status == "dm") {
+			throw  "You cannot execute this command in dm channel."
+		}
 		else if (await this.messagesService.isOwner(channelId, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
 		}
@@ -485,6 +492,9 @@ export class MessagesGateway {
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
 			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		else if ( channel.status == "dm") {
+			throw  "You cannot execute this command in dm channel."
 		}
 		else if (await this.messagesService.isOwner(channelId, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
@@ -517,6 +527,10 @@ export class MessagesGateway {
 		if (!channel){
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		else if ( channel.status == "dm") {
+			throw  "You cannot execute this command in dm channel."
+		}
+
 		else if (await this.messagesService.isOwner(channelId, executorId) == false) {
 			throw  "you need to be the channel owner to execute this command."
 		}
@@ -626,6 +640,9 @@ export class MessagesGateway {
 				},
 			})
 			if (target){
+				if (target.status == "owner") {
+					await this.messagesService.setNewChannelOwner(channelId);
+				}
 				await this.messagesService.removeChannelUser(channelId, executorId);
 				const targetSocket = this.getChannelUserSocket(target)
 				if (targetSocket && targetSocket.connected) {
@@ -634,6 +651,9 @@ export class MessagesGateway {
 					else
 						targetSocket.emit('updateChannels', "remove", {id: channel.id, name: channel.ChannelName});
 					targetSocket.emit('leaveChannel');
+				}
+				if (await this.messagesService.nobodyInChannel(channel.id)) {
+					await this.messagesService.removeChannel(channel.id);
 				}
 			}
 		}
@@ -647,6 +667,9 @@ export class MessagesGateway {
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
 			throw  `We experiencing issues. We will get back to you as soon as possible.`
+		}
+		else if (channel.status == "dm") {
+			throw  "You cannot execute this command in dm channel."
 		}
 		else if (await this.messagesService.isSuperUser(channelId, executorId) == false) {
 			throw  `you can't ${type} someone, you are not the channel owner or admin!`
