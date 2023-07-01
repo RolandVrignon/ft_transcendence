@@ -9,11 +9,14 @@ import { PongGateway } from './pong-gateway/pong-gateway.gateway'
 import { JwtModule } from '@nestjs/jwt'
 import { jwtConstants } from './jwt/jwt.constant'
 import { AuthModule } from './modules/auth.module'
+import { UploadModule } from './modules/upload.module'
+import { MulterModule } from '@nestjs/platform-express'
 
 @Module({
-  imports: [MessagesModule, JwtModule.register({ secret: jwtConstants.secret, signOptions: { expiresIn: '1h' }}), AuthModule],
-  controllers: [Api42ConnectController, SearchController, ConnectController, SocialInteractController, UploadController],
-  providers: [PongGateway]
+    imports: [MessagesModule, AuthModule, UploadModule,
+      JwtModule.register({ secret: jwtConstants.secret, signOptions: { expiresIn: '1h' }}),
+      MulterModule.register({ dest: './uploads' })],
+    controllers: [Api42ConnectController, SearchController, ConnectController, SocialInteractController, UploadController],
+    providers: [PongGateway]
 })
-
 export class AppModule {}

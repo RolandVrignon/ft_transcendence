@@ -39,7 +39,7 @@ const Profil: React.FC<ProfilProps> = ({
 	}) => {
 		const [newID, setNewID] = useState(-1)
 		const [searchTerm, setSearchTerm] = useState('')
-		const [uploadedFile, setUploadedFile] = useState<File|null>(null)
+		const [uploadedFile, setUploadedFile] = useState<File>()
 		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: ''})
 
 	useEffect(() => {
@@ -69,10 +69,7 @@ const Profil: React.FC<ProfilProps> = ({
 		fetchUserInformationDisplay()
 	}, [ID])
 
-	function	askDbForUsers(event: string)	{
-		setSearchTerm(event)
-	}
-
+	
 	useEffect(() => {
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
@@ -100,19 +97,23 @@ const Profil: React.FC<ProfilProps> = ({
 		}
 		fetchOtherUserInformationDisplay()
 	}, [newID])
-
-	async	function handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) setUploadedFile(e.target.files[0]) }
-	async	function changeAvatarProfil()	{
-		const fileSender = new FormData()
-		if (uploadedFile)	{
-			fileSender.append('data', uploadedFile)
-			console.log(fileSender)
-			const res = await axios({ url: 'http://localhost:8080/upload/avatar',
-				method: 'POST',
-				headers: { Authorization: `Bearer ${webToken}`, 'Content-Type': 'multipart/form-data'},
-				data: fileSender
-			})
+	
+	function	askDbForUsers(event: string)	{ setSearchTerm(event) }
+	async		function handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
+	async		function changeAvatarProfil()	{
+		try {
+			if (uploadedFile)	{
+				const formData = new FormData()
+    			formData.append('image', uploadedFile)
+				const res = await axios({ url: 'http://localhost:8080/upload/avatar',
+					headers: { Authorization: `Bearer ${webToken}`, 'Content-Type': 'multipart/form-data' },
+					method: 'POST',
+					data: formData
+				})
+				console.log(res)
+			}
 		}
+		catch (err) { console.log(err) }
 	}
 
 	return (
