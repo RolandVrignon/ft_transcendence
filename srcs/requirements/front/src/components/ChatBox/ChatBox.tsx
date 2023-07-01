@@ -269,11 +269,13 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 						resolve();
 					} else {
 						console.log("Can't create DM");
+						channelIdRef.current = -1
 						resolve();
 					}
 				});
 			})
 			.then (() => {
+				console.log(`channelIdRef.current: `, channelIdRef.current)	
 				if (channelIdRef.current != -1) {
 					setShowProfile(false);
 					setJoined(true);
@@ -534,8 +536,10 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		return (
 			<>
 				<Profil ID={selectedUserId} webToken={props.webToken} refreshWebToken={props.refreshWebToken}/>
-				<button className="solid-frame button-frame-choice text-content text-button-choice"
-				 onClick={handleDMClick}>DM</button>
+				{ props.userDbID !== selectedUserId &&
+					<button className="solid-frame button-frame-choice text-content text-button-choice"
+					onClick={handleDMClick}>DM</button>
+				}
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
 			</>
@@ -547,7 +551,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				>
 					{
 					(() => {
-					console.log(`Messages: `, JSON.stringify(messages, null, 2));
+					// console.log(`Messages: `, JSON.stringify(messages, null, 2));
 					return messages.map((message: any, index: number) => (
 						<div key={index}>
 						<span

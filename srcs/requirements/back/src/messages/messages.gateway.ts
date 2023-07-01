@@ -77,6 +77,9 @@ export class MessagesGateway {
 				if (await this.messagesService.findChannelUser(userId, channelId)) {
 					const channelInfo = await this.messagesService.identify(userId, channelId);
 					this.server.to(client.id).emit('updateChannels', "add", channelInfo);
+				} else {
+					// console.log(`New user `)
+					await this.messagesService.identify(userId, channelId);
 				}
 			} catch (serverMessage) {
 				this.server.to(client.id).emit('formFailed', serverMessage);

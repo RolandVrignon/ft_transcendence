@@ -96,6 +96,9 @@ export class MessagesService {
 
 	async createDM(firstUserId: number, secondUserId: number)
 	{
+		if (firstUserId === secondUserId)
+			throw `You cannot DM yourself!`
+
 		const firstUser = await this.findUserInfo(firstUserId, null);
 
 		if (!firstUser)
@@ -321,12 +324,13 @@ export class MessagesService {
 			}
 		});
 
-		if (channelUsers.length === 0) {
+		if (!channelUsers && channelUsers.length === 0 ) {
 			return [];
 		}
 		const channelList = channelUsers.map((channelUser) => {
-			const { id, users } = channelUser.channel;
+			const { id, users } = channelUser.channel; 
 			const otherUser = users[0];
+			// console.log(`channelUser.channel.id: ${id}, channelUser.channel.users: ${JSON.stringify(users)}.`)
 			return {channelId: id, otherUserId: otherUser.userID, otherUserUsername: otherUser.userName };
 		});
 
