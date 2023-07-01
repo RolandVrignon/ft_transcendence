@@ -568,7 +568,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 
 				</div>
 
-				{typingDisplay && <div>{typingDisplay}</div>}
+				{typingDisplay && <div className="text-content text-label">{typingDisplay}</div>}
 
 				{/*<hr /> commented just in case it is usefull*/}
 				<div
