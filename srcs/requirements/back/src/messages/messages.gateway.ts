@@ -68,6 +68,22 @@ export class MessagesGateway {
 		}
 	}
 
+	@SubscribeMessage('updateUserAllChatConnectionStatus')
+	async updateUserAllChatConnectionStatus(
+		@MessageBody('userId') userId:number,
+		@MessageBody('newStatus') newStatus: boolean,
+		@ConnectedSocket() client: Socket,
+	){
+		try {
+			this.updateSocketUserIDpairs(client, userId);
+			await this.messagesService.updateUserAllChatConnectionStatus(userId,  newStatus);
+			return true;
+		} catch (serverMessage) {
+			this.server.to(client.id).emit('formFailed', serverMessage);
+			return false;
+		}
+	}
+
 	@SubscribeMessage('updateUserChatConnectionStatus')
 	async updateUserChatConnectionStatus(
 		@MessageBody('userId') userId:number,

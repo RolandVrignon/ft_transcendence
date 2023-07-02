@@ -63,10 +63,18 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 	useEffect(() => {
 		if (!socket) return;
 		//updateClientId();
-		findDirectMessageChannels();
-		findAllInvitations();
-		findAllChannels();
 
+		const fetchData = async () => {
+			try {
+				await updateUserAllChatConnectionStatus(false);
+				await findDirectMessageChannels();
+				await findAllInvitations();
+				await findAllChannels();
+			} catch (error) {
+				console.log(error);
+			}
+		};
+		fetchData();
 		socket.on('updateChannels', (option: string, newChannel: any) => {
 			if (option === 'add')
 				setChannels((prevChannels: any[]) => [...prevChannels, newChannel]);
@@ -138,7 +146,15 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		console.log(selectedUserId)
 	}, [selectedUserId]);
 
-	const findChannel = (channelName: string, password: string) => {
+	const  updateUserAllChatConnectionStatus =  async (newStatus: boolean) => {
+		return new Promise<boolean>((resolve) => {
+			socket.emit('updateUserAllChatConnectionStatus', { userId: props.userDbID, newStatus }, (response: boolean) => {
+				resolve(response);
+			});
+		});
+	};
+
+	const findChannel = async (channelName: string, password: string) => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findChannel', { channelName, password }, (response: number) => {
 				channelIdRef.current = response;
@@ -147,7 +163,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		});
 	};
 
-	const join = () => {
+	const join = async () => {
 		return new Promise<void>((resolve, reject) => {
 			if (channelIdRef.current != -1) {
 				socket.emit('join', { userId: props.userDbID, channelId: channelIdRef.current  }, (response: boolean) => {
@@ -170,7 +186,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		});
 	};
 
-	const findAllChannels = () => {
+	const findAllChannels = async () => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
 				setChannels(response);
@@ -179,7 +195,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		})
 	};
 
-	const findDirectMessageChannels = () => {
+	const findDirectMessageChannels = async () => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findDirectMessageChannels', { userId: props.userDbID}, (response: any) => {
 				setDm(response);
@@ -188,7 +204,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		})
 	};
 
-	const findAllInvitations = () => {
+	const findAllInvitations = async () => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
 				setInvitations(response);
@@ -197,7 +213,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		});
 	};
 
-	const createChannel = (chatName: string, password: string) => {
+	const createChannel = async (chatName: string, password: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
 				if (response) {
@@ -224,7 +240,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		});
 	};
 
-	const sendMessage = () => {
+	const sendMessage = async () => {
 		return new Promise<void>((resolve, reject) => {
 			if (channelIdRef.current != -1) {
 				socket.emit('createMessageChannel', { text: messageText,  channelId: channelIdRef.current, userId: props.userDbID}, (response: boolean) => {
@@ -243,7 +259,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		setSidebarVisible(!sidebarVisible);
 	  };
 
-	const handleDMClick = () => {
+	const handleDMClick = async () => {
 		const clickedUserId = selectedUserId;
 		const dmObject = dm.find((item) => item.otherUserId === clickedUserId);
 		
@@ -289,7 +305,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		}
 	};
 
-	const updateUserChatConnectionStatus = (neaStatus: boolean) => {
+	const updateUserChatConnectionStatus = async (neaStatus: boolean) => {
 		return new Promise<void>((resolve) => {
 			socket.emit('updateUserChatConnectionStatus', { userId: props.userDbID, channelId: channelIdRef.current, isConnect: neaStatus}, (response: any) => {
 				resolve();
@@ -297,13 +313,11 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		});
 	};
 
-	const handleChannelClick = (clickedChannelId: number) => {
-		console.log("click", clickedChannelId);
+	const handleChannelClick = async (clickedChannelId: number) => {
 		channelIdRef.current = clickedChannelId;
-		console.log("check click", channelIdRef.current);
 		if (channelIdRef.current != -1)
 		{
-			join()
+			await join()
 			.catch((error) => {
 				console.log(error);
 			});
@@ -311,7 +325,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 
 	};
 
-	const handleInvitationlClick = (invitationId: number, accepted: boolean, type: string) => {
+	const handleInvitationlClick = async (invitationId: number, accepted: boolean, type: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('joinInvitation', { userId: props.userDbID, invitationId, accepted}, (response: boolean) => {
 				if (response) {
@@ -324,7 +338,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		})
 	};
 
-	const handleUserClick = (userName: string) => {
+	const handleUserClick = async (userName: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('findUserInfo', {userName}, (response: any) => {
 				if (response.length != 0)
@@ -352,7 +366,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		setCreateChannelMode(false);
 	};
 
-	const hideChannel = () => {
+	const hideChannel = async () => {
 		updateUserChatConnectionStatus(false)
 		.then(() => {
 			channelIdRef.current = -1;
@@ -408,13 +422,14 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				{joinChannelMode && (
 					<form
 						className="solid-frame create-chan-frame"
-							onSubmit={(e) => {
+							onSubmit={async (e) => {
 								e.preventDefault();
-								findChannel(joinChatName, joinPassword)
-								.then(() => join())
-								.catch((error) => {
+								try {
+									await findChannel(joinChatName, joinPassword);
+									await join();
+								} catch (error) {
 									console.log('Error:', error);
-								});
+								}
 							}}
 					>
 						<label
@@ -450,9 +465,9 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				{createChannelMode && (
 					<form
 						className="solid-frame user-frame"
-						onSubmit={(e) => {
+						onSubmit={async (e) => {
 							e.preventDefault();
-							createChannel(createChatName, createPassword);
+							await createChannel(createChatName, createPassword);
 						}}
 					>
 					<label
@@ -535,8 +550,20 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 										join {invitation.whoInviteUserName}'s {invitation.type} invitation now
 									</div>
 									<div className="invitation-buttons">
-										<button className="button-yes" onClick={() => handleInvitationlClick(invitation.id, true, invitation.type)}>Yes</button>
-										<button className="button-no" onClick={() => handleInvitationlClick(invitation.id, false, invitation.type)}>No</button>
+										<button className="button-yes" onClick={async () => {
+											try {
+												await handleInvitationlClick(invitation.id, true, invitation.type);
+											} catch (error) {
+												console.log(error);
+											}
+										}}> Yes </button>
+										<button className="button-no" onClick={async () => {
+											try {
+												await handleInvitationlClick(invitation.id, false, invitation.type);
+											} catch (error) {
+												console.log(error);
+											}
+										}}>No</button>
 									</div>
 								</li>
 							))
@@ -559,7 +586,11 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				<Profil ID={selectedUserId} webToken={props.webToken} refreshWebToken={props.refreshWebToken}/>
 				{ props.userDbID !== selectedUserId &&
 					<button className="solid-frame button-frame-choice text-content text-button-choice"
-					onClick={handleDMClick}>DM</button>
+					onClick={async () => {
+						await handleDMClick();
+					}}>
+					DM
+					</button>
 				}
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
@@ -577,8 +608,9 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 						<div key={index}>
 						<span
 							className="message-name"
-							onClick={() => handleUserClick(message.name)}
-						>
+							onClick={ async () => {
+								await handleUserClick(message.name);
+							}}>
 							{message.name}
 						</span>
 						: {message.text}

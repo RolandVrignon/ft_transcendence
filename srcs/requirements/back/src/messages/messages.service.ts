@@ -8,6 +8,22 @@ import { find } from 'rxjs';
 @Injectable()
 export class MessagesService {
 
+	async updateUserAllChatConnectionStatus( userId: number, isConnect: boolean) {
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+				userID: userId,
+			}
+		})
+		if (!channelUsers)
+			throw "We experiencing issues. We will get back to you as soon as possible."
+		await prisma.channelUser.updateMany({
+			where: {userID: {in: channelUsers.map(channelUser => channelUser.userID)}},
+			data: {
+				isConnect: isConnect,
+			}
+		})
+	}
+
 	async updateUserChatConnectionStatus( userId: number, channelId: number, isConnect: boolean) {
 		const channelUser = await prisma.channelUser.findFirst({
 			where: {
