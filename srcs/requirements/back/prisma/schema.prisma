@@ -30,6 +30,17 @@ model User {
   blockedUser     block[]    @relation("BlockedUserRelation")
 }
 
+model block {
+  id                Int          @id @default(autoincrement())
+  blocker     Int          @default(-1)
+  blocked     Int          @default(-1)
+
+  blockerUserId  Int @default(-1)
+  blockedUserId  Int @default(-1)
+  blockedBy         User  @relation("BlockedByRelation", fields: [blockerUserId], references: [id])
+  blockedUser       User  @relation("BlockedUserRelation", fields: [blockedUserId], references: [id])
+}
+
 model Token2FA {
   id          Int     @unique
   value       String
@@ -54,13 +65,6 @@ model textChannel {
   channel           Channel      @relation("channel", fields: [channelId], references: [id])
 }
 
-model block {
-  id                Int          @id @default(autoincrement())
-  blockerUserId  Int @default(-1)
-  blockedUserId  Int @default(-1)
-  blockedBy         User  @relation("BlockedByRelation", fields: [blockedUserId], references: [id])
-  blockedUser       User  @relation("BlockedUserRelation", fields: [blockerUserId], references: [id])
-}
 
 model punishment {
   id              Int      @id @default(autoincrement())

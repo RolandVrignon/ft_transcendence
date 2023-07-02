@@ -141,7 +141,7 @@ export class MessagesGateway {
 			}
 			else {
 					const message = await this.messagesService.createMessage(createMessageDto, channelId, userId);
-					const channelUsers = await this.messagesService.findChannelUsersForMe(userId, channelId);
+					const channelUsers = await this.messagesService.findWhoBlockedMe(userId, channelId);
 					channelUsers.forEach((channelUser) => {
 						const toSendUserSocket = this.getChannelUserSocket(channelUser);
 						if (channelUser.isConnect === true && toSendUserSocket && this.server.sockets.sockets.has(toSendUserSocket.id)) {
@@ -306,7 +306,7 @@ export class MessagesGateway {
 			if (!userInfo)
 				throw `User not found ${userID}`;
 			const name = userInfo.username;
-			const channelUsers = await this.messagesService.findChannelUsersForMe(userID, channelId);
+			const channelUsers = await this.messagesService.findWhoBlockedMe(userID, channelId);
 			channelUsers.forEach((channelUser) => {
 				const toEmitClientSocket = this.getChannelUserSocket(channelUser);;
 				if (channelUser.isConnect === true && toEmitClientSocket && userID != channelUser.userID)
@@ -639,8 +639,8 @@ export class MessagesGateway {
 			}
 			const	block = await prisma.block.findFirst({
 				where: {
-					blockerUserId: target.userID,
-					blockedUserId: executor.userID,
+					blocked: target.userID,
+					blocker: executor.userID,
 				}
 			})
 			if (block) {
@@ -653,6 +653,8 @@ export class MessagesGateway {
 			}
 			const	blocked = await prisma.block.create({
 				data: {
+					blocker: executor.userID,
+					blocked: target.userID,
 					blockedBy: {
 						connect: { id: target.userID}
 					},

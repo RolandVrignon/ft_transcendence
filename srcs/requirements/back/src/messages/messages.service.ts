@@ -236,7 +236,7 @@ export class MessagesService {
 		return {ChannelName: createChannel.ChannelName, password: createChannel.password, id: createChannel.id};
 	}
 
-	async findChannelUsersForMe(userId: number, channelId: number)
+	async findWhoBlockedMe(userId: number, channelId: number)
 	{
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
@@ -256,7 +256,7 @@ export class MessagesService {
 		}
 		const blockedByUsers = await prisma.block.findMany({
 			where: {
-				blockedUserId: channelUser.userID,
+				blocked: channelUser.userID,
 			},
 			include: {
 				blockedBy: true,
@@ -269,7 +269,55 @@ export class MessagesService {
 					channelId: channel.id,
 					NOT: {
 						userID: {
-							in: blockedByUsers.map((blcokedUser) => blcokedUser.blockerUserId)
+							in: blockedByUsers.map((blcokedUser) => blcokedUser.blocker)
+						}
+					}
+				},
+			})
+			return channelUsers;
+		}
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+				channelId: channel.id,
+			},
+		})
+		return channelUsers;
+	}
+
+	async findwhoIBlocked(userId: number, channelId: number)
+	{
+		const channel = await this.findChannelById(channelId);
+		if (!channel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
+			where: {
+				userName: user.username,
+				channelId: channel.id
+			}
+		})
+		if (!channelUser) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const blockedByUsers = await prisma.block.findMany({
+			where: {
+				blocker: channelUser.userID,
+			},
+			include: {
+				blockedUser: true,
+			},
+		});
+		if (blockedByUsers){
+			console.log(`users blocked by user ${userId}: ${JSON.stringify(blockedByUsers)}`)
+			const channelUsers = await prisma.channelUser.findMany({
+				where: {
+					channelId: channel.id,
+					NOT: {
+						userID: {
+							in: blockedByUsers.map((blcokedUser) => blcokedUser.blocked)
 						}
 					}
 				},
@@ -641,7 +689,7 @@ export class MessagesService {
 
 	async findChannelMessagesForMe(userId: number, channelId: number) {
 
-		const channelUsers = await this.findChannelUsersForMe(userId, channelId);
+		const channelUsers = await this.findwhoIBlocked(userId, channelId);
 		console.log(`NOT blocked users for user ${userId}: [${JSON.stringify(channelUsers.map(user => user.userName))}]`)
 		const channelUserIds = channelUsers.map((channelUser) => channelUser.id);
 	  
