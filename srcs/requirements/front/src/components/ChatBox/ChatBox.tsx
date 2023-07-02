@@ -619,7 +619,9 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 							Send
 						</button>
 						<button className="solid-frame button-frame text-content text-button"
-						onClick={hideChannel}>return</button>
+								type="button"
+								onClick={hideChannel}>return
+						</button>
 					</form>
 				</div>
 		</SolidFrame>

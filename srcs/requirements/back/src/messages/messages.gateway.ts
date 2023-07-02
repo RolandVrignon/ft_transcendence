@@ -94,11 +94,10 @@ export class MessagesGateway {
 		){
 			try {
 				this.updateSocketUserIDpairs(client, userId);
-				if (await this.messagesService.findChannelUser(userId, channelId)) {
+				if (await this.messagesService.findChannelUser(userId, channelId) === false) {
 					const channelInfo = await this.messagesService.identify(userId, channelId);
 					this.server.to(client.id).emit('updateChannels', "add", channelInfo);
 				} else {
-					// console.log(`New user `)
 					await this.messagesService.identify(userId, channelId);
 				}
 				await this.messagesService.updateUserChatConnectionStatus(userId, channelId, true);
