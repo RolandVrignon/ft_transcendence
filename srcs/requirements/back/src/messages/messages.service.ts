@@ -71,7 +71,6 @@ export class MessagesService {
 			})
 		}
 		const isPunished = await this.checkUserPunishment(userId, channel.id);
-		// console.log(`User ${userId} isPunished: ${isPunished}.`)
 		if (isPunished && isPunished.type != "mute") {
 			throw `you are ${isPunished.type}, remaining time = ${isPunished.minutesRemaining} minutes`;
 		}

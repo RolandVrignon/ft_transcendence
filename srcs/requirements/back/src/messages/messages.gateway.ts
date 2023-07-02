@@ -751,7 +751,7 @@ export class MessagesGateway {
 						},
 					})
 				}
-				if (type === "ban" || type === `kick`) {
+				if (target.isConnect && (type === "ban" || type === `kick`)) {
 					const targetSocket = this.getChannelUserSocket(target)
 					if (targetSocket && targetSocket.connected) {
 						targetSocket.emit('leaveChannel');

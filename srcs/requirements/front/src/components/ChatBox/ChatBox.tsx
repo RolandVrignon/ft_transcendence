@@ -167,17 +167,6 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		});
 	};
 
-
-	const updateClientId = () => {
-		if (channelIdRef.current != -1) {
-			return new Promise<void>((resolve) => {
-				socket.emit('updateClientId', { userId: props.userDbID, channelId: channelIdRef.current}, (response: any) => {
-					resolve();
-				});
-			});
-		}
-	};
-
 	const findAllChannels = () => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
