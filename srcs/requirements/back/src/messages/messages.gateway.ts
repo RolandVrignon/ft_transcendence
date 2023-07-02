@@ -634,19 +634,13 @@ export class MessagesGateway {
 					channelId: channel.id
 				},
 			})
-			if (!target){
-				throw  "You cannot block someone who is not in this channel."
-			}
-			else if (target.id == executor.id){
+			if (target.id == executor.id){
 				throw  "You cannot block yourself."
-			}
-			else if ( await this.messagesService.isSuperUser(channelId, executorId) == false ) {
-				throw  "You cannot block the channel owner or an admin."
 			}
 			const	block = await prisma.block.findFirst({
 				where: {
-					blockedUserId: target.userID,
-					blockerUserId: executor.userID,
+					blockerUserId: target.userID,
+					blockedUserId: executor.userID,
 				}
 			})
 			if (block) {

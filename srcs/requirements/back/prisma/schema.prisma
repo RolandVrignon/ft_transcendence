@@ -58,8 +58,8 @@ model block {
   id                Int          @id @default(autoincrement())
   blockerUserId  Int @default(-1)
   blockedUserId  Int @default(-1)
-  blockedBy         User  @relation("BlockedByRelation", fields: [blockerUserId], references: [id])
-  blockedUser       User  @relation("BlockedUserRelation", fields: [blockedUserId], references: [id])
+  blockedBy         User  @relation("BlockedByRelation", fields: [blockedUserId], references: [id])
+  blockedUser       User  @relation("BlockedUserRelation", fields: [blockerUserId], references: [id])
 }
 
 model punishment {

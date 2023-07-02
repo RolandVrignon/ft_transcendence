@@ -256,14 +256,14 @@ export class MessagesService {
 		}
 		const blockedByUsers = await prisma.block.findMany({
 			where: {
-				blockedUserId: channelUser.id,
+				blockedUserId: channelUser.userID,
 			},
 			include: {
 				blockedBy: true,
 			},
 		});
-
 		if (blockedByUsers){
+			console.log(`users blocked by user ${userId}: ${JSON.stringify(blockedByUsers)}`)
 			const channelUsers = await prisma.channelUser.findMany({
 				where: {
 					channelId: channel.id,
@@ -642,13 +642,14 @@ export class MessagesService {
 	async findChannelMessagesForMe(userId: number, channelId: number) {
 
 		const channelUsers = await this.findChannelUsersForMe(userId, channelId);
+		console.log(`NOT blocked users for user ${userId}: [${JSON.stringify(channelUsers.map(user => user.userName))}]`)
 		const channelUserIds = channelUsers.map((channelUser) => channelUser.id);
 	  
 		const textChannels = await prisma.textChannel.findMany({
 			where: {
-				channelId,
+				channelId: channelId,
 				channelUserId: {
-					in: channelUserIds
+					in: channelUserIds,
 				}
 			}
 		});
