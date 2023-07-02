@@ -38,6 +38,7 @@ const Profil: React.FC<ProfilProps> = ({
 	children
 	}) => {
 		const [newID, setNewID] = useState(-1)
+		const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
 		const [searchTerm, setSearchTerm] = useState('')
 		const [uploadedFile, setUploadedFile] = useState<File>()
 		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: ''})
@@ -62,9 +63,7 @@ const Profil: React.FC<ProfilProps> = ({
 					setUserInfo(updatedUserInfo)
 				}
 			}
-			catch (err)	{
-				console.log(err)
-			}
+			catch (err)	{ console.log(err) }
 		}
 		fetchUserInformationDisplay()
 	}, [ID])
@@ -91,13 +90,12 @@ const Profil: React.FC<ProfilProps> = ({
 					setUserInfo(updatedUserInfo)
 				}
 			}
-			catch (err)	{
-				console.log(err)
-			}
+			catch (err)	{ console.log(err) }
 		}
 		fetchOtherUserInformationDisplay()
-	}, [newID])
+	}, [newID, triggerAvatarChange])
 	
+	function 	triggerEffect()	{ setTriggerAvatarChange((prevKey) => prevKey + 1) }
 	function	askDbForUsers(event: string)	{ setSearchTerm(event) }
 	async		function handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
 	async		function changeAvatarProfil()	{
@@ -110,7 +108,8 @@ const Profil: React.FC<ProfilProps> = ({
 					method: 'POST',
 					data: formData
 				})
-				console.log(res)
+				setNewID(ID)
+				triggerEffect()
 			}
 		}
 		catch (err) { console.log(err) }
@@ -129,9 +128,11 @@ const Profil: React.FC<ProfilProps> = ({
 					<img src={userInfo.imageLink} />
 				</div>
 				<div className='container-avatar-change'>
-					<input className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
-					<button onClick={changeAvatarProfil}></button>
-					<p>Change avatar</p>
+				<label htmlFor='upload-file-input' className='custom-file-upload'>
+					<input id='upload-file-input' className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
+					<span>{ uploadedFile ? uploadedFile.name : 'Choose File' }</span>
+				</label>
+					<button className='change-avatar-button' onClick={changeAvatarProfil}>Change avatar</button>
 				</div>
 			</div>
 			<div className='user-data-div-display'>
@@ -145,7 +146,7 @@ const Profil: React.FC<ProfilProps> = ({
 					<div className='switch-2fa'>
 						<label className='form-switch'>
 							2FA&nbsp;
-							<input type='checkbox' />
+							<input type='checkbox' checked={ userInfo.doubleAuth ? true : false }/>
 							<i></i>
 						</label>
 					</div>

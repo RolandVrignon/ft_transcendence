@@ -10,7 +10,7 @@ export default class UploadAvatar {
   constructor() { this.s3 = new S3({ accessKeyId: process.env.AWS_ACCESS_KEY_ID, secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, region: process.env.AWS_REGION }) }
   async uploadFileToS3(bucketName: string, key: string, buffer: NodeJS.ReadableStream): Promise<string> {
     try {
-        const uploadParams: AWS.S3.PutObjectRequest = { Bucket: bucketName, Key: key, Body: buffer }
+        const uploadParams: AWS.S3.PutObjectRequest = { Bucket: bucketName, Key: key, Body: buffer, ACL: 'public-read' }
         const uploadResult = await this.s3.upload(uploadParams).promise()
         return uploadResult.Location
     }

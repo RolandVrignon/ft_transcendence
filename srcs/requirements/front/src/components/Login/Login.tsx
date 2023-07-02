@@ -101,11 +101,18 @@ const Login: React.FC<LoginProps> = (control) => {
   }
 
 	async function  handle2FA() {
-    const handle2FAURL = 'http://localhost:8080/secure/secure'
-    await axios.post(handle2FAURL, {
-      headers: { Authorization: `Bearer ${webToken}` },
-      data : { info: userApiData }})
-    setcheck2FA(true)
+    try {
+      console.log(webToken)
+      const handle2FAURL = 'http://localhost:8080/secure/secure'
+      const res = await axios({
+        url: handle2FAURL,
+        method: 'POST',
+        headers: { Authorization: `Bearer ${webToken}` },
+        data : { info: userApiData }
+      })
+      setcheck2FA(true)
+    }
+    catch (err) { console.log(err) }
 	}
 
   async function handle2FAVerif() {

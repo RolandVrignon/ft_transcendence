@@ -131,7 +131,6 @@ export class MessagesGateway {
 	async findDirectMessageChannels(
 		@MessageBody('userId') userId:number,
 	){
-		console.log("salut");
 		return await this.messagesService.findDirectMessageChannels(userId);
 	}
 

@@ -55,16 +55,16 @@ export class ConnectController {
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
-			await prisma.token2FA.deleteMany({ where: { id: req.body.data.info.id } })
+			await prisma.token2FA.deleteMany({ where: { id: req.body.info.id } })
 			const secureTkn = totp.generate()
 			sendGrid.send({
-				to: req.body.data.info.email,
+				to: req.body.info.email,
 				from: process.env.SENDER_SEND_GRID_MAIL,
 				subject: '2FA verification from transcendance.team',
-				text: `Hello ${req.body.data.info.first_name}, your authentification token is ${secureTkn}`
+				text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn}`
 			})
 			await prisma.token2FA.create({
-				data: { id: req.body.data.info.id, value: secureTkn }
+				data: { id: req.body.info.id, value: secureTkn }
 			})
 			res.status(200).json()
 		}

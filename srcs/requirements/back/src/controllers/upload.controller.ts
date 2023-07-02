@@ -19,7 +19,7 @@ constructor(private readonly uploader: UploadService) {}
             const user: any = req.user
             const updateUser = await prisma.user.update({ where: { id: user.id }, data: { imageLink: uploadedURL } })
             fs.unlinkSync(file.path)
-            res.status(201)
+            res.status(201).json({ newURL: uploadedURL })
         }
         catch (err) { console.log(err); res.status(404) }
     }
