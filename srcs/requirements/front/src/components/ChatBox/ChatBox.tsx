@@ -9,6 +9,7 @@ import SearchBar from "../SearchBar/SearchBar"
 import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
 import './ChatBox.scss'
+import { reject, set } from 'lodash'
 
 const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: Dispatch<SetStateAction<string>> }> = (props)  => {
 
@@ -109,19 +110,22 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 			}, 2000);
 		});
 
-		socket.on('updateChannels', () => {
-			findAllChannels();
-		});
-
-		socket.on('updateInvitations', () => {
-			findAllInvitations();
-		})
-
-		socket.on('leaveChannel', () => {
+		socket.on('disconectChannel', () => {
 				hideChannel();
 		});
 
+		socket.on('leaveChannel', () => {
+			channelIdRef.current = -1;
+			setJoined(false);
+			setMessages([]);
+		});
+
 		return () => {
+			socket.off('disconectChannel');
+			socket.off('updateChannels');
+			socket.off('updateInvitations');
+			socket.off('updateDM');
+			socket.off('leaveChannel');
 			socket.off('formFailed');
 			socket.off('message');
 			socket.off('typing');
@@ -150,7 +154,6 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 					if (response) {
 						setMessages([]);
 						setJoined(true);
-						console.log('joined');
 						socket.emit('findAllChannelMessages', { userId: props.userDbID, channelId: channelIdRef.current }, (response: any) => {
 							// setMessages(response);
 							setMessages(Array.isArray(response) ? response : [response]);
@@ -158,11 +161,11 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 							resolve();
 						});
 					} else {
-						resolve();
+						reject("emit failed");
 					}
 				});
 			} else {
-				resolve();
+				reject("channelIdRef.current is -1");
 			}
 		});
 	};
@@ -180,7 +183,6 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		return new Promise<void>((resolve) => {
 			socket.emit('findDirectMessageChannels', { userId: props.userDbID}, (response: any) => {
 				setDm(response);
-				console.log("dm", response);
 				resolve();
 			});
 		})
@@ -207,13 +209,15 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 			});
 		})
 		.then(() => {
-			findChannel(chatName, password);
+			return findChannel(chatName, password);
+		})
+		.then(() => {
 			if (channelIdRef.current !== -1) {
-				updateUserChatConnectionStatus(true)
-				.then(() => {
-					setJoined(true);
-				});
+				return updateUserChatConnectionStatus(true)
 			}
+		})
+		.then(() => {
+			setJoined(true);
 		})
 		.catch((error) => {
 			console.log(error);
@@ -249,33 +253,38 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				join()
 				.then(() => {
 					hideProfile();
+				})
+				.catch((error) => {
+					console.log(error);
 				});
 			}
 		}
 		else {
-			return new Promise<void>((resolve) => {
+			return new Promise<void>((resolve, reject) => {
 				socket.emit('createDM', { firstUser: props.userDbID, secondUser: clickedUserId}, (response: any) => {
-					console.log(response);
 					if (response) {
 						channelIdRef.current = response.channelId;
 						resolve();
 					} else {
-						console.log("Can't create DM");
 						channelIdRef.current = -1
-						resolve();
+						reject("Can't create DM");
 					}
 				});
 			})
-			.then (() => {
-				console.log(`channelIdRef.current: `, channelIdRef.current)	
-				if (channelIdRef.current != -1) {
-					updateUserChatConnectionStatus(true)
-					.then (() => {
-						hideProfile();
-						setJoined(true);
-						setMessages([]);
-					})
+			.then(() => {
+				if (channelIdRef.current !== -1) {
+					return updateUserChatConnectionStatus(true);
+				} else {
+					 throw new Error("Invalid channel ID");
 				}
+			})
+			.then(() => {
+				hideProfile();
+				setJoined(true);
+				setMessages([]);
+			})
+			.catch((error) => {
+				console.log(error);
 			});
 		}
 	};
@@ -293,7 +302,13 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		channelIdRef.current = clickedChannelId;
 		console.log("check click", channelIdRef.current);
 		if (channelIdRef.current != -1)
+		{
 			join()
+			.catch((error) => {
+				console.log(error);
+			});
+		}
+
 	};
 
 	const handleInvitationlClick = (invitationId: number, accepted: boolean, type: string) => {
@@ -343,6 +358,9 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 			channelIdRef.current = -1;
 			setJoined(false);
 			setMessages([]);
+		})
+		.catch((error) => {
+			console.log(error);
 		});
 	};
 	let timeout;

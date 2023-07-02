@@ -750,11 +750,11 @@ export class MessagesGateway {
 							}
 						},
 					})
-				}
-				if (target.isConnect && (type === "ban" || type === `kick`)) {
-					const targetSocket = this.getChannelUserSocket(target)
-					if (targetSocket && targetSocket.connected) {
-						targetSocket.emit('leaveChannel');
+					if (target.isConnect && type !== "mute") {
+						const targetSocket = this.getChannelUserSocket(target)
+						if (targetSocket && targetSocket.connected) {
+							targetSocket.emit('disconectChannel');
+						}
 					}
 				}
 				if (type !== 'kick')
