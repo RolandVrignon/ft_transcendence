@@ -236,7 +236,7 @@ export class MessagesService {
 		return {ChannelName: createChannel.ChannelName, password: createChannel.password, id: createChannel.id};
 	}
 
-	async findWhoBlockedMe(userId: number, channelId: number)
+	async findWhoDontBlockedMe(userId: number, channelId: number)
 	{
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
@@ -258,9 +258,9 @@ export class MessagesService {
 			where: {
 				blocked: channelUser.userID,
 			},
-			include: {
-				blockedBy: true,
-			},
+			// include: {
+			// 	blockedBy: true,
+			// },
 		});
 		if (blockedByUsers){
 			console.log(`users blocked by user ${userId}: ${JSON.stringify(blockedByUsers)}`)
@@ -284,7 +284,7 @@ export class MessagesService {
 		return channelUsers;
 	}
 
-	async findwhoIBlocked(userId: number, channelId: number)
+	async findwhoIDontBlocked(userId: number, channelId: number)
 	{
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
@@ -306,9 +306,9 @@ export class MessagesService {
 			where: {
 				blocker: channelUser.userID,
 			},
-			include: {
-				blockedUser: true,
-			},
+			// include: {
+			// 	blockedUser: true,
+			// },
 		});
 		if (blockedByUsers){
 			console.log(`users blocked by user ${userId}: ${JSON.stringify(blockedByUsers)}`)
@@ -680,8 +680,8 @@ export class MessagesService {
 	}
 
 	async findChannelMessages(channelId: number) {
-		const channel = await this.findChannelById(channelId);
-		if (!channel) {
+		const channel = await this.findChannelById(channelId); 
+		if (!channel) { 
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		return channel.textChannels;
@@ -689,7 +689,7 @@ export class MessagesService {
 
 	async findChannelMessagesForMe(userId: number, channelId: number) {
 
-		const channelUsers = await this.findwhoIBlocked(userId, channelId);
+		const channelUsers = await this.findwhoIDontBlocked(userId, channelId);
 		console.log(`NOT blocked users for user ${userId}: [${JSON.stringify(channelUsers.map(user => user.userName))}]`)
 		const channelUserIds = channelUsers.map((channelUser) => channelUser.id);
 	  

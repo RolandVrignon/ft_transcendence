@@ -26,8 +26,8 @@ model User {
   games2      GameSessionOutcome[] @relation("userGames2")
   channelUsers  ChannelUser[]      @relation("user")
   invitations   invitation[]       @relation("invitedRelation")
-  blockedBy       block[]    @relation("BlockedByRelation")
-  blockedUser     block[]    @relation("BlockedUserRelation")
+  // blockedBy       block[]    @relation("BlockedByRelation")
+  // blockedUser     block[]    @relation("BlockedUserRelation")
 }
 
 model block {
@@ -35,10 +35,10 @@ model block {
   blocker     Int          @default(-1)
   blocked     Int          @default(-1)
 
-  blockerUserId  Int @default(-1)
-  blockedUserId  Int @default(-1)
-  blockedBy         User  @relation("BlockedByRelation", fields: [blockerUserId], references: [id])
-  blockedUser       User  @relation("BlockedUserRelation", fields: [blockedUserId], references: [id])
+  // blockerUserId  Int @default(-1)
+  // blockedUserId  Int @default(-1)
+  // blockedBy         User  @relation("BlockedByRelation", fields: [blockerUserId], references: [id])
+  // blockedUser       User  @relation("BlockedUserRelation", fields: [blockedUserId], references: [id])
 }
 
 model Token2FA {

@@ -134,14 +134,14 @@ export class MessagesGateway {
 		const userId: number = createMessageDto['userId'];
 
 		try {
-			this.updateSocketUserIDpairs(client, userId);
+			this.updateSocketUserIDpairs(client, userId);  
 			if (createMessageDto.text.startsWith("/")) {
 					await this.execCommandMessage(createMessageDto.text, userId, channelId);
 					return true;
 			}
 			else {
 					const message = await this.messagesService.createMessage(createMessageDto, channelId, userId);
-					const channelUsers = await this.messagesService.findWhoBlockedMe(userId, channelId);
+					const channelUsers = await this.messagesService.findWhoDontBlockedMe(userId, channelId);
 					channelUsers.forEach((channelUser) => {
 						const toSendUserSocket = this.getChannelUserSocket(channelUser);
 						if (channelUser.isConnect === true && toSendUserSocket && this.server.sockets.sockets.has(toSendUserSocket.id)) {
@@ -306,7 +306,7 @@ export class MessagesGateway {
 			if (!userInfo)
 				throw `User not found ${userID}`;
 			const name = userInfo.username;
-			const channelUsers = await this.messagesService.findWhoBlockedMe(userID, channelId);
+			const channelUsers = await this.messagesService.findWhoDontBlockedMe(userID, channelId);
 			channelUsers.forEach((channelUser) => {
 				const toEmitClientSocket = this.getChannelUserSocket(channelUser);;
 				if (channelUser.isConnect === true && toEmitClientSocket && userID != channelUser.userID)
@@ -655,12 +655,12 @@ export class MessagesGateway {
 				data: {
 					blocker: executor.userID,
 					blocked: target.userID,
-					blockedBy: {
-						connect: { id: target.userID}
-					},
-					blockedUser: {
-						connect: { id: executor.userID}
-					}
+					// blockedBy: {
+					// 	connect: { id: target.userID}
+					// },
+					// blockedUser: {
+					// 	connect: { id: executor.userID}
+					// }
 				},
 			})
 			if (blocked) {
