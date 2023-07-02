@@ -56,14 +56,14 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		console.log(socketInstance)
 		setSocket(socketInstance);
 
-		const handleDisconnect = async () => {
-			// Logique à exécuter lorsque l'utilisateur se déconnecte
-			console.log("L'utilisateur s'est déconnecté");
-			// Appeler votre fonction de déconnexion ici
-			await updateUserAllChatConnectionStatus(false);
-		  };
+		// const handleDisconnect = async () => {
+		// 	// Logique à exécuter lorsque l'utilisateur se déconnecte
+		// 	console.log("L'utilisateur s'est déconnecté");
+		// 	// Appeler votre fonction de déconnexion ici
+		// 	await updateUserAllChatConnectionStatus(false);
+		//   };
 		
-		  socketInstance.on('disconnect', handleDisconnect);
+		//   socketInstance.on('disconnect', handleDisconnect);
 		return () => {
 			socketInstance.disconnect();
 		};

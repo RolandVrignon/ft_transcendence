@@ -263,7 +263,6 @@ export class MessagesService {
 			// },
 		});
 		if (blockedByUsers){
-			console.log(`users blocked by user ${userId}: ${JSON.stringify(blockedByUsers)}`)
 			const channelUsers = await prisma.channelUser.findMany({
 				where: {
 					channelId: channel.id,
