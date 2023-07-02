@@ -689,7 +689,7 @@ export class MessagesService {
 	async findChannelMessagesForMe(userId: number, channelId: number) {
 
 		const channelUsers = await this.findwhoIDontBlocked(userId, channelId);
-		console.log(`NOT blocked users for user ${userId}: [${JSON.stringify(channelUsers.map(user => user.userName))}]`)
+		// console.log(`NOT blocked users for user ${userId}: [${JSON.stringify(channelUsers.map(user => user.userName))}]`)
 		const channelUserIds = channelUsers.map((channelUser) => channelUser.id);
 	  
 		const textChannels = await prisma.textChannel.findMany({
