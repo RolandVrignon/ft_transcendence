@@ -76,6 +76,9 @@ model punishment {
 
 model ChannelUser {
   id              Int      @id @default(autoincrement())
+
+  isConnect       Boolean  @default(false)
+
   userName        String   @default("unknown")
   status          String   @default("user")
 

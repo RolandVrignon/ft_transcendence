@@ -118,7 +118,7 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		})
 
 		socket.on('leaveChannel', () => {
-			setJoined(false);
+				hideChannel();
 		});
 
 		return () => {
@@ -209,7 +209,6 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 	const createChannel = (chatName: string, password: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
-				setJoined(response);
 				if (response) {
 					setMessages([]);
 					resolve();
@@ -221,8 +220,10 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 		.then(() => {
 			findChannel(chatName, password);
 			if (channelIdRef.current !== -1) {
-				setJoined(true);
-				setMessages([]);
+				updateUserChatConnectionStatus(true)
+				.then(() => {
+					setJoined(true);
+				});
 			}
 		})
 		.catch((error) => {
@@ -257,11 +258,13 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 			channelIdRef.current = dmObject.channelId;
 			if (channelIdRef.current != -1){
 				join()
-				setShowProfile(false);
+				.then(() => {
+					hideProfile();
+				});
 			}
 		}
 		else {
-			return new Promise<void>((resolve, reject) => {
+			return new Promise<void>((resolve) => {
 				socket.emit('createDM', { firstUser: props.userDbID, secondUser: clickedUserId}, (response: any) => {
 					console.log(response);
 					if (response) {
@@ -277,12 +280,23 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 			.then (() => {
 				console.log(`channelIdRef.current: `, channelIdRef.current)	
 				if (channelIdRef.current != -1) {
-					setShowProfile(false);
-					setJoined(true);
-					setMessages([]);
+					updateUserChatConnectionStatus(true)
+					.then (() => {
+						hideProfile();
+						setJoined(true);
+						setMessages([]);
+					})
 				}
 			});
 		}
+	};
+
+	const updateUserChatConnectionStatus = (neaStatus: boolean) => {
+		return new Promise<void>((resolve) => {
+			socket.emit('updateUserChatConnectionStatus', { userId: props.userDbID, channelId: channelIdRef.current, isConnect: neaStatus}, (response: any) => {
+				resolve();
+			});
+		});
 	};
 
 	const handleChannelClick = (clickedChannelId: number) => {
@@ -322,25 +336,25 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 	};
 
 	const hideProfile = () => {
-		//join(joinChatName, joinPassword);
 		setSelectedUserId(-1);
 		setShowProfile(false);
 	};
 
 	const hideJoinForm = () => {
-		//join(joinChatName, joinPassword);
 		setJoinChannelMode(false);
 	};
 
 	const hideCreateForm = () => {
-		//join(joinChatName, joinPassword);
 		setCreateChannelMode(false);
 	};
 
 	const hideChannel = () => {
-		//join(joinChatName, joinPassword);
-		channelIdRef.current = -1;
-		setJoined(false);
+		updateUserChatConnectionStatus(false)
+		.then(() => {
+			channelIdRef.current = -1;
+			setJoined(false);
+			setMessages([]);
+		});
 	};
 	let timeout;
 

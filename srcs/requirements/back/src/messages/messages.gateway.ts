@@ -4,10 +4,12 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io'
 import prisma from '../../prisma/prisma.client';
 import { DateTime } from 'luxon';
+import { type } from 'os';
 
 //const COMMAND_HELPER: string = "to mute => /mute targetName durationInMinutes\n to block";
 
 type SocketUserIDpair = {socket: Socket, userID: number}
+
 
 @WebSocketGateway({
 	cors: {
@@ -66,6 +68,24 @@ export class MessagesGateway {
 		}
 	}
 
+	@SubscribeMessage('updateUserChatConnectionStatus')
+	async updateUserChatConnectionStatus(
+		@MessageBody('userId') userId:number,
+		@MessageBody('channelId') channelId: number,
+		@MessageBody('isConnect') isConnect: boolean,
+		@ConnectedSocket() client: Socket,
+	){
+		try {
+			console.log(`updateUserChatConnectionStatus ${userId} ${channelId} ${isConnect}`)
+			this.updateSocketUserIDpairs(client, userId);
+			await this.messagesService.updateUserChatConnectionStatus(userId, channelId, isConnect);
+			return true;
+		} catch (serverMessage) {
+			this.server.to(client.id).emit('formFailed', serverMessage);
+			return false;
+		}
+	}
+
 	@SubscribeMessage('join')
 	async joinRoom(
 			@MessageBody('userId') userId:number,
@@ -81,6 +101,8 @@ export class MessagesGateway {
 					// console.log(`New user `)
 					await this.messagesService.identify(userId, channelId);
 				}
+				await this.messagesService.updateUserChatConnectionStatus(userId, channelId, true);
+
 			} catch (serverMessage) {
 				this.server.to(client.id).emit('formFailed', serverMessage);
 				return false;
@@ -107,7 +129,7 @@ export class MessagesGateway {
 					const channelUsers = await this.messagesService.findChannelUsersForMe(userId, channelId);
 					channelUsers.forEach((channelUser) => {
 						const toSendUserSocket = this.getChannelUserSocket(channelUser);
-						if (toSendUserSocket && this.server.sockets.sockets.has(toSendUserSocket.id)) {
+						if (channelUser.isConnect === true && toSendUserSocket && this.server.sockets.sockets.has(toSendUserSocket.id)) {
 							this.server.to(toSendUserSocket.id).emit('message',message)
 						}
 					})
@@ -272,7 +294,7 @@ export class MessagesGateway {
 			const channelUsers = await this.messagesService.findChannelUsersForMe(userID, channelId);
 			channelUsers.forEach((channelUser) => {
 				const toEmitClientSocket = this.getChannelUserSocket(channelUser);;
-				if (toEmitClientSocket && userID != channelUser.userID)
+				if (channelUser.isConnect === true && toEmitClientSocket && userID != channelUser.userID)
 					toEmitClientSocket.emit('typing', {name, isTyping})
 			})
 			return true;
@@ -658,7 +680,7 @@ export class MessagesGateway {
 				await this.messagesService.removeChannelUser(channelId, executorId);
 				const targetSocket = this.getChannelUserSocket(target)
 				if (targetSocket && targetSocket.connected) {
-					if (channel.status == "dm")
+					if (channel.status == "dm") 
 						targetSocket.emit('updateDM', "remove", {channelId: channel.id});
 					else
 						targetSocket.emit('updateChannels', "remove", {id: channel.id, name: channel.ChannelName});

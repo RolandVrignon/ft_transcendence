@@ -8,6 +8,23 @@ import { find } from 'rxjs';
 @Injectable()
 export class MessagesService {
 
+	async updateUserChatConnectionStatus( userId: number, channelId: number, isConnect: boolean) {
+		const channelUser = await prisma.channelUser.findFirst({
+			where: {
+				channelId: channelId,
+				userID: userId,
+			}
+		})
+		if (!channelUser)
+			throw "We experiencing issues. We will get back to you as soon as possible."
+		await prisma.channelUser.update({
+			where: {id: channelUser.id},
+			data: {
+				isConnect: isConnect,
+			}
+		})
+	}
+
 	async identify(userId: number, channelId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel)
@@ -54,7 +71,7 @@ export class MessagesService {
 			})
 		}
 		const isPunished = await this.checkUserPunishment(userId, channel.id);
-		console.log(`User ${userId} isPunished: ${isPunished}.`)
+		// console.log(`User ${userId} isPunished: ${isPunished}.`)
 		if (isPunished && isPunished.type != "mute") {
 			throw `you are ${isPunished.type}, remaining time = ${isPunished.minutesRemaining} minutes`;
 		}
@@ -514,7 +531,7 @@ export class MessagesService {
 	async isSuperUser(channelId: number, channelUserId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			console.log(`Channel is null`)
+			// console.log(`Channel is null`)
 			return false;
 		}
 		const user = await prisma.channelUser.findFirst({
@@ -524,20 +541,20 @@ export class MessagesService {
 			}
 		});
 		if (!user) {
-			console.log(`user is null`)
+			// console.log(`user is null`)
 			return false;
 		}
 		const owner = await this.findChannelOwner(channelId);
 		if (owner.id == user.id) {
-			console.log(`owner.id == user.id`)
+			// console.log(`owner.id == user.id`)
 			return true;
 		}
 		const admins = await this.findChannelAdmins(channelId);
 		if (!admins) {
-			console.log(`Did not found any channel admins`)
+			// console.log(`Did not found any channel admins`)
 			return false;
 		}
-		console.log(`admins.some(admin => admin.id == user.id): `, admins.some(admin => admin.id == user.id) )
+		// console.log(`admins.some(admin => admin.id == user.id): `, admins.some(admin => admin.id == user.id) )
 		return admins.some(admin => admin.id === user.id) 
 	}
 
