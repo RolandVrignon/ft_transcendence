@@ -95,10 +95,11 @@ const Profil: React.FC<ProfilProps> = ({
 		fetchOtherUserInformationDisplay()
 	}, [newID, triggerAvatarChange])
 	
-	function 	triggerEffect()	{ setTriggerAvatarChange((prevKey) => prevKey + 1) }
-	function	askDbForUsers(event: string)	{ setSearchTerm(event) }
-	async		function handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
-	async		function changeAvatarProfil()	{
+	function				check2FABox()	{  }
+	function 				triggerEffect()	{ setTriggerAvatarChange((prevKey) => prevKey + 1) }
+	function				askDbForUsers(event: string)	{ setSearchTerm(event) }
+	async		function 	handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
+	async		function 	changeAvatarProfil()	{
 		try {
 			if (uploadedFile)	{
 				const formData = new FormData()
@@ -114,58 +115,83 @@ const Profil: React.FC<ProfilProps> = ({
 		}
 		catch (err) { console.log(err) }
 	}
+	async		function	change2FAUserStatus(e: React.MouseEvent<HTMLInputElement>)	{
+		const status2FA = e.currentTarget.checked.valueOf()
+		const res = await axios({
+			url: 'http://localhost:8080/secure/update2FA',
+			method: 'POST',
+			headers: { Authorization: `Bearer ${webToken}` },
+			data: { ID, status2FA }
+		})
+		// setNewID(ID)
+		const updatedUser = res.data
+		setUserInfo(updatedUser)
+		setNewID(ID)
+		triggerEffect()
+	}
 
 	return (
-	<SolidFrame frameClass='profil-frame'>
-		<div className='search-frame'>
-			<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
-		</div>
-		<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
-		<ProfileUserButton webToken={webToken} newID={newID} ID={ID}/>
-		<div className='user-profil-frame'>
-			<div className='photo-frame'>
-				<div className='avatar-container-profil'>
-					<img src={userInfo.imageLink} />
-				</div>
-				<div className='container-avatar-change'>
-				<label htmlFor='upload-file-input' className='custom-file-upload'>
-					<input id='upload-file-input' className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
-					<span>{ uploadedFile ? uploadedFile.name : 'Choose File' }</span>
-				</label>
-					<button className='change-avatar-button' onClick={changeAvatarProfil}>Change avatar</button>
-				</div>
+		<SolidFrame frameClass='profil-frame'>
+			<div className='search-frame'>
+				<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 			</div>
-			<div className='user-data-div-display'>
-				<div className='user-profile-info'>
-					<h1>User information</h1><br/>
-					<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42</p>
-				</div>
-				<div className='display-2fa-option'>
-					<div className='text-2fa-option'>
+			<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
+			{/* <ProfileUserButton webToken={webToken} newID={newID} ID={ID}/> */}
+			<div className='user-profil-frame'>
+				<div className='photo-frame'>
+					<div className='avatar-container-profil'>
+						<img src={userInfo.imageLink} />
 					</div>
-					<div className='switch-2fa'>
-						<label className='form-switch'>
-							2FA&nbsp;
-							<input type='checkbox' checked={ userInfo.doubleAuth ? true : false }/>
-							<i></i>
+					{ newID === ID ?
+						<div className='container-avatar-change'>
+						<label htmlFor='upload-file-input' className='custom-file-upload'>
+							<input id='upload-file-input' className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
+							<span>{ uploadedFile ? uploadedFile.name : 'Choose File' }</span>
 						</label>
+							<button className='change-avatar-button' onClick={changeAvatarProfil}>Change avatar</button>
+						</div>
+					: null }	
+				</div>
+				<div className='user-data-div-display'>
+					<div className='user-profile-info'>
+						<h1>User information</h1><br/>
+						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42</p>
 					</div>
+					{ newID === ID ?
+					<div className='display-2fa-option'>
+						<div className='switch-2fa'>
+							<label className='form-switch'>
+								2FA&nbsp;
+								<input type='checkbox' onClick={(e)=>change2FAUserStatus(e)} checked={ userInfo.doubleAuth && userInfo.doubleAuth.length ? true : false }/>
+								<i></i>
+							</label>
+						</div>
+					</div>
+					: 
+					<div className='container-social-button'>
+						<div className='social-button-add'><p>add<br/>friend</p></div>
+						<div className='social-button-remove'><p>remove<br/>friend</p></div>
+						<div className='social-button-game'><p>make<br/>game</p></div>
+						<div className='social-button-block'><p>block<br/>user</p></div>
+					</div>
+					}
+					
 				</div>
 			</div>
-		</div>
-		<SolidFrame frameClass='info-frame'>
-			<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Stats' />  
-			<SolidFrame frameClass='history-frame' txtClass='text-data-profil' txt1={stats} />
-			{children}
+			<SolidFrame frameClass='info-frame'>
+				<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Stats' />  
+				<SolidFrame frameClass='history-frame' txtClass='text-data-profil' txt1={stats} />
+				{children}
+			</SolidFrame>
+			<SolidFrame frameClass='info-frame'>
+				<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Match history' />
+					{ newID !== -1 && newID !== ID ? 
+					<div className='match-history-container'><MatchHistory userID={newID} token={webToken} /></div>
+					: 
+					<div className='match-history-container'><MatchHistory userID={newID} token={webToken} /></div> }
+			</SolidFrame>
 		</SolidFrame>
-		<SolidFrame frameClass='info-frame'>
-			<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Match history' />
-			<SolidFrame frameClass='history-frame' txtClass='text-data-profil'>
-				<MatchHistory userID={ID} token={webToken} />
-			</ SolidFrame>
-		</SolidFrame>
-	</SolidFrame>
-	);
-};
+	)
+}
 
 export default Profil

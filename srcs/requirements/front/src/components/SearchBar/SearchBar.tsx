@@ -11,13 +11,7 @@ const SearchBar = ({ searchTerm, onChange }: SearchBarProps) => {
 		onChange(newSearchTerm)
 	}
 
-	return (
-		<input
-			className="solid-frame search-frame search-input-frame text-content"
-			value={searchTerm}
-			onChange={handleInputChange}
-		/>
-	)
+	return ( <input className="solid-frame search-frame search-input-frame text-content" value={searchTerm} onChange={handleInputChange} /> )
 }
 
 export default SearchBar

@@ -22,7 +22,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ userID, token }) => {
       try {
         const res = await axios.post('http://localhost:8080/search/user-match-history', { id: userID }, { 
             headers: { 'Authorization': `Bearer ${token}` 
-            } 
+            }
         });
         console.log(`Res of axios request: ${JSON.stringify(res, null, 2)}`)
         setGameSessionOutcome(res.data);
@@ -34,28 +34,36 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ userID, token }) => {
   }, [userID, token]);
 
   return (
-    <div className="match-history">
-      <table>
-        <thead>
-          <tr>
-            <th>Player 1 Name</th>
-            <th>Player 2 Name</th>
-            <th>Winner</th>
-            <th>Loser</th>
-          </tr>
-        </thead>
-        <tbody>
-          {gameSessionOutcome.map((game, i) => (
-            <tr key={i}>
-              <td>{game.Player1Name}</td>
-              <td>{game.Player2Name}</td>
-              <td>{game.winnerName}</td>
-              <td>{game.loserName}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className='display-match-history'>
+      {gameSessionOutcome.map((outcome, index) => (
+        <div className='match-history-cell' key={index}>
+          <p>{outcome.Player1Name} VS {outcome.Player2Name} || Winner &#9989; {outcome.winnerName} Loser &#x274C; {outcome.loserName}</p>
+        </div>
+      ))}
     </div>
+
+    // <div className="match-history">
+    //   <table>
+    //     <thead>
+    //       <tr>
+    //         <th>Player 1 Name</th>
+    //         <th>Player 2 Name</th>
+    //         <th>Winner</th>
+    //         <th>Loser</th>
+    //       </tr>
+    //     </thead>
+    //     <tbody>
+    //       {gameSessionOutcome.map((game, i) => (
+    //         <tr key={i}>
+    //           <td>{game.Player1Name}</td>
+    //           <td>{game.Player2Name}</td>
+    //           <td>{game.winnerName}</td>
+    //           <td>{game.loserName}</td>
+    //         </tr>
+    //       ))}
+    //     </tbody>
+    //   </table>
+    // </div>
   );
   
 };

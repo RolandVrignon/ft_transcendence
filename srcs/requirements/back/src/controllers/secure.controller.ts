@@ -11,47 +11,27 @@ import { JwtAuthGuard } from '../jwt/jwt.guard'
 @UseGuards(JwtAuthGuard)
 export class ConnectController {
 	constructor(private readonly jwtService: JwtService, private auth: AuthService) {}
-
 	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
 		try	{
 			const user = await prisma.user.create({
-				data: {
-					id: req.body.apiData.id,
-					username: req.body.username,
-					email: req.body.apiData.email,
-					login: req.body.apiData.login,
-					lastName: req.body.apiData.last_name,
-					firstName: req.body.apiData.first_name,
-					imageLink: req.body.apiData.image.link,
-					doubleAuth: req.body.doubleAuth
-				}
-			})
-			res.status(201).json(user)
+				data: { id: req.body.apiData.id,
+					username: req.body.username, email: req.body.apiData.email,
+					login: req.body.apiData.login, lastName: req.body.apiData.last_name,
+					firstName: req.body.apiData.first_name, imageLink: req.body.apiData.image.link,
+					doubleAuth: req.body.doubleAuth }
+			}); res.status(201).json(user)
 		}
-		catch (err)	{
-			console.log(err)
-		}
+		catch (err)	{ console.log(err) }
 	}
-	@Post('change-two-fa')	async update2FAStatus(@Res() res: Response, @Req() req: Request) {
-		try	{
-			if (req.body.twoFaStatus === 'Enable')	{
-				await prisma.user.update({
-					where: { id: req.body.ID },
-					data: { doubleAuth: 'on' }
-				})
-				res.status(200)
-				return
-			}
-			await prisma.user.update({
-				where: { id: req.body.ID },
-				data:	{ doubleAuth: '' }
-			})
-			const	user = await this.auth.askDataBaseForCreation(req.body.ID)
-			res.status(200).json(user)
+	@Post('update2FA')	async update2FAStatus(@Res() res: Response, @Req() req: Request) {
+		try {
+			let updater
+			if (req.body.status2FA)	{ updater = 'on' }
+			else { updater = '' }
+			const updatedUser = await prisma.user.update({ where: { id: req.body.ID }, data: { doubleAuth: updater }})
+			res.status(204).json(updatedUser)
 		}
-		catch (err)	{
-			console.log(err)
-		}
+		catch (err)	{ console.log(err) }
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
@@ -63,14 +43,10 @@ export class ConnectController {
 				subject: '2FA verification from transcendance.team',
 				text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn}`
 			})
-			await prisma.token2FA.create({
-				data: { id: req.body.info.id, value: secureTkn }
-			})
+			await prisma.token2FA.create({ data: { id: req.body.info.id, value: secureTkn } })
 			res.status(200).json()
 		}
-		catch (err)	{
-			console.log(err)
-		}
+		catch (err)	{ console.log(err) }
 	}
 	@Post('verify-secure')	async verifyDoubleAuthToken(@Res() res: Response, @Req() req: Request)	{
 		const	verif = await prisma.token2FA.findUnique({ where: { id: req.body.id } })
@@ -78,7 +54,6 @@ export class ConnectController {
 			await prisma.token2FA.delete({ where: { id: req.body.id } })
 			res.status(201).json('approved')
 		}
-		else
-			res.status(401)
+		else { res.status(401) }
 	}
 }

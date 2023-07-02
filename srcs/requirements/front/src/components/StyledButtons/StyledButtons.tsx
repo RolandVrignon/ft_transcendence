@@ -72,7 +72,7 @@ const ProfileUserButton = ({webToken, newID, ID}: ProfileUserButtonProps) => {
 					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={waitHandleSocialInteract} className="solid-frame text-content button-interface-actions-user button-remove-friend" >Remove Friend</button>
 					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={waitHandleSocialInteract} className="solid-frame text-content button-interface-actions-user button-block-user" >Block User</button>
 					<button onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={waitHandleSocialInteract} className="solid-frame text-content button-interface-actions-user button-make-game" >Make Game</button>
-			</SolidFrame>}
+			</SolidFrame> }
 		</div>
 	)
 }
