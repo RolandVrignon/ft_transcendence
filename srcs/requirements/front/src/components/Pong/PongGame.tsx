@@ -19,6 +19,13 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
     const [playerIndex, setPlayerIndex] = useState<number | null>(null); // Store the player index, 0 = left, 1 = right
     const parentRef = useRef<HTMLDivElement | null>(null);
 
+    //partilcles variables
+    const nbParticlesPerSide = 25
+    const particles: Vector[] = []
+    let timeSinceStarrt = 0
+    const noiseFrequency = 0.5
+    let showParticles: boolean = false
+    
     // Connect to the socket server on component mount
     useEffect(() => {
         console.log("PongGame mount")
@@ -137,7 +144,7 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
 
         p5.setup = () => {
             if (socketRef.current) { 
-
+                setupParticles()
                 // Your setup code here.
                 p5.createCanvas(getSideLength(), getSideLength());
 
@@ -170,6 +177,42 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
             p5.resizeCanvas(getSideLength(), getSideLength());
         };
 
+
+
+        function setupParticles() {
+            for (let x = 0; x < nbParticlesPerSide; x++){
+                for (let y = 0; y < nbParticlesPerSide; y++){
+                let X = x / nbParticlesPerSide
+                let Y = y / nbParticlesPerSide
+                particles.push(p5.createVector(X, Y))
+                } 
+            }
+        }
+        
+        function drawParticles() {
+            timeSinceStarrt += p5.deltaTime
+            for (let i = 0; i < particles.length; i++){
+                let offset = sampleoffset(particles[i])
+                offset.mult(p5.noise(i) * 0.00075 )
+                particles[i].add(offset)
+                //maintain the particle in the frame
+                particles[i].x = particles[i].x % 1
+                if (particles[i].x < 0 || particles[i].x > 1)
+                    particles[i].x = 1 - particles[i].x
+                particles[i].y = particles[i].y % 1
+                if (particles[i].y < 0 || particles[i].y > 1)
+                    particles[i].y = 1 - particles[i].y 
+                //Draw the particle
+                if (showParticles)
+                    p5.circle(particles[i].x * getSideLength(), particles[i].y * getSideLength(), 0.005 * getSideLength())
+            }
+        }
+        
+        function sampleoffset(p: Vector){
+            let val = p5.noise(p.x * noiseFrequency, p.y * noiseFrequency, timeSinceStarrt * 0.0005 + p5.noise(timeSinceStarrt * 0.001) * 0.6) * 360 * 2
+            return p5.constructor.Vector.fromAngle(p5.radians(val), 1).mult(p5.deltaTime )
+        }
+
         function drawGame() {
             p5.background(220);
             playerLeft.draw(playerIndex === 0);
@@ -190,6 +233,7 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
         function drawText() {
             p5.clear()
             p5.background(220);
+            drawParticles()
             p5.textAlign(p5.CENTER)
             p5.textSize(20);
             if (typeof sessionState !== undefined && sessionState)
@@ -206,6 +250,12 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
             else
                 drawText()
         };
+        p5.keyPressed = () => {
+            console.log(`Called, p5.keyCode: ${p5.keyCode}, p5.BACKSPACE: ${p5.BACKSPACE}.`)
+            if (p5.keyCode === 32)
+                showParticles = !showParticles
+        }
+          
     };
  
     return (
