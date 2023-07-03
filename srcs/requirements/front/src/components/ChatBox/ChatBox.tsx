@@ -86,7 +86,6 @@ const ChatBox: React.FC<{
 
 		const fetchData = async () => {
 			try {
-				await updateUserAllChatConnectionStatus(false);
 				await findDirectMessageChannels();
 				await findAllInvitations();
 				await findAllChannels();
@@ -165,14 +164,6 @@ const ChatBox: React.FC<{
 			setShowProfile(true);
 		console.log(selectedUserId)
 	}, [selectedUserId]);
-
-	const  updateUserAllChatConnectionStatus =  async (newStatus: boolean) => {
-		return new Promise<boolean>((resolve) => {
-			socket.emit('updateUserAllChatConnectionStatus', { userId: props.userDbID, newStatus }, (response: boolean) => {
-				resolve(response);
-			});
-		});
-	};
 
 	const findChannel = async (channelName: string, password: string) => {
 		return new Promise<void>((resolve) => {
@@ -682,7 +673,7 @@ const ChatBox: React.FC<{
 					</form>
 				</div>
 				
-		    <div>
+			<div>
 			{/* JSX for pong game invites*/}
 			{showModal && (
 			  <div className="modal">

@@ -80,7 +80,7 @@ export class MessagesGateway {
 	){
 		try {
 			this.updateSocketUserIDpairs(client, userId);
-			await this.messagesService.updateUserAllChatConnectionStatus(userId,  newStatus);
+			//await this.messagesService.updateUserAllChatConnectionStatus(userId,  newStatus);
 			return true;
 		} catch (serverMessage) {
 			this.server.to(client.id).emit('formFailed', serverMessage);
@@ -790,13 +790,14 @@ export class MessagesGateway {
 	}
 	
 	//methods for pong game invites
-	handleDisconnect(disconnectedSocket: Socket) {
+	async handleDisconnect(disconnectedSocket: Socket) {
 		console.log(`\nHandling disconnection from chat: Going to remove user with socket ${disconnectedSocket.id} from socketUserIDpairs....`)
 		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.socket === disconnectedSocket)
 		if (socketUserIdPairIndex === -1) {
 			console.error(`Error: Could not found an socketUserIdPairIndex with the socket ${disconnectedSocket.id}!`)
 			return
 		}
+		await this.messagesService.updateUserAllChatConnectionStatus(this.socketUserIDpairs[socketUserIdPairIndex].userID, false)
 		this.socketUserIDpairs.splice(socketUserIdPairIndex, 1)
 	}
 	//returns true if the invite was succesfully transmitted
