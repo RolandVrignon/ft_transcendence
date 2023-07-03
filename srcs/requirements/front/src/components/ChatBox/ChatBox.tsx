@@ -5,6 +5,7 @@ import SearchBar from "../SearchBar/SearchBar"
 import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
 import './ChatBox.scss'
+import { reject, set } from 'lodash'
 import { useNavigate } from "react-router-dom";
 import { Dispatch, SetStateAction } from 'react'
 
@@ -15,6 +16,7 @@ const ChatBox: React.FC<{
 	refreshWebToken:  Dispatch<SetStateAction<string>>, 
 	webToken: string
 	}> = (props)  => {
+
 
 
 
@@ -65,6 +67,15 @@ const ChatBox: React.FC<{
 		const socketInstance = io('http://localhost:8080');
 		console.log(socketInstance)
 		setSocket(socketInstance);
+
+		// const handleDisconnect = async () => {
+		// 	// Logique à exécuter lorsque l'utilisateur se déconnecte
+		// 	console.log("L'utilisateur s'est déconnecté");
+		// 	// Appeler votre fonction de déconnexion ici
+		// 	await updateUserAllChatConnectionStatus(false);
+		//   };
+		
+		//   socketInstance.on('disconnect', handleDisconnect);
 		return () => {
 			socketInstance.disconnect();
 		};
@@ -72,13 +83,40 @@ const ChatBox: React.FC<{
 
 	useEffect(() => {
 		if (!socket) return;
-		//updateClientId();
-		findDirectMessageChannels();
-		console.log("dm", dm);
-		findAllInvitations();
-		findAllChannels();
+
+		const fetchData = async () => {
+			try {
+				await updateUserAllChatConnectionStatus(false);
+				await findDirectMessageChannels();
+				await findAllInvitations();
+				await findAllChannels();
+			} catch (error) {
+				console.log(error);
+			}
+		};
+		fetchData();
+		socket.on('updateChannels', (option: string, newChannel: any) => {
+			if (option === 'add')
+				setChannels((prevChannels: any[]) => [...prevChannels, newChannel]);
+			else if (option === 'remove')
+				setChannels((prevChannels: any[]) => prevChannels.filter((channel) => channel.id !== newChannel.id));
+		});
+
+		socket.on('updateInvitations', (option: string, newInvitation: any) => {
+			if (option === 'add')
+				setInvitations((prevInvitations: any[]) => [...prevInvitations, newInvitation]);
+			else if (option === 'remove')
+				setInvitations((prevInvitations: any[]) => prevInvitations.filter((invitation) => invitation.channelId !== newInvitation.channelId));
+		});
+
+		socket.on('updateDM', (option: string, newDM: any) => {
+			if (option === 'add')
+				setDm((prevDM: any[]) => [...prevDM, newDM]);
+			else if (option === 'remove')
+				setDm((prevDM: any[]) => prevDM.filter((DM) => DM.id !== newDM.id));
+		});
+
 		socket.on('message', (message: any) => {
-			console.log(message);
 			setMessages((prevMessages: any[]) => [...prevMessages, message]);
 		});
 
@@ -100,19 +138,22 @@ const ChatBox: React.FC<{
 			}, 2000);
 		});
 
-		socket.on('updateChannels', () => {
-			findAllChannels();
+		socket.on('disconectChannel', () => {
+				hideChannel();
 		});
 
-		socket.on('updateInvitations', () => {
-			findAllInvitations();
-		})
-
 		socket.on('leaveChannel', () => {
+			channelIdRef.current = -1;
 			setJoined(false);
+			setMessages([]);
 		});
 
 		return () => {
+			socket.off('disconectChannel');
+			socket.off('updateChannels');
+			socket.off('updateInvitations');
+			socket.off('updateDM');
+			socket.off('leaveChannel');
 			socket.off('formFailed');
 			socket.off('message');
 			socket.off('typing');
@@ -125,7 +166,15 @@ const ChatBox: React.FC<{
 		console.log(selectedUserId)
 	}, [selectedUserId]);
 
-	const findChannel = (channelName: string, password: string) => {
+	const  updateUserAllChatConnectionStatus =  async (newStatus: boolean) => {
+		return new Promise<boolean>((resolve) => {
+			socket.emit('updateUserAllChatConnectionStatus', { userId: props.userDbID, newStatus }, (response: boolean) => {
+				resolve(response);
+			});
+		});
+	};
+
+	const findChannel = async (channelName: string, password: string) => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findChannel', { channelName, password }, (response: number) => {
 				channelIdRef.current = response;
@@ -134,40 +183,30 @@ const ChatBox: React.FC<{
 		});
 	};
 
-	const join = () => {
+	const join = async () => {
 		return new Promise<void>((resolve, reject) => {
 			if (channelIdRef.current !== -1) {
 				socket.emit('join', { userId: props.userDbID, channelId: channelIdRef.current  }, (response: boolean) => {
 					if (response) {
 						setMessages([]);
 						setJoined(true);
-						console.log('joined');
 						socket.emit('findAllChannelMessages', { userId: props.userDbID, channelId: channelIdRef.current }, (response: any) => {
-							setMessages(response);
+							// setMessages(response);
+							setMessages(Array.isArray(response) ? response : [response]);
+							console.log(`Messages set to ${JSON.stringify(response)} in findAllChannelMessages callback in join`)
 							resolve();
 						});
 					} else {
-						resolve();
+						reject("emit failed");
 					}
 				});
 			} else {
-				resolve();
+				reject("channelIdRef.current is -1");
 			}
 		});
 	};
 
-
-	const updateClientId = () => {
-		if (channelIdRef.current !== -1) {
-			return new Promise<void>((resolve) => {
-				socket.emit('updateClientId', { userId: props.userDbID, channelId: channelIdRef.current}, (response: any) => {
-					resolve();
-				});
-			});
-		}
-	};
-
-	const findAllChannels = () => {
+	const findAllChannels = async () => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findAllChannels', { userId: props.userDbID}, (response: any) => {
 				setChannels(response);
@@ -176,17 +215,16 @@ const ChatBox: React.FC<{
 		})
 	};
 
-	const findDirectMessageChannels = () => {
+	const findDirectMessageChannels = async () => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findDirectMessageChannels', { userId: props.userDbID}, (response: any) => {
 				setDm(response);
-				console.log("dm", response);
 				resolve();
 			});
 		})
 	};
 
-	const findAllInvitations = () => {
+	const findAllInvitations = async () => {
 		return new Promise<void>((resolve) => {
 			socket.emit('findAllInvitations', { userId: props.userDbID}, (response: any) => {
 				setInvitations(response);
@@ -195,10 +233,9 @@ const ChatBox: React.FC<{
 		});
 	};
 
-	const createChannel = (chatName: string, password: string) => {
+	const createChannel = async (chatName: string, password: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
-				setJoined(response);
 				if (response) {
 					setMessages([]);
 					resolve();
@@ -208,18 +245,22 @@ const ChatBox: React.FC<{
 			});
 		})
 		.then(() => {
-			findChannel(chatName, password);
+			return findChannel(chatName, password);
+		})
+		.then(() => {
 			if (channelIdRef.current !== -1) {
-				setJoined(true);
-				setMessages([]);
+				return updateUserChatConnectionStatus(true)
 			}
+		})
+		.then(() => {
+			setJoined(true);
 		})
 		.catch((error) => {
 			console.log(error);
 		});
 	};
 
-	const sendMessage = () => {
+	const sendMessage = async () => {
 		return new Promise<void>((resolve, reject) => {
 			if (channelIdRef.current !== -1) {
 				socket.emit('createMessageChannel', { text: messageText,  channelId: channelIdRef.current, userId: props.userDbID}, (response: boolean) => {
@@ -238,49 +279,72 @@ const ChatBox: React.FC<{
 		setSidebarVisible(!sidebarVisible);
 	  };
 
-	const handleDMClick = () => {
+	const handleDMClick = async () => {
 		const clickedUserId = selectedUserId;
 		const dmObject = dm.find((item) => item.otherUserId === clickedUserId);
 		
 		if (dmObject) {
 			channelIdRef.current = dmObject.channelId;
-			if (channelIdRef.current != -1){
+			if (channelIdRef.current !== -1){
 				join()
-				setShowProfile(false);
+				.then(() => {
+					hideProfile();
+				})
+				.catch((error) => {
+					console.log(error);
+				});
 			}
 		}
 		else {
 			return new Promise<void>((resolve, reject) => {
 				socket.emit('createDM', { firstUser: props.userDbID, secondUser: clickedUserId}, (response: any) => {
-					console.log(response);
 					if (response) {
-						setDm((prevDm) => [...prevDm, response]);
-						channelIdRef.current = response.id;
+						channelIdRef.current = response.channelId;
 						resolve();
 					} else {
-						console.log("Can't create DM");
+						channelIdRef.current = -1
+						reject("Can't create DM");
 					}
 				});
 			})
-			.then (() => {
+			.then(() => {
 				if (channelIdRef.current !== -1) {
-					setShowProfile(false);
-					setJoined(true);
-					setMessages([]);
+					return updateUserChatConnectionStatus(true);
+				} else {
+					 throw new Error("Invalid channel ID");
 				}
+			})
+			.then(() => {
+				hideProfile();
+				setJoined(true);
+				setMessages([]);
+			})
+			.catch((error) => {
+				console.log(error);
 			});
 		}
 	};
 
-	const handleChannelClick = (clickedChannelId: number) => {
-		console.log("click", clickedChannelId);
-		channelIdRef.current = clickedChannelId;
-		console.log("check click", channelIdRef.current);
-		if (channelIdRef.current !== -1)
-			join()
+	const updateUserChatConnectionStatus = async (neaStatus: boolean) => {
+		return new Promise<void>((resolve) => {
+			socket.emit('updateUserChatConnectionStatus', { userId: props.userDbID, channelId: channelIdRef.current, isConnect: neaStatus}, (response: any) => {
+				resolve();
+			});
+		});
 	};
 
-	const handleInvitationlClick = (invitationId: number, accepted: boolean, type: string) => {
+	const handleChannelClick = async (clickedChannelId: number) => {
+		channelIdRef.current = clickedChannelId;
+		if (channelIdRef.current !== -1)
+		{
+			await join()
+			.catch((error) => {
+				console.log(error);
+			});
+		}
+	};
+
+	const handleInvitationlClick = async (invitationId: number, accepted: boolean, type: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('joinInvitation', { userId: props.userDbID, invitationId, accepted}, (response: boolean) => {
 				if (response) {
@@ -293,13 +357,13 @@ const ChatBox: React.FC<{
 		})
 	};
 
-	const handleUserClick = (userName: string) => {
+	const handleUserClick = async (userName: string) => {
 		return new Promise<void>((resolve, reject) => {
 			socket.emit('findUserInfo', {userName}, (response: any) => {
 				if (response.length !== 0)
 				{
 					console.log(response.username);
-					setSelectedUserId(response.id);
+					setSelectedUserId(response.id); 
 					setShowProfile(true);
 					console.log(selectedUserId);
 				}
@@ -309,25 +373,28 @@ const ChatBox: React.FC<{
 	};
 
 	const hideProfile = () => {
-		//join(joinChatName, joinPassword);
 		setSelectedUserId(-1);
 		setShowProfile(false);
 	};
 
 	const hideJoinForm = () => {
-		//join(joinChatName, joinPassword);
 		setJoinChannelMode(false);
 	};
 
 	const hideCreateForm = () => {
-		//join(joinChatName, joinPassword);
 		setCreateChannelMode(false);
 	};
 
-	const hideChannel = () => {
-		//join(joinChatName, joinPassword);
-		channelIdRef.current = -1;
-		setJoined(false);
+	const hideChannel = async () => {
+		updateUserChatConnectionStatus(false)
+		.then(() => {
+			channelIdRef.current = -1;
+			setJoined(false);
+			setMessages([]);
+		})
+		.catch((error) => {
+			console.log(error);
+		});
 	};
 	let timeout;
 
@@ -376,13 +443,14 @@ const ChatBox: React.FC<{
 				{joinChannelMode && (
 					<form
 						className="solid-frame create-chan-frame"
-							onSubmit={(e) => {
+							onSubmit={async (e) => {
 								e.preventDefault();
-								findChannel(joinChatName, joinPassword)
-								.then(() => join())
-								.catch((error) => {
+								try {
+									await findChannel(joinChatName, joinPassword);
+									await join();
+								} catch (error) {
 									console.log('Error:', error);
-								});
+								}
 							}}
 					>
 						<label
@@ -418,9 +486,9 @@ const ChatBox: React.FC<{
 				{createChannelMode && (
 					<form
 						className="solid-frame user-frame"
-						onSubmit={(e) => {
+						onSubmit={async (e) => {
 							e.preventDefault();
-							createChannel(createChatName, createPassword);
+							await createChannel(createChatName, createPassword);
 						}}
 					>
 					<label
@@ -479,7 +547,7 @@ const ChatBox: React.FC<{
 								<div className="solid-frame channel-name"> --- </div>
 							)
 						)}
-						<li className="solid-frame channel-item header" onClick={() => setDMVisible(!DMVisible)}>DM: </li>
+						<li className="channel-item header" onClick={() => setDMVisible(!DMVisible)}>DM: </li>
 						{ (DMVisible && dm.length !== 0) ? (
 							dm.map((dm: any) => (
 								<li className="channel-item" key={dm.channelId}>
@@ -504,8 +572,20 @@ const ChatBox: React.FC<{
 										join {invitation.whoInviteUserName}'s {invitation.type} invitation now
 									</div>
 									<div className="invitation-buttons">
-										<button className="button-yes" onClick={() => handleInvitationlClick(invitation.id, true, invitation.type)}>Yes</button>
-										<button className="button-no" onClick={() => handleInvitationlClick(invitation.id, false, invitation.type)}>No</button>
+										<button className="button-yes" onClick={async () => {
+											try {
+												await handleInvitationlClick(invitation.id, true, invitation.type);
+											} catch (error) {
+												console.log(error);
+											}
+										}}> Yes </button>
+										<button className="button-no" onClick={async () => {
+											try {
+												await handleInvitationlClick(invitation.id, false, invitation.type);
+											} catch (error) {
+												console.log(error);
+											}
+										}}>No</button>
 									</div>
 								</li>
 							))
@@ -527,25 +607,15 @@ const ChatBox: React.FC<{
 	else if (showProfile)
 		return (
 			<>
-				<Profil ID={selectedUserId} refreshWebToken={props.refreshWebToken} webToken={props.webToken}/>
-				{ selectedUserId !== props.userDbID && 
-					<button 
-						className="solid-frame button-frame-choice text-content text-button-choice"
-						onClick={() => {
-								props.pongGameGuestIDref.current = selectedUserId
-								console.log('props.pongGameGuestIDref.current set to ', selectedUserId)
-								navigate("/Pong");  
-							}}
-					>
-						Invite to pong game(higly recommended)
+				<Profil ID={selectedUserId} webToken={props.webToken} refreshWebToken={props.refreshWebToken}/>
+				{ props.userDbID !== selectedUserId &&
+					<button className="solid-frame button-frame-choice text-content text-button-choice"
+					onClick={async () => {
+						await handleDMClick();
+					}}>
+					DM
 					</button>
 				}
-				<button 
-					className="solid-frame button-frame-choice text-content text-button-choice"
-				 	onClick={handleDMClick}
-				>
-					DM
-				</button>
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
 			</>
@@ -555,20 +625,27 @@ const ChatBox: React.FC<{
 				<div
 					className="solid-frame messages-container text-content text-container"
 				>
-					{messages.map((message: any, index: number) => (
+					{
+					(() => {
+					// console.log(`Messages: `, JSON.stringify(messages, null, 2));
+					return messages.map((message: any, index: number) => (
 						<div key={index}>
-							<span
-							  className="message-name"
-							  onClick={() => handleUserClick(message.name)}
-							>
-							  {message.name}
-							</span>
-							: {message.text}
+						<span
+							className="message-name"
+							onClick={ async () => {
+								await handleUserClick(message.name);
+							}}>
+							{message.name}
+						</span>
+						: {message.text}
 						</div>
-					))}
+					));
+					})()
+					}
+
 				</div>
 
-				{typingDisplay && <div>{typingDisplay}</div>}
+				{typingDisplay && <div className="text-content text-label">{typingDisplay}</div>}
 
 				{/*<hr /> commented just in case it is usefull*/}
 				<div
@@ -598,7 +675,9 @@ const ChatBox: React.FC<{
 							Send
 						</button>
 						<button className="solid-frame button-frame text-content text-button"
-						onClick={hideChannel}>return</button>
+								type="button"
+								onClick={hideChannel}>return
+						</button>
 					</form>
 				</div>
 				

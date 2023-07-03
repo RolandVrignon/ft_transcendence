@@ -26,6 +26,19 @@ model User {
   games2      GameSessionOutcome[] @relation("userGames2")
   channelUsers  ChannelUser[]      @relation("user")
   invitations   invitation[]       @relation("invitedRelation")
+  // blockedBy       block[]    @relation("BlockedByRelation")
+  // blockedUser     block[]    @relation("BlockedUserRelation")
+}
+
+model block {
+  id                Int          @id @default(autoincrement())
+  blocker     Int          @default(-1)
+  blocked     Int          @default(-1)
+
+  // blockerUserId  Int @default(-1)
+  // blockedUserId  Int @default(-1)
+  // blockedBy         User  @relation("BlockedByRelation", fields: [blockerUserId], references: [id])
+  // blockedUser       User  @relation("BlockedUserRelation", fields: [blockedUserId], references: [id])
 }
 
 model Token2FA {
@@ -52,37 +65,30 @@ model textChannel {
   channel           Channel      @relation("channel", fields: [channelId], references: [id])
 }
 
-model block {
-  id                Int          @id @default(autoincrement())
-  blockedUserId     Int
-  blockerUserId     Int
-  blockerChannelUserId  Int @default(-1)
-  blockedChannelUserId  Int @default(-1)
-  blockedBy         ChannelUser  @relation("BlockedByRelation", fields: [blockerChannelUserId], references: [id])
-  blockedUser       ChannelUser  @relation("BlockedUserRelation", fields: [blockedChannelUserId], references: [id])
+
+model punishment {
+  id              Int      @id @default(autoincrement())
+
+  punishedId      Int     @default(-1)
+
+  type            String  @default("none")
+  punishmentExpiration DateTime?
+
+  channelId       Int     @default(-1)
+  channel         Channel @relation(fields: [channelId], references: [id])
 }
 
 model ChannelUser {
   id              Int      @id @default(autoincrement())
-  clientId        String
+
+  isConnect       Boolean  @default(false)
+
   userName        String   @default("unknown")
   status          String   @default("user")
 
   userID      Int     @default(-1)
   user        User    @relation("user", fields: [userID], references: [id])
-
-  //punishment
-  muted           Boolean  @default(false)
-  kicked          Boolean  @default(false)
-  banned          Boolean  @default(false)
-  //punishment duration
-  muteExpiration DateTime?
-  kickExpiration DateTime?
-  banExpiration DateTime?
-
-  blockedBy       block[]    @relation("BlockedByRelation")
-  blockedUser     block[]    @relation("BlockedUserRelation")
-  texts           textChannel[] @relation("userText")
+  texts       textChannel[] @relation("userText")
 
   channelId      Int        @default(-1)
   channel        Channel    @relation(fields: [channelId], references: [id])
@@ -95,6 +101,7 @@ model Channel {
   ChannelName      String        @unique
   password         String        @default("")
   users            ChannelUser[]
+  punishments      punishment[]
   textChannels     textChannel[] @relation("channel")
 }
 

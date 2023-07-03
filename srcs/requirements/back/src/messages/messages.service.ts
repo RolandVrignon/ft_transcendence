@@ -10,30 +10,41 @@ export const saltOrRounds = 10;
 
 @Injectable()
 export class MessagesService {
-	
-	async updateClientId(userId: number, clientId: string, channelId: number)
-	{
-		const channel = await this.findChannelById(channelId);
-		if (!channel)
-			throw `this channel does not exist.`
-		const user = await this.findUserInfo(userId, null);
-		if (!user)
-			throw "cant find user."
-		const channelUser = await prisma.channelUser.findFirst({
+
+	async updateUserAllChatConnectionStatus( userId: number, isConnect: boolean) {
+		const channelUsers = await prisma.channelUser.findMany({
 			where: {
-				userName: user.username,
-				channelId: channel.id,
-			},
+				userID: userId,
+			}
 		})
-		if (!channelUser)
-			throw "cant find user in this channel."
-		await prisma.channelUser.update({
-			where: {id: channelUser.id},
-			data: {clientId: clientId}
+		if (!channelUsers)
+			throw "We experiencing issues. We will get back to you as soon as possible."
+		await prisma.channelUser.updateMany({
+			where: {userID: {in: channelUsers.map(channelUser => channelUser.userID)}},
+			data: {
+				isConnect: isConnect,
+			}
 		})
 	}
 
-	async identify(userId: number, clientId: string, channelId: number) {
+	async updateUserChatConnectionStatus( userId: number, channelId: number, isConnect: boolean) {
+		const channelUser = await prisma.channelUser.findFirst({
+			where: {
+				channelId: channelId,
+				userID: userId,
+			}
+		})
+		if (!channelUser)
+			throw "We experiencing issues. We will get back to you as soon as possible."
+		await prisma.channelUser.update({
+			where: {id: channelUser.id},
+			data: {
+				isConnect: isConnect,
+			}
+		})
+	}
+
+	async identify(userId: number, channelId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel)
 			throw `this channel does not exist.`
@@ -52,7 +63,6 @@ export class MessagesService {
 		{
 			const createUser = await prisma.channelUser.create({
 				data: {
-					clientId: clientId,
 					userName: user.username,
 					user: {
 						connect: { id: user.id}
@@ -79,43 +89,49 @@ export class MessagesService {
 				}
 			})
 		}
-		else
-		{
-			await prisma.channelUser.update({
-				where: {id: channelUser.id},
-				data: {clientId: clientId}
-			})
+		const isPunished = await this.checkUserPunishment(userId, channel.id);
+		if (isPunished && isPunished.type != "mute") {
+			throw `you are ${isPunished.type}, remaining time = ${isPunished.minutesRemaining} minutes`;
 		}
-		if (channelUser && (channelUser.banned == true || channelUser.kicked == true)) {
-			const dateNow = DateTime.now().toMillis();
-			const punishExpirationTimestamp = channelUser.banned == true ? channelUser.banExpiration.getTime() : channelUser.kickExpiration.getTime();
-			if (punishExpirationTimestamp > dateNow) {
-				const diffMilliseconds = punishExpirationTimestamp - dateNow;
-				const minutesRemaining = Math.floor(diffMilliseconds / (1000 * 60));
-				if (channelUser.banned == true)
-					throw `you are banned, remaining time = ${minutesRemaining} minutes`;
-				else
-					throw `you are kicked, remaining time = ${minutesRemaining} minutes`;
-			}
-			else { 
-				if (channelUser.banned == true){
-					await prisma.channelUser.update ({
-						where: {id: user.id},
-						data: {banned: false, banExpiration: null},
-					})
-				}
-				else {
-					await prisma.channelUser.update ({
-						where: {id: user.id},
-						data: {kicked: false, kickExpiration: null},
-					})
-				}
-			}
-		}
+		return {ChannelName: channel.ChannelName, password: channel.password, id: channel.id};
 	}
 
-	async createDM(firstUserId: number, clientId: string, secondUserId: number)
+	async checkUserPunishment(userId: number, channelId: number) {
+		const userPunishments = await prisma.punishment.findMany({
+			where: {
+				punishedId: userId,
+				channelId: channelId,
+			}
+		})
+		if (!userPunishments)
+			return null;
+		let index = userPunishments.findIndex(punishment => punishment.type === "ban");
+		if (index === -1) {
+			index = userPunishments.findIndex(punishment => punishment.type === "mute");
+		}
+		// console.log(`index: ${index} ,punishments: ${JSON.stringify(userPunishments)}`)
+		if (index === -1)
+			return null;
+		const punishment = userPunishments[index];
+		const dateNow = DateTime.now().toMillis();
+		if (punishment.punishmentExpiration > dateNow) {
+			const diffMilliseconds = (punishment.punishmentExpiration).getTime() - dateNow;
+			const minutesRemaining = Math.floor(diffMilliseconds / (1000 * 60));
+			return {type: punishment.type, minutesRemaining: minutesRemaining};
+		}
+		else {
+			await prisma.punishment.delete({
+				where: {id: punishment.id}
+			})
+		}
+		return null;
+	}
+
+	async createDM(firstUserId: number, secondUserId: number)
 	{
+		if (firstUserId === secondUserId)
+			throw `You cannot DM yourself!`
+
 		const firstUser = await this.findUserInfo(firstUserId, null);
 
 		if (!firstUser)
@@ -141,7 +157,6 @@ export class MessagesService {
 		}
 		const firstUserChannel = await prisma.channelUser.create({
 			data: {
-				clientId: clientId,
 				userName: firstUser.username,
 				status: "user",
 				channel: {
@@ -161,7 +176,6 @@ export class MessagesService {
 		}
 		const secondUserChannel = await prisma.channelUser.create({
 			data: {
-				clientId: "",
 				userName: secondUser.username,
 				status: "user",
 				channel: {
@@ -179,12 +193,11 @@ export class MessagesService {
 		if (!secondUserChannel) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		return createChannel;
+		return {channelId: createChannel.id, firstUserUserName: firstUser.username, secondUserUserName: secondUser.username };
 	}
 
-	async createChannel(userId: number, clientId: string, ChannelName: string, Channelpass: string)
+	async createChannel(userId: number, ChannelName: string, Channelpass: string)
 	{
-		console.log('app-back: creating channel.')
 		const channel = await prisma.channel.findFirst({
 			where: {
 				ChannelName: ChannelName,
@@ -197,6 +210,7 @@ export class MessagesService {
 		console.log(`\nCreating channel with name [${ChannelName}] and password [${hashedChannelPassword}].`)
 		const createChannel = await prisma.channel.create({
 			data: {
+				status: "protected",
 				ChannelName: ChannelName,
 				password: hashedChannelPassword,
 			}
@@ -209,7 +223,6 @@ export class MessagesService {
 			throw "cant find user."
 		const createUser = await prisma.channelUser.create({
 			data: {
-				clientId: clientId,
 				userName: user.username,
 				status: "owner",
 				channel: {
@@ -227,9 +240,10 @@ export class MessagesService {
 		if (!createUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
+		return {ChannelName: createChannel.ChannelName, password: createChannel.password, id: createChannel.id};
 	}
 
-	async findChannelUsersForMe(userId: number, clientId: string, channelId: number)
+	async findWhoDontBlockedMe(userId: number, channelId: number)
 	{
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
@@ -247,24 +261,21 @@ export class MessagesService {
 		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		if (channelUser.clientId !== clientId)
-			this.updateClientId(userId, clientId, channelId);
 		const blockedByUsers = await prisma.block.findMany({
 			where: {
-				blockedUserId: channelUser.id,
+				blocked: channelUser.userID,
 			},
-			include: {
-				blockedBy: true,
-			},
+			// include: {
+			// 	blockedBy: true,
+			// },
 		});
-
 		if (blockedByUsers){
 			const channelUsers = await prisma.channelUser.findMany({
 				where: {
 					channelId: channel.id,
 					NOT: {
-						id: {
-							in: blockedByUsers.map((blcokedUser) => blcokedUser.blockerUserId)
+						userID: {
+							in: blockedByUsers.map((blcokedUser) => blcokedUser.blocker)
 						}
 					}
 				},
@@ -277,6 +288,74 @@ export class MessagesService {
 			},
 		})
 		return channelUsers;
+	}
+
+	async findwhoIDontBlocked(userId: number, channelId: number)
+	{
+		const channel = await this.findChannelById(channelId);
+		if (!channel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
+			where: {
+				userName: user.username,
+				channelId: channel.id
+			}
+		})
+		if (!channelUser) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const blockedByUsers = await prisma.block.findMany({
+			where: {
+				blocker: channelUser.userID,
+			},
+			// include: {
+			// 	blockedUser: true,
+			// },
+		});
+		if (blockedByUsers){
+			console.log(`users blocked by user ${userId}: ${JSON.stringify(blockedByUsers)}`)
+			const channelUsers = await prisma.channelUser.findMany({
+				where: {
+					channelId: channel.id,
+					NOT: {
+						userID: {
+							in: blockedByUsers.map((blcokedUser) => blcokedUser.blocked)
+						}
+					}
+				},
+			})
+			return channelUsers;
+		}
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+				channelId: channel.id,
+			},
+		})
+		return channelUsers;
+	}
+
+	async findChannelUser(userId: number, channelId: number)
+	{
+		const channel = await this.findChannelById(channelId);
+		if (!channel) {
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		}
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUser = await prisma.channelUser.findFirst({
+			where: {
+				userName: user.username,
+				channelId: channel.id
+			}
+		})
+		if (!channelUser)
+			return false;
+		return true;
 	}
 
 	async findChannels(userId: number) {
@@ -329,12 +408,13 @@ export class MessagesService {
 			}
 		});
 
-		if (channelUsers.length === 0) {
+		if (!channelUsers && channelUsers.length === 0 ) {
 			return [];
 		}
 		const channelList = channelUsers.map((channelUser) => {
-			const { id, users } = channelUser.channel;
+			const { id, users } = channelUser.channel; 
 			const otherUser = users[0];
+			// console.log(`channelUser.channel.id: ${id}, channelUser.channel.users: ${JSON.stringify(users)}.`)
 			return {channelId: id, otherUserId: otherUser.userID, otherUserUsername: otherUser.userName };
 		});
 
@@ -384,11 +464,42 @@ export class MessagesService {
 		if (invitations.length === 0) {
 			return [];
 		}
-		console.log("salut" , invitations);
 		return invitations;
 	}
 
-	async joinInvitation(userId: number, invitationId: number, accepted: boolean, clientId: string) {
+	async createInvitaion(userId: number, invitedId: number, type: string, whereID: number) {
+		const user = await this.findUserInfo(userId, null);
+		if (!user)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const invitedUser = await this.findUserInfo(invitedId, null);
+		if (!invitedUser)
+			throw  "We experiencing issues. We will get back to you as soon as possible."
+		
+		const alreadyInvited = await prisma.invitation.findFirst({
+			where: {
+				whereID: whereID,
+				invitedID: invitedUser.id,
+			}
+		})
+		if (alreadyInvited){
+			throw  "this user already have been invited here !";
+		}
+		const invitation = await prisma.invitation.create({
+			data: {
+				type: type,
+				whereID: whereID,
+				whoInviteUserName: user.username,
+				invited: {
+					connect: {
+						id: invitedUser.id
+					}
+				}
+			}
+		})
+		return invitation;
+	}
+
+	async joinInvitation(userId: number, invitationId: number, accepted: boolean) {
 		if (accepted == false)
 		{
 			await prisma.invitation.delete({
@@ -396,7 +507,7 @@ export class MessagesService {
 					id: invitationId
 				}
 			})
-			return ;
+			return false;
 		}
 		const invitation = await prisma.invitation.findUnique({
 			where: {
@@ -404,7 +515,7 @@ export class MessagesService {
 			},
 		});
 		if (!invitation)
-			return ;
+			return false;
 		if (invitation.type == "chat")
 		{
 			const user = await this.findUserInfo(userId, null);
@@ -415,7 +526,6 @@ export class MessagesService {
 			})
 			const createUser = await prisma.channelUser.create({
 				data: {
-					clientId: clientId,
 					userName: user.username,
 					user: {
 						connect: { id: user.id}
@@ -444,7 +554,7 @@ export class MessagesService {
 			await prisma.invitation.delete({
 				where: {id: invitation.id}
 			})
-			return ;
+			return { ChannelName: channel.ChannelName, id: channel.id };
 		}
 	}
 
@@ -491,44 +601,49 @@ export class MessagesService {
 				id: userID,
 			}
 		})
+		// console.log(user)
 		return user;
 	}
 
-	async isSuperUser(channelId: number, clientId:string) {
+	async isSuperUser(channelId: number, channelUserId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
+			// console.log(`Channel is null`)
 			return false;
 		}
 		const user = await prisma.channelUser.findFirst({
 			where: {
-				clientId: clientId,
-				channelId: channel.id
+				userID: channelUserId,
+				channelId: channelId,
 			}
 		});
-		if (!user)
+		if (!user) {
+			// console.log(`user is null`)
 			return false;
+		}
 		const owner = await this.findChannelOwner(channelId);
-		if (owner.id == user.id)
+		if (owner.id == user.id) {
+			// console.log(`owner.id == user.id`)
 			return true;
+		}
 		const admins = await this.findChannelAdmins(channelId);
-		if (!admins)
+		if (!admins) {
+			// console.log(`Did not found any channel admins`)
 			return false;
-		admins.forEach((admin) => {
-			if (admin.id == user.id)
-				return true;
-		})
-		return false;
+		}
+		// console.log(`admins.some(admin => admin.id == user.id): `, admins.some(admin => admin.id == user.id) )
+		return admins.some(admin => admin.id === user.id) 
 	}
 
-	async isOwner(channelId, clientId:string) {
+	async isOwner(channelId, channelUserId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
 			return false;
 		}
 		const user = await prisma.channelUser.findFirst({
 			where: {
-				clientId: clientId,
-				channelId: channel.id
+				userID: channelUserId,
+				channelId: channelId,
 			}
 		});
 		if (!user)
@@ -539,18 +654,7 @@ export class MessagesService {
 		return false;
 	}
 
-	async getClientName(clientId: string){
-		const user = await prisma.channelUser.findFirst({
-			where: {
-				clientId: clientId,
-			}
-		})
-		if (!user)
-			return "unknown";
-		return user.userName;
-	}
-
-	async createMessage(createMessageDto: CreateMessageDto, channelId: number, userId: number, clientId: string) {
+	async createMessage(createMessageDto: CreateMessageDto, channelId: number, userId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
@@ -567,23 +671,9 @@ export class MessagesService {
 		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		if (channelUser.clientId !== clientId)
-			this.updateClientId(userId, clientId, channelId);
-
-		else if (channelUser.muted == true) {
-			const dateNow = DateTime.now().toMillis();
-			const muteExpirationTimestamp = channelUser.muteExpiration.getTime();
-			if (muteExpirationTimestamp > dateNow) {
-				const diffMilliseconds = muteExpirationTimestamp - dateNow;
-				const minutesRemaining = Math.floor(diffMilliseconds / (1000 * 60));
-				throw `Server: you are muted, remaining time = ${minutesRemaining} minutes`;
-			}
-			else { 
-				await prisma.channelUser.update ({
-					where: {id: channelUser.id},
-					data: {muted: false, muteExpiration: null},
-				})
-			}
+		const isPunished = await this.checkUserPunishment(userId, channel.id);
+		if (isPunished) {
+			throw `you are ${isPunished.type}, remaining time = ${isPunished.minutesRemaining} minutes`;
 		}
 		const textChannel	= await prisma.textChannel.create({
 			data: {
@@ -604,54 +694,115 @@ export class MessagesService {
 	}
 
 	async findChannelMessages(channelId: number) {
-		const channel = await this.findChannelById(channelId);
-		if (!channel) {
+		const channel = await this.findChannelById(channelId); 
+		if (!channel) { 
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
 		return channel.textChannels;
 	}
 
-	async findChannelMessagesForMe(userId: number, channelId: number, clientId: string) {
+	async findChannelMessagesForMe(userId: number, channelId: number) {
 
+		const channelUsers = await this.findwhoIDontBlocked(userId, channelId);
+		// console.log(`NOT blocked users for user ${userId}: [${JSON.stringify(channelUsers.map(user => user.userName))}]`)
+		const channelUserIds = channelUsers.map((channelUser) => channelUser.id);
+	  
+		const textChannels = await prisma.textChannel.findMany({
+			where: {
+				channelId: channelId,
+				channelUserId: {
+					in: channelUserIds,
+				}
+			}
+		});
+		return textChannels;
+	}
+
+	async nobodyInChannel(channelId: number) {
+		const channel = await this.findChannelById(channelId);
+		if (!channel) 
+			return false;
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+				channelId: channel.id
+			}
+		})
+		if (channelUsers.length == 0)
+			return true;
+		return false;
+	}
+
+	async setNewChannelOwner(channelId: number) {
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			return ;
 		}
-		const user = await this.findUserInfo(userId, null);
-		if (!user)
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+		const channelUsers = await prisma.channelUser.findMany({
+			where: {
+				channelId: channel.id,
+				status: { not: "owner"}
+			}
+		})
+		if (channelUsers.length == 0)
+			return ;
+		const newOwner = await prisma.channelUser.update({
+			where: {
+				id: channelUsers[0].id
+			},
+			data: {
+				status: "owner"
+			}
+		})
+		return newOwner;
+	}
+
+	async removeChannel(channelId: number) {
+		const channel = await this.findChannelById(channelId);
+		if (!channel) {
+			return ;
+		}
+		await prisma.textChannel.deleteMany({
+			where: {
+				channelId: channel.id
+			}
+		})
+		await prisma.channelUser.deleteMany({
+			where: {
+				channelId: channel.id
+			}
+		})
+		await prisma.channel.delete({
+			where: {
+				id: channel.id
+			}
+		})
+	}
+
+	async removeChannelUser(channelId: number, channelUserId: number) {
+		const channel = await this.findChannelById(channelId);
+		if (!channel) {
+			throw  `We experiencing issues. We will get back to you as soon as possible.`
+		}
+
 		const channelUser = await prisma.channelUser.findFirst({
 			where: {
-				userName: user.username,
+				userID: channelUserId,
 				channelId: channel.id
 			}
 		})
 		if (!channelUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		if (channelUser.clientId !== clientId)
-			this.updateClientId(userId, clientId, channelId);
-		const blockedUsers = await prisma.block.findMany({
+
+		await prisma.textChannel.deleteMany({
 			where: {
-				blockerUserId: channelUser.id,
-			},
-			include: {
-				blockedUser: true,
+				channelUserId: channelUser.id
 			}
 		})
-		if (!blockedUsers) {
-			return await this.findChannelMessages(channelId);
-		}
-		const textChannels = await prisma.textChannel.findMany({
+		await prisma.channelUser.delete({
 			where: {
-				channelId: channel.id,
-				NOT: {
-					channelUserId: {
-						in: blockedUsers.map((blcokedUser) => blcokedUser.blockedUserId)
-					}
-				}
+				id: channelUser.id,
 			}
 		})
-		return textChannels;
 	}
 }
