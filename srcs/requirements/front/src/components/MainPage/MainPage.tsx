@@ -11,11 +11,18 @@ import Profil from '../Profil/Profil';
 
 type MainPageProps = {
   ID: number,
+  statusLog: Dispatch<SetStateAction<boolean>>,
   refreshWebToken: Dispatch<SetStateAction<string>>,
   webToken: string
 }
 
-const Content: React.FC<MainPageProps> = (control) => {
+type ContentPageProps = {
+  ID: number,
+  refreshWebToken: Dispatch<SetStateAction<string>>,
+  webToken: string
+}
+
+const Content: React.FC<ContentPageProps> = (control) => {
   const location = useLocation();
 
   //Properties for ponGameInvite
@@ -37,16 +44,10 @@ const Content: React.FC<MainPageProps> = (control) => {
 
   return (
     <SolidFrame frameClass="main-frame">
-      <Title
-        frameClass="main-title-frame"
-        txtClass="text-main-title"
-        txt2={getTitle()}
-      />
+      <Title frameClass="main-title-frame" txtClass="text-main-title" txt2={getTitle()} />
       <SolidFrame frameClass="content-frame">
         <Routes>
-					{/* Set a default route */}
           <Route path="*" element={<ChatBox userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref} refreshWebToken={control.refreshWebToken} webToken={control.webToken}/>} />
-					{/* Set the routes */}
           <Route path="/Profil" element={<Profil ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>} />
           <Route path="/Pong" element={<Pong webToken={control.webToken} userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
           <Route path="/Chat" element={<ChatBox userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref} refreshWebToken={control.refreshWebToken} webToken={control.webToken}/>} />
@@ -60,7 +61,7 @@ const MainPage: React.FC<MainPageProps> = (control) => {
   return (
     <Router>
       <SolidFrame frameClass="window-frame"> 
-        <SideBar />
+        <SideBar statusLog={control.statusLog}/>
         <Content ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>
       </SolidFrame>
     </Router>

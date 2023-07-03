@@ -19,19 +19,12 @@ const HomePage: React.FC<HomePageProps> = ({log, user, controlJwtToken}) => {
 
 	return (
 		<Router>
-			<SolidFrame frameClass="login-frame"	>
-				<SolidFrame
-					frameClass="simple-pong-frame"
-					txtClass="text-logo"
-					txt2="Simple Pong"
-				/>
+			<SolidFrame frameClass="login-frame" >
+				<SolidFrame frameClass="simple-pong-frame" txtClass="text-logo" txt2="Simple Pong" />
 				<SolidFrame frameClass="bottom-frame">
-					<Routes >
+					<Routes>
 						<Route path="*" element={<GetAccess />} />
-						<Route 
-							path="/Login"
-							element={<Login controlJwtToken={controlJwtToken} log={log} ID={user}/> }
-						/>
+						<Route path="/Login" element={<Login controlJwtToken={controlJwtToken} log={log} ID={user}/> } />
 					</Routes>
 				</SolidFrame>
 			</SolidFrame>

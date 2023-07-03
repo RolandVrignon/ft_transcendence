@@ -15,7 +15,7 @@ function App() {
 	return (
 		<div className="App">
 			{ authChecked ?
-				( <MainPage ID={userID} refreshWebToken={setSessionToken} webToken={sessionToken} /> )
+				( <MainPage statusLog={setAuthChecked} ID={userID} refreshWebToken={setSessionToken} webToken={sessionToken} /> )
 					:
 				( <HomePage log={setAuthChecked} user={setUserID} controlJwtToken={setSessionToken}/> )
 			}
