@@ -619,12 +619,24 @@ const ChatBox: React.FC<{
 			<>
 				<Profil ID={selectedUserId} webToken={props.webToken} refreshWebToken={props.refreshWebToken}/>
 				{ props.userDbID !== selectedUserId &&
-					<button className="solid-frame button-frame-choice text-content text-button-choice"
-					onClick={async () => {
-						await handleDMClick();
-					}}>
-					DM
-					</button>
+					<>
+						<button className="solid-frame button-frame-choice text-content text-button-choice"
+						onClick={async () => {
+							await handleDMClick();
+						}}>
+						DM
+						</button>
+						<button 
+						className="solid-frame button-frame-choice text-content text-button-choice"
+						onClick={() => {
+								props.pongGameGuestIDref.current = selectedUserId
+								console.log('props.pongGameGuestIDref.current set to ', selectedUserId)
+								navigate("/Pong");  
+							}}
+						>
+						Invite to pong game(higly recommended)
+						</button>
+					</>
 				}
 				<button className="solid-frame button-frame-choice text-content text-button-choice"
 				 onClick={hideProfile}>return to chat</button>
