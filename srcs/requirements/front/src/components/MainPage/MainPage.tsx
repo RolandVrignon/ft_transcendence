@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import SolidFrame from '../SolidFrame/SolidFrame';
 import SideBar from "../SideBar/SideBar";
@@ -8,7 +8,6 @@ import ChatBox from '../ChatBox/ChatBox';
 import Pong from '../Pong/Pong';
 import { Dispatch, SetStateAction } from 'react'
 import Profil from '../Profil/Profil';
-import HomePage from '../HomePage/HomePage';
 
 type MainPageProps = {
   ID: number,
@@ -18,6 +17,10 @@ type MainPageProps = {
 
 const Content: React.FC<MainPageProps> = (control) => {
   const location = useLocation();
+
+  //Properties for ponGameInvite
+  const pongGameGuestIDref = useRef<number | null>(null)
+  const pongGameHostIDref = useRef<number | null>(null)
 
   const getTitle = () => {
 	switch(location.pathname) {
@@ -42,11 +45,11 @@ const Content: React.FC<MainPageProps> = (control) => {
       <SolidFrame frameClass="content-frame">
         <Routes>
 					{/* Set a default route */}
-          <Route path="*" element={<ChatBox webToken={control.webToken} userDbID={control.ID} refreshWebToken={control.refreshWebToken}/>} />
+          <Route path="*" element={<ChatBox userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref} refreshWebToken={control.refreshWebToken} webToken={control.webToken}/>} />
 					{/* Set the routes */}
           <Route path="/Profil" element={<Profil ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>} />
-          <Route path="/Pong" element={<Pong webToken={control.webToken} userDbID={control.ID} />} />
-          <Route path="/Chat" element={<ChatBox webToken={control.webToken} userDbID={control.ID} refreshWebToken={control.refreshWebToken} />} />
+          <Route path="/Pong" element={<Pong webToken={control.webToken} userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
+          <Route path="/Chat" element={<ChatBox userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref} refreshWebToken={control.refreshWebToken} webToken={control.webToken}/>} />
         </Routes>
       </SolidFrame>
     </SolidFrame>

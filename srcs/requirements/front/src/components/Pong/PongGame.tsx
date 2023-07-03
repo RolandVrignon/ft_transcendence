@@ -2,17 +2,17 @@ import { useEffect, useState, useRef } from 'react';
 import { ReactP5Wrapper } from "@p5-wrapper/react";
 import io from 'socket.io-client'; // Import the socket.io client
 import { Socket } from 'socket.io-client'; // Import the socket.io client
-import p5Type from '@p5-wrapper/react'; // This imports the type
-// import { createNoSubstitutionTemplateLiteral } from 'typescript';
 
 type Vector = any;
 
-type PongGameProps = {
+type PongGameProps = { 
     webToken: string,
-    userDbID: number
-}
+    userDbID: number;
+	pongGameGuestIDref: React.MutableRefObject<number | null>
+	pongGameHostIDref: React.MutableRefObject<number | null>
+}; 
 
-export default function PongGame({webToken, userDbID}: PongGameProps) { 
+export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGameHostIDref}: PongGameProps) { 
     //possible states: undefined(didn't try anything), in queue, in game, Connection failed, Connection timeout, VICTORY, DEFEAT
     const [sessionState, setsessionState] = useState<string | undefined>(undefined)
     const socketRef = useRef<Socket | null>(null)
@@ -21,15 +21,28 @@ export default function PongGame({webToken, userDbID}: PongGameProps) {
 
     // Connect to the socket server on component mount
     useEffect(() => {
-        console.log("UseEffect")
+        console.log("PongGame mount")
         if (!socketRef.current) {
-            socketRef.current = io('http://localhost:9090',  {
-                transports: ['websocket'],
-                auth: {
-                  token: `Bearer ${webToken}`,
-                },
-            })
-            socketRef.current.on('connect', () => setsessionState('connected'));
+            console.log(`Web token: `, webToken)
+            socketRef.current = io('http://localhost:9090', {
+                query: { token: webToken }
+              })
+            socketRef.current.on('connect', () => {
+                setsessionState('connected')
+                console.log('PongGame socket connected to backend gateway.')
+                if (pongGameGuestIDref.current !== null) {
+                    console.log(`Sending invite-request with hostID=${userDbID}, guestID=${pongGameGuestIDref.current}`)
+                    socketRef.current?.emit('invite-request', {hostID: userDbID, guestID: pongGameGuestIDref.current})
+                }
+                else if (pongGameHostIDref.current !== null) {
+                    console.log(`Emiting join-request with hostID=${pongGameHostIDref.current}, guestID=${userDbID}.`) 
+                    socketRef.current?.emit('join-request', {hostID: pongGameHostIDref.current, guestID: userDbID}) 
+                }
+                else {
+                    console.log(`Emitin enter-queue request.`)
+                    socketRef.current?.emit('enter-queue', userDbID)
+                }
+            });
             socketRef.current.on('in-queue', () => setsessionState('in-queue'));
             socketRef.current.on('start-game', (playerIndex) => {
                 setsessionState('in-game')
@@ -37,11 +50,15 @@ export default function PongGame({webToken, userDbID}: PongGameProps) {
             });
             socketRef.current.on('connect_error', () => setsessionState('connection-failed'));
             socketRef.current.on('connect_timeout', () => setsessionState('connection-timeout'));
-
+            socketRef.current.on('waiting-for-guest-answer', () => setsessionState('waiting-for-guest-answer'));
             console.log("Created new socketRef.current")
         }
         return () => {
             // console.log("closing connection")
+            console.log("PongGame unmount, disconnecting socket and setting 'pongGameGuestIDref.current' to null.")
+            socketRef.current?.disconnect()
+            pongGameGuestIDref.current = null
+            pongGameHostIDref.current = null
         }
     }, []);
 
@@ -54,6 +71,7 @@ export default function PongGame({webToken, userDbID}: PongGameProps) {
         function getSideLength() {
             if (parentRef.current !== null)
                 return Math.min(parentRef.current.offsetHeight, parentRef.current.offsetWidth)
+            console.warn("Warning: parentRef.current is null!")
             return 500
         }
         function getPlayerWidth() {
@@ -119,7 +137,6 @@ export default function PongGame({webToken, userDbID}: PongGameProps) {
 
         p5.setup = () => {
             if (socketRef.current) { 
-                socketRef.current?.emit('enter-queue', userDbID)
 
                 // Your setup code here.
                 p5.createCanvas(getSideLength(), getSideLength());

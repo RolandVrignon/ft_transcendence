@@ -13,14 +13,15 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   async validateRequest(request: any): Promise<boolean> {
-    const token = this.extractTokenFromRequest(request);
+    const token = this.extractTokenFromRequest(request)
     try {
       const payload = await this.jwtService.verifyAsync(token)
       request.user = payload
       return true
-    } 
+    }
     catch (err) {
-      return false;
+      console.log(err)
+      return false
     }
   }
 
@@ -38,22 +39,26 @@ export class WebSocketJwtAuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const client = context.switchToWs().getClient()
-    const token = this.extractTokenFromClient(client)
+    const token = client.handshake.query.token
     if (!token) {
+      console.log(`WebSocketJwtAuthothification denied, token is null.`)
       throw new WsException('Unauthorized');
     }
-    return this.validateToken(token)
+      return this.validateToken(token)
   }
-    extractTokenFromClient(client: any): string {
+  
+  extractTokenFromClient(client: any): string {
     return client.handshake.query.token || null
   }
 
   async validateToken(token: string): Promise<boolean> {
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync(token)
       return true
     } 
     catch (err) {
+      console.error(`Cauhght an error while vrifying authorization(or authentification?) token, returning null.`)
+      console.error(`Error: `, err)
       return false
     }
   }

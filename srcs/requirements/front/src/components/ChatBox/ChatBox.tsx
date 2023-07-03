@@ -1,8 +1,4 @@
-
 import React, { useState, useEffect, useRef, useContext } from 'react'
-import { click } from '@testing-library/user-event/dist/click'
-
-import { Dispatch, SetStateAction } from 'react'
 import SolidFrame from '../SolidFrame/SolidFrame'
 import SearchList from "../SearchList/SearchList"
 import SearchBar from "../SearchBar/SearchBar"
@@ -10,8 +6,19 @@ import Profil from '../Profil/Profil'
 import { io } from 'socket.io-client'
 import './ChatBox.scss'
 import { reject, set } from 'lodash'
+import { useNavigate } from "react-router-dom";
+import { Dispatch, SetStateAction } from 'react'
 
-const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: Dispatch<SetStateAction<string>> }> = (props)  => {
+const ChatBox: React.FC<{
+	 userDbID: number,
+	pongGameGuestIDref: React.MutableRefObject<number | null>,
+	pongGameHostIDref: React.MutableRefObject<number | null>,
+	refreshWebToken:  Dispatch<SetStateAction<string>>, 
+	webToken: string
+	}> = (props)  => {
+
+
+
 
 	const channelIdRef = useRef<number>(-1);
 
@@ -49,6 +56,11 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 
 	const [createChatName, setCreateChatName] = useState<string>('');
 	const [createPassword, setCreatePassword] = useState<string>('');
+
+	//fields for pongGame
+	const navigate = useNavigate();
+	const [showModal, setShowModal] = useState(false);
+	const pongGameInviteRefusalCallbackRef = useRef<(() => void) | null>(null)
 
 
 	useEffect(() => {
@@ -330,7 +342,6 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 				console.log(error);
 			});
 		}
-
 	};
 
 	const handleInvitationlClick = async (invitationId: number, accepted: boolean, type: string) => {
@@ -402,10 +413,12 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 	if (!joined && !showProfile) {
 		return (
 			<SolidFrame frameClass="chat-box" >
-				<div className="search-container">
-					<div className='search text-content' > Find your friends:</div>
+				<SolidFrame frameClass="in-row">
+				<SolidFrame frameClass="">
+				<div className="solid-frame search-container">
+					<div className="solid-frame search text-content" >Find your friends:</div>
 					<SolidFrame
-						frameClass="search-frame"
+						frameClass="solid-frame search-frame"
 					>
 						<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 					</SolidFrame>
@@ -513,48 +526,49 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 						{fomrError}
 					</div>
 				)}
-				
-				<div className=" solid-frame  text-content text-label sidebar">
-					<ul className="channel-list">
+				</SolidFrame>
+				<SolidFrame frameClass="sidebar">
+				<div className="solid-frame text-content text-label">
+					<ul className="solid-frame channel-list">
 						<>
-						<li className="channel-item header" onClick={() => setChannelsVisible(!channelsVisible)}>channels: </li>
+						<li className="solid-frame channel-item header" onClick={() => setChannelsVisible(!channelsVisible)}>Channels: </li>
 						{ (channelsVisible && channels.length !== 0) ? (
 							channels.map((channel: any) => (
-								<li className="channel-item" key={channel.id}>
-									<div className="channel-name" onClick={() => handleChannelClick(channel.id)}>
+								<li className="solid-frame channel-item" key={channel.id}>
+									<div className="solid-frame channel-name" onClick={() => handleChannelClick(channel.id)}>
 										{channel.ChannelName} 
 									</div>
 								</li>
 							))
 						): (
 							channels.length === 0 ? (
-								<div className="channel-name"> empty </div>
+								<div className="solid-frame channel-name"> empty </div>
 							) : (
-								<div className="channel-name"> --- </div>
+								<div className="solid-frame channel-name"> --- </div>
 							)
 						)}
 						<li className="channel-item header" onClick={() => setDMVisible(!DMVisible)}>DM: </li>
 						{ (DMVisible && dm.length !== 0) ? (
 							dm.map((dm: any) => (
 								<li className="channel-item" key={dm.channelId}>
-									<div className="channel-name" onClick={() => handleChannelClick(dm.channelId)}>
+									<div className="solid-frame channel-name" onClick={() => handleChannelClick(dm.channelId)}>
 										{dm.otherUserUsername}
 									</div>
 								</li>
 							))
 						): (
 							dm.length === 0 ? (
-								<div className="channel-name"> empty </div>
+								<div className="solid-frame channel-name"> empty </div>
 							) : (
-								<div className="channel-name"> --- </div>
+								<div className="solid-frame channel-name"> --- </div>
 							)
 						)}
 
-						<li className="channel-item header" onClick={() => setInvitationsVisible(!invitationsVisible)}>Invitations: </li>
+						<li className="solid-frame channel-item header" onClick={() => setInvitationsVisible(!invitationsVisible)}>Invitations: </li>
 						{ (invitationsVisible && invitations.length !== 0) ? (
 							invitations.map((invitation: any) => (
 								<li className="channel-item" key={invitation.id}>
-									<div className="channel-name">
+									<div className="solid-frame channel-name">
 										join {invitation.whoInviteUserName}'s {invitation.type} invitation now
 									</div>
 									<div className="invitation-buttons">
@@ -585,6 +599,8 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 						</>
 					</ul>
 				</div>
+				</SolidFrame>	
+				</SolidFrame>	
 			</SolidFrame>
 		);
 	}
@@ -664,6 +680,33 @@ const ChatBox: React.FC<{ userDbID: number, webToken: string, refreshWebToken: D
 						</button>
 					</form>
 				</div>
+				
+		    <div>
+			{/* JSX for pong game invites*/}
+			{showModal && (
+			  <div className="modal">
+				<div className="modal-content">
+					<h2>You received an invite to the play a pong game!</h2>
+					<button onClick={() => {
+						navigate('/Pong')
+						setShowModal(false)
+					}}>
+						Accept
+					</button>
+					<button onClick={() => { 
+						props.pongGameGuestIDref.current = null
+						setShowModal(false)
+						if (pongGameInviteRefusalCallbackRef.current !== null) {
+							pongGameInviteRefusalCallbackRef.current()
+						} else {
+							console.error("Warning: pongGameInviteRefusalCallbackRef.current is null!")
+						}
+						pongGameInviteRefusalCallbackRef.current = null
+					}}>Refuse</button>
+				</div>
+			  </div>
+			)}
+		  </div>
 		</SolidFrame>
 )}
 

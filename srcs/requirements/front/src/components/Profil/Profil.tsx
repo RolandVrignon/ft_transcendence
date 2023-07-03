@@ -3,11 +3,12 @@ import SearchBar from "../SearchBar/SearchBar"
 import SearchList from "../SearchList/SearchList"
 import ProfileUserButton from "../StyledButtons/StyledButtons"
 import Title from "../Title/Title";
-import React, { useState, useEffect, useContext } from 'react'
+import React, { ChangeEvent, useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import './Profil.scss'
 import { debounce } from 'lodash'
 import { Dispatch, SetStateAction } from 'react'
+import MatchHistory from "../MatchHistory/MatchHistory";
 
 interface UserInfo {
 	id?: number,
@@ -37,7 +38,9 @@ const Profil: React.FC<ProfilProps> = ({
 	children
 	}) => {
 		const [newID, setNewID] = useState(-1)
+		const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
 		const [searchTerm, setSearchTerm] = useState('')
+		const [uploadedFile, setUploadedFile] = useState<File>()
 		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: ''})
 
 	useEffect(() => {
@@ -60,17 +63,12 @@ const Profil: React.FC<ProfilProps> = ({
 					setUserInfo(updatedUserInfo)
 				}
 			}
-			catch (err)	{
-				console.log(err)
-			}
+			catch (err)	{ console.log(err) }
 		}
 		fetchUserInformationDisplay()
 	}, [ID])
 
-	function	askDbForUsers(event: string)	{
-		setSearchTerm(event)
-	}
-
+	
 	useEffect(() => {
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
@@ -92,86 +90,108 @@ const Profil: React.FC<ProfilProps> = ({
 					setUserInfo(updatedUserInfo)
 				}
 			}
-			catch (err)	{
-				console.log(err)
-			}
+			catch (err)	{ console.log(err) }
 		}
 		fetchOtherUserInformationDisplay()
-	}, [newID])
-
-	function	return2FAStatus()	{
-		if (userInfo.doubleAuth?.length)
-			return 'enabled'
-		return 'disabled'
+	}, [newID, triggerAvatarChange])
+	
+	function				check2FABox()	{  }
+	function 				triggerEffect()	{ setTriggerAvatarChange((prevKey) => prevKey + 1) }
+	function				askDbForUsers(event: string)	{ setSearchTerm(event) }
+	async		function 	handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
+	async		function 	changeAvatarProfil()	{
+		try {
+			if (uploadedFile)	{
+				const formData = new FormData()
+    			formData.append('image', uploadedFile)
+				const res = await axios({ url: 'http://localhost:8080/upload/avatar',
+					headers: { Authorization: `Bearer ${webToken}`, 'Content-Type': 'multipart/form-data' },
+					method: 'POST',
+					data: formData
+				})
+				setNewID(ID)
+				triggerEffect()
+			}
+		}
+		catch (err) { console.log(err) }
 	}
-
-	async function	handle2FAUpdate(e: React.MouseEvent<HTMLParagraphElement>)	{
-		let twoFaStatus
-		if ((e.target as HTMLParagraphElement).textContent === 'Enable 2FA on my account')
-			twoFaStatus = 'Enable'
-		else
-			twoFaStatus = 'Disable'
-		const	res = await axios({
-			url: 'http://localhost:8080/callback/change-two-fa', method: 'POST',
-			data: { twoFaStatus, ID }
+	async		function	change2FAUserStatus(e: React.MouseEvent<HTMLInputElement>)	{
+		const status2FA = e.currentTarget.checked.valueOf()
+		const res = await axios({
+			url: 'http://localhost:8080/secure/update2FA',
+			method: 'POST',
+			headers: { Authorization: `Bearer ${webToken}` },
+			data: { ID, status2FA }
 		})
-		setUserInfo(res.data)
+		// setNewID(ID)
+		const updatedUser = res.data
+		setUserInfo(updatedUser)
+		setNewID(ID)
+		triggerEffect()
 	}
-	const waithandle2FAUpdate = debounce(handle2FAUpdate, 500)
 
 	return (
-	<SolidFrame frameClass="profil-frame">
-		<SolidFrame frameClass="search-frame">
-			<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
-		</SolidFrame>
-		<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
-		<ProfileUserButton webToken={webToken} newID={newID} ID={ID}/>
-		{/* display image and username +? 2FA */}
-		<SolidFrame frameClass="user-profil-frame" >
-			<SolidFrame frameClass="photo-frame" >
-				<img src={userInfo.imageLink} />
-			</SolidFrame>
-			<SolidFrame frameClass="user-data-frame" txt1={'Username: ' + userInfo.username} >
-				{children}
-				{ userInfo.id === ID ?
-					<div>
-						<p className="twoFA-option-profile">2FA status: {return2FAStatus()}</p><br/>
+		<SolidFrame frameClass='profil-frame'>
+			<div className='search-frame'>
+				<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
+			</div>
+			<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
+			{/* <ProfileUserButton webToken={webToken} newID={newID} ID={ID}/> */}
+			<div className='user-profil-frame'>
+				<div className='photo-frame'>
+					<div className='avatar-container-profil'>
+						<img src={userInfo.imageLink} />
 					</div>
-					:
-					null
-				}
+					{ newID === ID ?
+						<div className='container-avatar-change'>
+						<label htmlFor='upload-file-input' className='custom-file-upload'>
+							<input id='upload-file-input' className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
+							<span>{ uploadedFile ? uploadedFile.name : 'Choose File' }</span>
+						</label>
+							<button className='change-avatar-button' onClick={changeAvatarProfil}>Change avatar</button>
+						</div>
+					: null }	
+				</div>
+				<div className='user-data-div-display'>
+					<div className='user-profile-info'>
+						<h1>User information</h1><br/>
+						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42</p>
+					</div>
+					{ newID === ID ?
+					<div className='display-2fa-option'>
+						<div className='switch-2fa'>
+							<label className='form-switch'>
+								2FA&nbsp;
+								<input type='checkbox' onClick={(e)=>change2FAUserStatus(e)} checked={ userInfo.doubleAuth && userInfo.doubleAuth.length ? true : false }/>
+								<i></i>
+							</label>
+						</div>
+					</div>
+					: 
+					<div className='container-social-button'>
+						<div className='social-button-add'><p>add<br/>friend</p></div>
+						<div className='social-button-remove'><p>remove<br/>friend</p></div>
+						<div className='social-button-game'><p>make<br/>game</p></div>
+						<div className='social-button-block'><p>block<br/>user</p></div>
+					</div>
+					}
+					
+				</div>
+			</div>
+			<SolidFrame frameClass='info-frame'>
+				<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Stats' />  
+				<SolidFrame frameClass='history-frame' txtClass='text-data-profil' txt1={stats} />
+				{children}
+			</SolidFrame>
+			<SolidFrame frameClass='info-frame'>
+				<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Match history' />
+					{ newID !== -1 && newID !== ID ? 
+					<div className='match-history-container'><MatchHistory userID={newID} token={webToken} /></div>
+					: 
+					<div className='match-history-container'><MatchHistory userID={newID} token={webToken} /></div> }
 			</SolidFrame>
 		</SolidFrame>
-		{/* display stats of the user concerned */}
-		<SolidFrame frameClass="info-frame">
-			<Title
-				frameClass="profil-title-frame"
-				txtClass="text-profil-title"
-				txt2="Stats"
-			/>
-			<SolidFrame
-				frameClass="history-frame"
-				txtClass="text-data-profil"
-				txt1={stats}
-			/>
-			{children}
-		</SolidFrame>
-		{/* display the match history of the user */}
-		<SolidFrame frameClass="info-frame">
-			<Title
-				frameClass="profil-title-frame"
-				txtClass="text-profil-title"
-				txt2="Match history" 
-			/>
-			<SolidFrame
-				frameClass="history-frame"
-				txtClass="text-data-profil"
-				txt1={matchHistory}
-			/>
-			{children}
-		</SolidFrame>
-	</SolidFrame>
-			);
-};
+	)
+}
 
 export default Profil

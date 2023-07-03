@@ -7,7 +7,8 @@ import { DateTime } from 'luxon';
 import { type } from 'os';
 
 //const COMMAND_HELPER: string = "to mute => /mute targetName durationInMinutes\n to block";
-
+import { saltOrRounds } from './messages.service';
+import * as bcrypt from 'bcrypt';
 type SocketUserIDpair = {socket: Socket, userID: number}
 
 
@@ -20,6 +21,11 @@ type SocketUserIDpair = {socket: Socket, userID: number}
 export class MessagesGateway {
 	@WebSocketServer()
 	server: Server;
+	//properties for pong game invites
+	//This Array is used to map userIds to socket and vice versa.
+	//We're not using dictionnaries so we can have duplicates,
+	//this is usefull(maybe even necessary) for testing on the same machine with the same stud account.
+	socketUserIDpairs: SocketUserIDpair[] = [];
 
 	socketUserIDpairs: SocketUserIDpair[] = [];
 
@@ -122,6 +128,13 @@ export class MessagesGateway {
 				this.server.to(client.id).emit('formFailed', serverMessage);
 				return false;
 			}
+			//Code for pong game
+			try {
+				console.log(`Added user with ID ${userId} and socket ${client.id} in socketUserIDpairs.`)
+				this.socketUserIDpairs.push({socket: client, userID: userId})
+			} catch (err) {
+				console.error(`Error caught while adding user and socket to userSocketMap: `, err)
+			}
 			return true;
 	}
 
@@ -195,7 +208,7 @@ export class MessagesGateway {
 		this.updateSocketUserIDpairs(client, userId);
 		return await this.messagesService.findAllInvitations(userId);
 	}
-
+  
 	@SubscribeMessage('joinInvitation')
 	async joinInvitation(
 		@MessageBody('userId') userId:number,
@@ -216,6 +229,19 @@ export class MessagesGateway {
 			this.server.to(client.id).emit('formFailed', serverMessage);
 			false;
 		}
+	}
+
+	@SubscribeMessage('findUserInfo')
+	async findAllChfindUserInfoannels(
+		@MessageBody('userName') userName:string,
+	){
+		return await this.messagesService.findUserInfo(-1, userName);
+	}
+	@SubscribeMessage('findAllInvitations')
+	async findAllInvitations(
+		@MessageBody('userId') userId:number,
+	){
+		return await this.messagesService.findAllInvitations(userId);
 	}
 
 	@SubscribeMessage('findAllChannelMessages')
@@ -370,7 +396,7 @@ export class MessagesGateway {
 					break;
 				case "leave":
 					console.log("lets leave");
-					if (commandArgs.length != 1){
+					if (commandArgs.length !== 1){
 						throw  "Invalid argument.\n to leave => /leave "
 					}
 					else {
@@ -405,7 +431,7 @@ export class MessagesGateway {
 					}
 					break;
 				case "invite":
-					if (commandArgs.length != 2){
+					if (commandArgs.length !== 2){
 						throw  "Invalid argument.\n to invite => /invite username"
 					}
 					else {
@@ -489,13 +515,14 @@ export class MessagesGateway {
 		else if (newStatus != "public" && newStatus != "private" && newStatus != "protected") {
 			throw  "Invalid argument.\n you can only set the channel status to public, private or protected."
 		}
+		const hashedEmptyPassword = await bcrypt.hash("", saltOrRounds)
 		await prisma.channel.update({
 			where: {
 				id: channel.id
 			},
 			data: {
 				status: newStatus,
-				password: ""
+				password: hashedEmptyPassword
 			}
 		})
 		if (newStatus == "public"){
@@ -525,13 +552,14 @@ export class MessagesGateway {
 			throw  "Invalid argument.\n you need to set a password."
 		}
 		else {
+			const newHashedChannelPassword = await bcrypt.hash(newPass, saltOrRounds)
 			await prisma.channel.update({
 				where: {
 					id: channel.id
 				},
 				data: {
 					status: "protected",
-					password: newPass,
+					password: newHashedChannelPassword,
 				}
 			})
 		}
@@ -626,7 +654,7 @@ export class MessagesGateway {
 				},
 			})
 			if (!executor){
-				throw  "We experiencing issues. We will get back to you as soon as possible."
+				throw  "We experiencing issues. We will get back to you as soon as possible. block, executor is null"
 			}
 			const target = await prisma.channelUser.findFirst({
 				where: {
@@ -774,5 +802,28 @@ export class MessagesGateway {
 					throw `Server: ${targetUser} has been ${type}.`
 			}
 		}
+	}
+	
+	//methods for pong game invites
+	handleDisconnect(disconnectedSocket: Socket) {
+		console.log(`\nHandling disconnection from chat: Going to remove user with socket ${disconnectedSocket.id} from socketUserIDpairs....`)
+		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.socket === disconnectedSocket)
+		if (socketUserIdPairIndex === -1) {
+			console.error(`Error: Could not found an socketUserIdPairIndex with the socket ${disconnectedSocket.id}!`)
+			return
+		}
+		this.socketUserIDpairs.splice(socketUserIdPairIndex, 1)
+	}
+	//returns true if the invite was succesfully transmitted
+	//returns false otherwise
+	transmitPongGameInviteProposal(hostID: number, guestID: number, inviteDebugID: number, inviteRefusalCallback: () => void): boolean {
+		console.log(`Transmitting invite proposal hostID: ${hostID}, guestID: ${guestID}, inviteDebugID: ${inviteDebugID}...`)
+		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.userID === guestID)
+		if (socketUserIdPairIndex === -1) {
+			console.error(`Error: Could not found an socketUserIdPairIndex with the userID ${guestID}!`)
+			return false
+		}
+		this.socketUserIDpairs[socketUserIdPairIndex].socket.emit('pong-game-invite', hostID, () => inviteRefusalCallback())
+		return true
 	}
 }

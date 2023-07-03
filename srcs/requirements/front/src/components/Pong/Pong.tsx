@@ -4,15 +4,17 @@ import './Pong.scss'
 import PongGame from './PongGame'
 
 type PongProps = {
+	userDbID: number;
+	pongGameGuestIDref: React.MutableRefObject<number | null>
+	pongGameHostIDref: React.MutableRefObject<number | null>
 	webToken: string,
-	userDbID: number
-}
+};
 
-export default function Pong({webToken, userDbID}: PongProps) { 
+export default function Pong({webToken, userDbID, pongGameGuestIDref, pongGameHostIDref}: PongProps) { 
 	return (
 	<SolidFrame frameClass="pong-frame"	>
 		<SolidFrame frameClass="arena-frame" >
-		<PongGame webToken={webToken} userDbID={userDbID}/>
+		<PongGame webToken={webToken} userDbID={userDbID} pongGameGuestIDref={pongGameGuestIDref} pongGameHostIDref={pongGameHostIDref}/>
 		</SolidFrame>
 	</SolidFrame>
 	)

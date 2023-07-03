@@ -32,6 +32,7 @@ const Login: React.FC<LoginProps> = (control) => {
   const [userName, setUserName] = useState('')
   const [check2FA, setcheck2FA] = useState(false)
   const [token2FA, setToken2FA] = useState('')
+  const [webToken, setWebToken] = useState('')
 
   function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
     const target = event.target as HTMLButtonElement
@@ -44,20 +45,19 @@ const Login: React.FC<LoginProps> = (control) => {
   }
 
   async function askDataBaseForCreation(code: string) {
-    const checkUserStateURL = 'http://localhost:8080/callback/log'
+    const checkUserStateURL = 'http://localhost:8080/42Api/log'
     const res = await axios({
       url: checkUserStateURL,
       method: 'POST',
-      data: {
-        code
-      }
-    },)
+      data: { code }
+    })
     if (res.data.dbData)
       setDOptAuth(res.data.dbData.doubleAuth)
     setUserApiData(res.data.apiData)
     setUserDbData(res.data.dbData)
     setUserLogged(true)
     control.controlJwtToken(res.data.jwtSecureToken)
+    setWebToken(res.data.jwtSecureToken)
     control.ID(res.data.apiData.id)
   }
 
@@ -65,10 +65,8 @@ const Login: React.FC<LoginProps> = (control) => {
       try {
         const queryParams = new URLSearchParams(window.location.search)
         const code = queryParams.get('code')
-        if (code !== null)  {
-          askDataBaseForCreation(code)
-          
-        }
+        if (code !== null)  { askDataBaseForCreation(code) }
+        else console.log('login: useEffect triggered')
       }
       catch (err) {
           console.log(err)
@@ -88,10 +86,11 @@ const Login: React.FC<LoginProps> = (control) => {
 
   async function pushUserinDataBase(e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault()
-    const addUserURL = 'http://localhost:8080/callback/add'
+    const addUserURL = 'http://localhost:8080/secure/add'
     const res = await axios({
       url: addUserURL,
       method: 'POST',
+      headers: { Authorization: `Bearer ${webToken}` },
       data: {
         apiData: userApiData,
         username: userName,
@@ -102,23 +101,27 @@ const Login: React.FC<LoginProps> = (control) => {
   }
 
 	async function  handle2FA() {
-    const handle2FAURL = 'http://localhost:8080/callback/secure'
-    await axios.post(handle2FAURL, {
-      data : {
-        info: userApiData
-    }})
-    setcheck2FA(true)
+    try {
+      console.log(webToken)
+      const handle2FAURL = 'http://localhost:8080/secure/secure'
+      const res = await axios({
+        url: handle2FAURL,
+        method: 'POST',
+        headers: { Authorization: `Bearer ${webToken}` },
+        data : { info: userApiData }
+      })
+      setcheck2FA(true)
+    }
+    catch (err) { console.log(err) }
 	}
 
   async function handle2FAVerif() {
-    const check2FAURL = 'http://localhost:8080/callback/verify-secure'
+    const check2FAURL = 'http://localhost:8080/secure/verify-secure'
     const check = await axios({
-      url: check2FAURL,
       method: 'POST',
-      data: {
-        id: userApiData?.id,
-        token: token2FA
-      }
+      url: check2FAURL,
+      headers: { Authorization: `Bearer ${webToken}` },
+      data: { id: userApiData?.id, token: token2FA }
     })
     if (check.data === 'approved') {
       setcheck2FA(false)
@@ -200,7 +203,7 @@ const Login: React.FC<LoginProps> = (control) => {
   else
   {
     control.log(true)
-    navigate('/Profil')
+    window.history.replaceState(null, '', '/')
   }
 
   return renderer

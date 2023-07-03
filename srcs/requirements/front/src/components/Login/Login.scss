@@ -38,15 +38,14 @@
 .user-logged-frame {
 	align-items: center;
 	min-width: 450px;
-
+	
+	.text-label {}
 	.checked-frame {
 		width: 50px;
 		height: 50px;
 	}
 	.label-frame {
 		height: 20%;
-	}
-	.text-label {
 	}
 	.input-frame {
 		width: 80%; //here
