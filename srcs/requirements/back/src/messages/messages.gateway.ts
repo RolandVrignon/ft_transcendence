@@ -10,6 +10,7 @@ import { type } from 'os';
 import { saltOrRounds } from './messages.service';
 import * as bcrypt from 'bcrypt';
 type SocketUserIDpair = {socket: Socket, userID: number}
+const MAX_REQUEST_BODY_SIZE = 2048;
 
 
 @WebSocketGateway({
@@ -56,6 +57,12 @@ export class MessagesGateway {
 		}
 		return this.socketUserIDpairs[index].socket;
 	}
+	checkRequestBodySize(request: any) {
+		const requestBodySize = Buffer.byteLength(JSON.stringify(request));
+		if (requestBodySize > MAX_REQUEST_BODY_SIZE) {
+		  throw 'Request body size exceeds the limit';
+		}
+	}
 
 	@SubscribeMessage('findChannel')
 	async findChannel(
@@ -64,6 +71,7 @@ export class MessagesGateway {
 		@ConnectedSocket() client: Socket,
 	){
 		try {
+			this.checkRequestBodySize({chatName, password});
 			const channel = await this.messagesService.findChannelByNameAndPass(chatName, password);
 			return channel.id;
 		} catch (serverMessage) {
@@ -145,6 +153,7 @@ export class MessagesGateway {
 		const userId: number = createMessageDto['userId'];
 
 		try {
+			this.checkRequestBodySize(createMessageDto);
 			this.updateSocketUserIDpairs(client, userId);  
 			if (createMessageDto.text.startsWith("/")) {
 					await this.execCommandMessage(createMessageDto.text, userId, channelId);
@@ -195,6 +204,7 @@ export class MessagesGateway {
 	async findUserInfo(
 		@MessageBody('userName') userName:string,
 	){
+		this.checkRequestBodySize(userName);
 		return await this.messagesService.findUserInfo(-1, userName);
 	}
 
@@ -259,6 +269,7 @@ export class MessagesGateway {
 		@ConnectedSocket() client: Socket,
 	){
 		try {
+			this.checkRequestBodySize(chatName);
 			this.updateSocketUserIDpairs(client, userID);
 			const channelInfo = await this.messagesService.createChannel(userID, chatName, password);
 			this.server.to(client.id).emit('updateChannels', "add", channelInfo);

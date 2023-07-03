@@ -128,13 +128,7 @@ const ChatBox: React.FC<{
 		});
 
 		socket.on('formFailed', (error: string) => {
-			setFormFailed(true);
-			setFormError(error);
-
-			setTimeout(() => {
-				setFormFailed(false);
-				setFormError("");
-			}, 2000);
+			showFormError(error);
 		});
 
 		socket.on('disconectChannel', () => {
@@ -167,11 +161,27 @@ const ChatBox: React.FC<{
 
 	const findChannel = async (channelName: string, password: string) => {
 		return new Promise<void>((resolve) => {
-			socket.emit('findChannel', { channelName, password }, (response: number) => {
-				channelIdRef.current = response;
-				resolve();
-			});
+			if ((channelName.length < 1 || channelName.length > 20) || (password.length < 1 && password.length > 20)) {
+				showFormError("Chat name or password must be between 1 and 20 characters");
+				reject("Chat name or password must be between 1 and 20 characters");
+			}
+			else {
+				socket.emit('findChannel', { channelName, password }, (response: number) => {
+					channelIdRef.current = response;
+					resolve();
+				});
+			}
 		});
+	};
+
+	const showFormError = (error: string) => {
+		setFormFailed(true);
+		setFormError(error);
+
+		setTimeout(() => {
+			setFormFailed(false);
+			setFormError("");
+		}, 2000);
 	};
 
 	const join = async () => {
@@ -227,14 +237,20 @@ const ChatBox: React.FC<{
 
 	const createChannel = async (chatName: string, password: string) => {
 		return new Promise<void>((resolve, reject) => {
-			socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
-				if (response) {
-					setMessages([]);
-					resolve();
-				} else {
-					reject("Can't create channel");
-				}
-			});
+			if (( chatName.length < 1 || chatName.length > 20) || ( chatName.length < 1 || password.length > 20)) {
+				showFormError("Chat name or password must be between 1 and 20 characters");
+				reject("Chat name or password must be between 1 and 20 characters");
+			}
+			else {
+				socket.emit('createChannel', { userId: props.userDbID, chatName, password }, (response: boolean) => {
+					if (response) {
+						setMessages([]);
+						resolve();
+					} else {
+						reject("Can't create channel");
+					}
+				});
+			}
 		})
 		.then(() => {
 			return findChannel(chatName, password);
@@ -255,21 +271,23 @@ const ChatBox: React.FC<{
 	const sendMessage = async () => {
 		return new Promise<void>((resolve, reject) => {
 			if (channelIdRef.current !== -1) {
-				socket.emit('createMessageChannel', { text: messageText,  channelId: channelIdRef.current, userId: props.userDbID}, (response: boolean) => {
-					resolve();
-				});
+				if (messageText.length < 1 || messageText.length > 1000) {
+					showFormError("Message must be between 1 and 1000 characters (" + messageText.length + " characters )")
+					reject("Message must be between 1 and 1000 characters");
+				}
+				else {
+					socket.emit('createMessageChannel', { text: messageText,  channelId: channelIdRef.current, userId: props.userDbID}, (response: boolean) => {
+						resolve();
+					});
+				}
 			} else {
-				reject();
+				reject("channelIdRef.current is -1");
 			}
 		})
 		.then (() => {
 			setMessageText('');
 		})
 	};
-
-	const toggleSidebar = () => {
-		setSidebarVisible(!sidebarVisible);
-	  };
 
 	const handleDMClick = async () => {
 		const clickedUserId = selectedUserId;
@@ -647,7 +665,10 @@ const ChatBox: React.FC<{
 						className="solid-frame write-frame"
 						onSubmit={(e) => {
 						e.preventDefault();
-						sendMessage();
+						sendMessage()
+						.catch((error) => {
+							console.log(error);
+						});
 					}}>
 						<label
 							className="solid-frame label-frame text-content text-label"
@@ -660,6 +681,11 @@ const ChatBox: React.FC<{
 							onChange={(e) => setMessageText(e.target.value)}
 							onInput={emitTyping}
 						/>
+						{formFailed && (
+							<div className="solid-frame  text-content text-label error-message ">
+								{fomrError}
+							</div>
+						)}
 						<button
 							className="solid-frame button-frame text-content text-button"
 							type="submit"
