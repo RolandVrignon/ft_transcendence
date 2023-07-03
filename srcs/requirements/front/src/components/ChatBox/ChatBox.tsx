@@ -219,6 +219,7 @@ const ChatBox: React.FC<{
 		return new Promise<void>((resolve) => {
 			socket.emit('findDirectMessageChannels', { userId: props.userDbID}, (response: any) => {
 				setDm(response);
+				console.log("all directs messages",response)
 				resolve();
 			});
 		})
@@ -550,7 +551,7 @@ const ChatBox: React.FC<{
 						<li className="channel-item header" onClick={() => setDMVisible(!DMVisible)}>DM: </li>
 						{ (DMVisible && dm.length !== 0) ? (
 							dm.map((dm: any) => (
-								<li className="channel-item" key={dm.channelId}>
+								<li className="solid-frame channel-item" key={dm.channelId}>
 									<div className="solid-frame channel-name" onClick={() => handleChannelClick(dm.channelId)}>
 										{dm.otherUserUsername}
 									</div>

@@ -93,7 +93,7 @@ export class MessagesService {
 		if (isPunished && isPunished.type != "mute") {
 			throw `you are ${isPunished.type}, remaining time = ${isPunished.minutesRemaining} minutes`;
 		}
-		return {ChannelName: channel.ChannelName, password: channel.password, id: channel.id};
+		return {ChannelName: channel.ChannelName, id: channel.id};
 	}
 
 	async checkUserPunishment(userId: number, channelId: number) {
@@ -198,6 +198,8 @@ export class MessagesService {
 
 	async createChannel(userId: number, ChannelName: string, Channelpass: string)
 	{
+		if (!ChannelName || ChannelName.length < 1 || ChannelName.length > 10)
+			throw "Channel name must be between 1 and 10 characters long."
 		const channel = await prisma.channel.findFirst({
 			where: {
 				ChannelName: ChannelName,
@@ -240,7 +242,7 @@ export class MessagesService {
 		if (!createUser) {
 			throw  "We experiencing issues. We will get back to you as soon as possible."
 		}
-		return {ChannelName: createChannel.ChannelName, password: createChannel.password, id: createChannel.id};
+		return {ChannelName: createChannel.ChannelName, id: createChannel.id};
 	}
 
 	async findWhoDontBlockedMe(userId: number, channelId: number)
