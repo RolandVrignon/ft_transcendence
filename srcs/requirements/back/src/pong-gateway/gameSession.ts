@@ -105,7 +105,7 @@ export class GameSession {
   handleDisconnect(disconnectedClientSocket: Socket) {
     if (this.gameIsOver === false) {
       //find the index of the player that left 
-      let winnerIndex = 1 - this.clientSockets.findIndex(cs => cs !== disconnectedClientSocket)
+      let winnerIndex = this.clientSockets.findIndex(cs => cs !== disconnectedClientSocket)
       let reason = `Game ${this.debugId} is over: player ${1 - winnerIndex} disconnected.`
       this.handleGameOver(winnerIndex, reason)
     } 
@@ -136,7 +136,6 @@ export class GameSession {
         loser: { connect: { id: this.userIDs[1 - winnerIndex] } }
       }
   };
-    // console.log(`Creating new gameSessionOutcome record in DB: ${JSON.stringify(recoredData, null, 2)}.`)
     let promise = prisma.gameSessionOutcome.create(recoredData)
     promise.catch(err => console.error(`Caught game session outcome prisma record creation error: ${err}`))
     promise.then(() => console.log('Game session outcome prisma record created.'))

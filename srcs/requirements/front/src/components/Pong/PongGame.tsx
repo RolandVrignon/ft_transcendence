@@ -22,9 +22,9 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
     //partilcles variables
     const nbParticlesPerSide = 25
     const particles: Vector[] = []
-    let timeSinceStarrt = 0
+    let timeSinceStarrtInMillis = 0
     const noiseFrequency = 0.5
-    let showParticles: boolean = false
+    let showParticles: boolean = true
     
     // Connect to the socket server on component mount
     useEffect(() => {
@@ -110,7 +110,8 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
             draw(isLocal: boolean)
             {
                 p5.rectMode(p5.CENTER)
-                p5.fill(isLocal ? 'blue' : 'red')
+                p5.fill(isLocal ? 'white' : 'black')
+                p5.stroke('white')
                 p5.rect(this.posRelativeToCanvas.x * getSideLength(), this.posRelativeToCanvas.y * getSideLength(), getPlayerWidth(), getPlayerHeight())
                 p5.rectMode(p5.CORNER)
             }
@@ -144,9 +145,8 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
 
         p5.setup = () => {
             if (socketRef.current) { 
-                setupParticles()
-                // Your setup code here.
                 p5.createCanvas(getSideLength(), getSideLength());
+                setupParticles()
 
                 playerLeft = new Player(playerOffsetRatio);
                 playerRight = new Player(1 - playerOffsetRatio);
@@ -190,7 +190,7 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
         }
         
         function drawParticles() {
-            timeSinceStarrt += p5.deltaTime
+            timeSinceStarrtInMillis += p5.deltaTime
             for (let i = 0; i < particles.length; i++){
                 let offset = sampleoffset(particles[i])
                 offset.mult(p5.noise(i) * 0.00075 )
@@ -209,12 +209,11 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
         }
         
         function sampleoffset(p: Vector){
-            let val = p5.noise(p.x * noiseFrequency, p.y * noiseFrequency, timeSinceStarrt * 0.0005 + p5.noise(timeSinceStarrt * 0.001) * 0.6) * 360 * 2
+            let val = p5.noise(p.x * noiseFrequency, p.y * noiseFrequency, timeSinceStarrtInMillis * 0.0005 + p5.noise(timeSinceStarrtInMillis * 0.0001) * 0.6) * 360 * 2
             return p5.constructor.Vector.fromAngle(p5.radians(val), 1).mult(p5.deltaTime )
         }
 
         function drawGame() {
-            p5.background(220);
             playerLeft.draw(playerIndex === 0);
             playerRight.draw(playerIndex === 1);
             ball.draw();
@@ -225,15 +224,12 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
                 playerRight.move(p5.UP_ARROW, p5.DOWN_ARROW);
 
             p5.textSize(getSideLength() / 10);
-            p5.fill('black')
+            p5.fill('white')
             p5.text(playerLeft.points.toString(), getSideLength() / 5, getSideLength() / 6)
             p5.text(playerRight.points.toString(), getSideLength() - getSideLength() / 5, getSideLength() / 6)
             
         }
         function drawText() {
-            p5.clear()
-            p5.background(220);
-            drawParticles()
             p5.textAlign(p5.CENTER)
             p5.textSize(20);
             if (typeof sessionState !== undefined && sessionState)
@@ -245,6 +241,9 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
             p5.text(sessionState, getSideLength() / 10, getSideLength() / 10, getSideLength() * 0.9 , getSideLength() * 0.9)
         }
         p5.draw = () => {
+            p5.clear()
+            p5.background(0);
+            drawParticles()
             if (sessionState === 'in-game')
                 drawGame()
             else
