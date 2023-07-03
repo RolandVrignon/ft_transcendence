@@ -27,8 +27,6 @@ export class MessagesGateway {
 	//this is usefull(maybe even necessary) for testing on the same machine with the same stud account.
 	socketUserIDpairs: SocketUserIDpair[] = [];
 
-	socketUserIDpairs: SocketUserIDpair[] = [];
-
 	constructor(
 		private readonly messagesService: MessagesService,
 	) {}
@@ -194,7 +192,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('findUserInfo')
-	async findAllChfindUserInfoannels(
+	async findUserInfo(
 		@MessageBody('userName') userName:string,
 	){
 		return await this.messagesService.findUserInfo(-1, userName);
@@ -229,19 +227,6 @@ export class MessagesGateway {
 			this.server.to(client.id).emit('formFailed', serverMessage);
 			false;
 		}
-	}
-
-	@SubscribeMessage('findUserInfo')
-	async findAllChfindUserInfoannels(
-		@MessageBody('userName') userName:string,
-	){
-		return await this.messagesService.findUserInfo(-1, userName);
-	}
-	@SubscribeMessage('findAllInvitations')
-	async findAllInvitations(
-		@MessageBody('userId') userId:number,
-	){
-		return await this.messagesService.findAllInvitations(userId);
 	}
 
 	@SubscribeMessage('findAllChannelMessages')
