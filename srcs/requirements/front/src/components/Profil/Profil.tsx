@@ -157,24 +157,23 @@ const Profil: React.FC<ProfilProps> = ({
 						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Connected: { userInfo.connected === true ? 'connected' : 'offline' }</p>
 					</div>
 					{ newID === ID || newID === -1 ?
-					<div className='display-2fa-option'>
-						<div className='switch-2fa'>
-							<label className='form-switch'>
-								2FA&nbsp;
-								<input type='checkbox' onClick={(e)=>change2FAUserStatus(e)} checked={ userInfo.doubleAuth && userInfo.doubleAuth.length ? true : false }/>
-								<i></i>
-							</label>
+						<div className='display-2fa-option'>
+							<div className='switch-2fa'>
+								<label className='form-switch'>
+									2FA&nbsp;
+									<input type='checkbox' onClick={(e)=>change2FAUserStatus(e)} checked={ userInfo.doubleAuth && userInfo.doubleAuth.length ? true : false }/>
+									<i></i>
+								</label>
+							</div>
 						</div>
-					</div>
 					:
-					<div className='container-social-button'>
-						<div className='social-button-add'><p>add<br/>friend</p></div>
-						<div className='social-button-remove'><p>remove<br/>friend</p></div>
-						<div className='social-button-game'><p>make<br/>game</p></div>
-						<div className='social-button-block'><p>block<br/>user</p></div>
-					</div>
+						<div className='container-social-button'>
+							<div className='social-button-add'><p>add<br/>friend</p></div>
+							<div className='social-button-remove'><p>remove<br/>friend</p></div>
+							<div className='social-button-game'><p>make<br/>game</p></div>
+							<div className='social-button-block'><p>block<br/>user</p></div>
+						</div>
 					}
-					
 				</div>
 			</div>
 			<SolidFrame frameClass='info-frame'>
