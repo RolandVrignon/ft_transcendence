@@ -13,28 +13,20 @@ export class ConnectController {
 	constructor(private readonly jwtService: JwtService, private auth: AuthService) {}
 	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
 		try	{
+			const connected = true
 			const user = await prisma.user.create({
-				data: { 
-					id: req.body.apiData.id,
-					username: req.body.username,
-					email: req.body.apiData.email,
-					login: req.body.apiData.login,
-					lastName: req.body.apiData.last_name,
-					firstName: req.body.apiData.first_name,
-					imageLink: req.body.apiData.image.link,
-					doubleAuth: req.body.doubleAuth,
-					currentStatus: "online"
-				}
+				data: { id: req.body.apiData.id,
+					username: req.body.username, email: req.body.apiData.email,
+					login: req.body.apiData.login, lastName: req.body.apiData.last_name,
+					firstName: req.body.apiData.first_name, imageLink: req.body.apiData.image.link,
+					doubleAuth: req.body.doubleAuth , connected: connected }
 			}); res.status(201).json(user)
 		}
 		catch (err)	{ console.log(err) }
 	}
-	@Post('logout')
-	@UseGuards(JwtAuthGuard)
-	async delogUserConnectedFalse(@Res() res: Response, @Req() req: Request) {
+	@Post('logout')	async delogUserConnectedFalse(@Res() res: Response, @Req() req: Request) {
 		try	{
-			console.log(`User ${req.body.id} logged out, setting its currentState to offline`)
-			await prisma.user.update({ where: { id: req.body.id }, data: { currentStatus: "offline" } })
+			await prisma.user.update({ where: { id: req.body.id }, data: { connected: false } })
 			res.status(204)
 		}
 		catch (err)	{ console.log(err); res.status(401) }

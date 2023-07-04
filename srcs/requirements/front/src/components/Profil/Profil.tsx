@@ -17,7 +17,7 @@ interface UserInfo {
 	imageLink?: string,
 	username?: string,
 	doubleAuth?: string,
-	currentStatus?: string
+	connected?: boolean
 }
 
 type ProfilProps = {
@@ -27,8 +27,7 @@ type ProfilProps = {
 	username?: string,
 	stats?: string,
 	matchHistory?: string,
-	children?: React.ReactNode,
-	inChatBox: boolean
+	children?: React.ReactNode
 }
 
 const Profil: React.FC<ProfilProps> = ({
@@ -37,14 +36,13 @@ const Profil: React.FC<ProfilProps> = ({
 	refreshWebToken,
 	stats = "Some user stats",
 	matchHistory = "Some match history data",
-	inChatBox = false,
-	children,
+	children
 	}) => {
 		const [newID, setNewID] = useState(-1)
 		const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
 		const [searchTerm, setSearchTerm] = useState('')
 		const [uploadedFile, setUploadedFile] = useState<File>()
-		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: '', currentStatus: "" })
+		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: '', connected: true })
 
 	useEffect(() => {
 		const fetchUserInformationDisplay = async () => {
@@ -62,7 +60,7 @@ const Profil: React.FC<ProfilProps> = ({
 						imageLink: res.data.imageLink,
 						username: res.data.username,
 						doubleAuth: res.data.doubleAuth,
-						currentStatus: res.data.currentStatus
+						connected: res.data.connected
 
 					}
 					setUserInfo(updatedUserInfo)
@@ -91,7 +89,7 @@ const Profil: React.FC<ProfilProps> = ({
 						imageLink: res.data.imageLink,
 						username: res.data.username,
 						doubleAuth: res.data.doubleAuth,
-						currentStatus: res.data.currentStatus
+						connected: res.data.connected
 					}
 					setUserInfo(updatedUserInfo)
 				}
@@ -156,9 +154,9 @@ const Profil: React.FC<ProfilProps> = ({
 				<div className='user-data-div-display'>
 					<div className='user-profile-info'>
 						<h1>User information</h1><br/>
-						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Current status: { userInfo.currentStatus }</p>
+						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Connected: { userInfo.connected === true ? 'connected' : 'offline' }</p>
 					</div>
-					{ (newID === ID || newID === -1) && inChatBox === false ?
+					{ newID === ID || newID === -1 ?
 					<div className='display-2fa-option'>
 						<div className='switch-2fa'>
 							<label className='form-switch'>
