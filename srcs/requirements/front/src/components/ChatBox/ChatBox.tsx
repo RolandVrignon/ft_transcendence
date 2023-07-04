@@ -141,6 +141,15 @@ const ChatBox: React.FC<{
 			setMessages([]);
 		});
 
+		//for pong game invites
+		socket.on('pong-game-invite', (hostID: number, callback: () => void) => {
+			// console.log(`Received pong-game-invite event`)
+			props.pongGameHostIDref.current = hostID
+			pongGameInviteRefusalCallbackRef.current = callback
+			// alert(`Received pong-game-invite event`, )
+			setShowModal(true)
+		})
+
 		return () => {
 			socket.off('disconectChannel');
 			socket.off('updateChannels');

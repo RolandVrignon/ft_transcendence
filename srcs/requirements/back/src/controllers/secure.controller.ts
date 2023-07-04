@@ -33,11 +33,12 @@ export class ConnectController {
 	async delogUserConnectedFalse(@Res() res: Response, @Req() req: Request) {
 		try	{
 			console.log(`User ${req.body.id} logged out, setting its currentState to offline`)
-			const updatedUser = await prisma.user.update({ where: { id: req.body.ID }, data: { currentStatus: "offLine" }})
+			const updatedUser = await prisma.user.update({ where: { id: req.body.id }, data: { currentStatus: "offLine" }})
 			res.status(204)
 		}
 		catch (err)	{ 
 			console.error(`Caught an error while trying to set the user with ID ${req.body.id}.`)
+			console.error(`err: `, err)
 			res.status(401) 
 		}
 	}

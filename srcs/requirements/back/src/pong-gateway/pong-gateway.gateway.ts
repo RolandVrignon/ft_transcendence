@@ -95,7 +95,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //If the client was waiting in queue, remove him from the queue.
     this.removeFromQueue(disconnectedSocket)
     //Remove every pending invites that the client was hosting.
-    this.pendingInvites = this.pendingInvites.filter(invite => invite.hostSocket === disconnectedSocket)
+    this.pendingInvites = this.pendingInvites.filter((invite) => {
+      if (invite.hostSocket === disconnectedSocket){
+        console.log(`Removed invitation with host ${invite.hostID}`)
+        return true
+      }
+      return false
+    })
+    console.log(`Invitations: ${JSON.stringify(this.pendingInvites)}`)
   }
 
   @SubscribeMessage('invite-request')
@@ -117,13 +124,13 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return
     }
     //If there is already a pending invite for the same users BUT the host and guest are switched, handle the invite request as a join request.
-    let correspondingPendingInvite = this.pendingInvites.find(invite => invite.hostID === guestID && invite.guestID === hostID)
+    let correspondingPendingInvite = this.pendingInvites.find(invite => invite.hostID === guestID && invite.guestID === hostID) 
     if (correspondingPendingInvite !== undefined) {
       console.log(`Request corresponds to existing pending invite with switched host and guest IDs, handling invite request as join request...`)
       this.handleJoinRequest(hostSocket, guestID, hostID)
       return 
     }
-    //Otherwise, create a new invite and add it to the pendingInvites array.
+    //Otherwise, create a new invite and add it to the pendingInvites array. 
     this.pendingInvites.push(new PendingInvite(hostSocket, hostID, guestID, this.nextPendingInviteDebugID++))
     console.log(`Created pending invite with debugId ${this.nextPendingInviteDebugID - 1}, pending invites length: `, this.pendingInvites.length, `, pending invites: [${this.pendingInvites.map(invite => invite.pendingInviteID)}].`)
     //Then, transmit emit join request from messages gateway
@@ -135,7 +142,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (inviteTransmitted)
       hostSocket.emit('waiting-for-guest-answer')
     else {
-      console.log(`Could not tansmit invite to guest, adding host to queue...`)
+      console.log(`Could not tansmit invite to guest, removing invitation...`)
+      this.pendingInvites = this.pendingInvites.filter(invitation => invitation.hostID === hostID && invitation.guestID === guestID)
       this.handleEnterQueueRequest(hostSocket, hostID)
     }
       
