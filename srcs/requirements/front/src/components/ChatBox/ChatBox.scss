@@ -37,12 +37,17 @@
 }
 
 .channel-list {
-	height: 80%;
+	height: 30vh;
 	list-style-type: none;
 	padding: 0;
 	margin: 0;
+	overflow: auto;
 }
-  
+
+.close {
+	height: 0px !important;
+}
+
   .channel-item {
 		padding: 10px;
 		cursor: pointer;
@@ -51,6 +56,10 @@
   .channel-item:hover {
 		background-color: rgb(152, 8, 8);
   }
+
+.invite {
+	font-size: 0.7em !important;
+}
   
 .channel-name {
 		justify-content: start;
