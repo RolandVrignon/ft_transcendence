@@ -756,8 +756,9 @@ export class MessagesGateway {
 			else if (target.userID == executorId) {
 				throw  `You cannot ${type} yourself.`
 			}
-			else if (target.status == "owner" || target.status == "admin") {
-				throw  `You cannot ${type} a SuperUser.`
+			else if (await this.messagesService.isOwner(channelId, executorId) == false
+				&&	(target.status == "owner" || target.status == "admin")) {
+				throw  `You cannot ${type} a SuperUser !`
 			}
 			const isPunished = await prisma.punishment.findMany({
 				where: {
