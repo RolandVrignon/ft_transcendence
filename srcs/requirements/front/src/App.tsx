@@ -1,9 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import './App.scss';
 import MainPage from './components/MainPage/MainPage'
 import HomePage from './components/HomePage/HomePage';
 import './components/ChatBox/ChatBox.scss'
-import axios from 'axios'
+//import { set } from 'lodash'
 
 
 function App() { 

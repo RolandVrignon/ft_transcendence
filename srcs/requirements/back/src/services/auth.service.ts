@@ -40,8 +40,10 @@ export default class AuthService {
     }
     async updateConnectedStatus(userID: number) { 
         try {
-          await prisma.user.update({ where: { id: userID }, data: { currentStatus: "online" } })
-          console.log(`Set user with id ${userID} to 'online'`)
-        } catch (err) { console.log(err) }
+          if (userID !== undefined) {
+            await prisma.user.update({ where: { id: userID }, data: { currentStatus: "online" } })
+            console.log(`Set user with id ${userID} to 'online'`)
+          }
+        } catch (err) { console.log(err) } 
     }
 }

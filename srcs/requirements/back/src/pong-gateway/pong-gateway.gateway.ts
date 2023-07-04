@@ -102,7 +102,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
       return false
     })
-    console.log(`Invitations: ${JSON.stringify(this.pendingInvites)}`)
+    // console.log(`Invitations: ${JSON.stringify(this.pendingInvites)}`)
   }
 
   @SubscribeMessage('invite-request')
@@ -147,7 +147,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.handleEnterQueueRequest(hostSocket, hostID)
     }
       
-  }
+  } 
 
   @SubscribeMessage('join-request')
   @UseGuards(WebSocketJwtAuthGuard)

@@ -756,8 +756,9 @@ export class MessagesGateway {
 			else if (target.userID == executorId) {
 				throw  `You cannot ${type} yourself.`
 			}
-			else if (target.status == "owner" || target.status == "admin") {
-				throw  `You cannot ${type} a SuperUser.`
+			else if (await this.messagesService.isOwner(channelId, executorId) == false
+				&&	(target.status == "owner" || target.status == "admin")) {
+				throw  `You cannot ${type} a SuperUser !`
 			}
 			const isPunished = await prisma.punishment.findMany({
 				where: {
@@ -816,10 +817,12 @@ export class MessagesGateway {
 	transmitPongGameInviteProposal(hostID: number, guestID: number, inviteDebugID: number, inviteRefusalCallback: () => void): boolean {
 		console.log(`Transmitting invite proposal hostID: ${hostID}, guestID: ${guestID}, inviteDebugID: ${inviteDebugID}...`)
 		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.userID === guestID)
+		console.log(`socket/user pairs: ${JSON.stringify(this.socketUserIDpairs.map(pair => {pair.socket.id, pair.userID}))}`)
 		if (socketUserIdPairIndex === -1) {
 			console.error(`Error: Could not found an socketUserIdPairIndex with the userID ${guestID}!`)
 			return false
 		}
+		console.log(`socket: ${this.socketUserIDpairs[socketUserIdPairIndex].socket.id}`)
 		this.socketUserIDpairs[socketUserIdPairIndex].socket.emit('pong-game-invite', hostID, () => inviteRefusalCallback())
 		return true
 	}

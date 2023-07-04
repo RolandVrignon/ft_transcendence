@@ -29,7 +29,6 @@ export class SearchController	{
 	@Post('user-match-history')
 	async getUserMatchHistory(@Res() res: Response, @Req() req: Request) {
 	  const userId = req.body.id;
-	  console.log(`Looking for userID `, userId)
 	  try {
 		const games = await prisma.gameSessionOutcome.findMany({
 		  where: {
@@ -56,8 +55,6 @@ export class SearchController	{
 		  winnerName: game.winner.username,
 		  loserName: game.loser.username,
 		}));
-		console.log(`Returning gameSessionHistory: ${gameSessionsHistory}`)
-		console.log(`games.length: ${games.length}`)
 		return res.json(gameSessionsHistory);
 	  } catch (error) {
 		console.error(`Something went wrong....`)

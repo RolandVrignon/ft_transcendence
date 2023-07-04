@@ -27,8 +27,7 @@ type ProfilProps = {
 	username?: string,
 	stats?: string,
 	matchHistory?: string,
-	children?: React.ReactNode,
-	inChatBox: boolean
+	children?: React.ReactNode
 }
 
 const Profil: React.FC<ProfilProps> = ({
@@ -37,8 +36,7 @@ const Profil: React.FC<ProfilProps> = ({
 	refreshWebToken,
 	stats = "Some user stats",
 	matchHistory = "Some match history data",
-	inChatBox = false,
-	children,
+	children
 	}) => {
 		const [newID, setNewID] = useState(-1)
 		const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
@@ -156,27 +154,26 @@ const Profil: React.FC<ProfilProps> = ({
 				<div className='user-data-div-display'>
 					<div className='user-profile-info'>
 						<h1>User information</h1><br/>
-						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Current status: { userInfo.currentStatus }</p>
+						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Satus: {userInfo.currentStatus} </p>
 					</div>
-					{ (newID === ID || newID === -1) && inChatBox === false ?
-					<div className='display-2fa-option'>
-						<div className='switch-2fa'>
-							<label className='form-switch'>
-								2FA&nbsp;
-								<input type='checkbox' onClick={(e)=>change2FAUserStatus(e)} checked={ userInfo.doubleAuth && userInfo.doubleAuth.length ? true : false }/>
-								<i></i>
-							</label>
+					{ newID === ID || newID === -1 ?
+						<div className='display-2fa-option'>
+							<div className='switch-2fa'>
+								<label className='form-switch'>
+									2FA&nbsp;
+									<input type='checkbox' onClick={(e)=>change2FAUserStatus(e)} checked={ userInfo.doubleAuth && userInfo.doubleAuth.length ? true : false }/>
+									<i></i>
+								</label>
+							</div>
 						</div>
-					</div>
 					:
-					<div className='container-social-button'>
-						<div className='social-button-add'><p>add<br/>friend</p></div>
-						<div className='social-button-remove'><p>remove<br/>friend</p></div>
-						<div className='social-button-game'><p>make<br/>game</p></div>
-						<div className='social-button-block'><p>block<br/>user</p></div>
-					</div>
+						<div className='container-social-button'>
+							<div className='social-button-add'><p>add<br/>friend</p></div>
+							<div className='social-button-remove'><p>remove<br/>friend</p></div>
+							<div className='social-button-game'><p>make<br/>game</p></div>
+							<div className='social-button-block'><p>block<br/>user</p></div>
+						</div>
 					}
-					
 				</div>
 			</div>
 			<SolidFrame frameClass='info-frame'>

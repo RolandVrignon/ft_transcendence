@@ -8,7 +8,6 @@ type SideBarProps = { webToken: string, statusLog: Dispatch<SetStateAction<boole
 const SideBar: React.FC<SideBarProps> = (control) => {
 	async function	sessionDestroyTrigger()	{
 		control.statusLog(false)
-		console.log(`Sending post request to 'http://localhost:8080/secure/logout'.`)
 		await axios({ url: 'http://localhost:8080/secure/logout', method: 'POST', headers: { Authorization: `Bearer ${control.webToken}` }, data: { id: control.userID } })
 	}
 	return (
