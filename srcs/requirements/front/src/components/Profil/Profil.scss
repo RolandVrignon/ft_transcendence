@@ -1,12 +1,6 @@
+.profil-frame { width: 100%; height: 100%; }
 $user-height: 35%;
-
-.profil-frame {
-	width: 100%;
-	height: 100%;
-}
-
 $border-width: 2px;
-
 
 .search-frame {
 	height: 50px;
@@ -15,16 +9,8 @@ $border-width: 2px;
 	align-items: center;
 	transition: all 1s;
 	&:hover { border: 1.5px solid white; transform: scale(0.98); }
-	.search-input-frame {
-		border-width: 1px;
-		height: 100%;
-		font-size: 20px;
-	}
-	.button-search-frame {
-		height: 100%;
-		width: 250px;
-		background-color: green;
-	}
+	.search-input-frame { border-width: 1px; height: 100%; font-size: 20px; }
+	.button-search-frame { height: 100%; width: 250px; background-color: green; }
 }
 
 .user-profil-frame {
@@ -48,11 +34,7 @@ $border-width: 2px;
 			width: 100%;
 			height: 100%;
 			pointer-events: none;
-			img {
-				width: 100%;
-				height: auto;
-				object-fit: cover;
-			}
+			img { width: 100%; height: auto; object-fit: cover; }
 		}
 		.container-avatar-change {
 			padding: 0.5vh;
@@ -85,13 +67,8 @@ $border-width: 2px;
 			&:hover { border: 0; transform: scale(1.1) }
 			@media screen and (max-width: 1200px) { margin-bottom: 0; }
 		}
-
 	}
-	@media screen and (max-width: 1200px) {
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-	}
+	@media screen and (max-width: 1200px) { height: 100%; display: flex; flex-direction: column; }
 	.user-data-div-display {
 		flex-grow: 1;
 		height: 100%;
@@ -102,14 +79,8 @@ $border-width: 2px;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			.switch-2fa	{
-				width: 100%;
-				color: white;
-			}
-			.text-2fa-option	{
-				width: 70%;
-				color: white;
-			}
+			.switch-2fa	{ width: 100%; color: white; }
+			.text-2fa-option { width: 70%; color: white; }
 		}
 		@media screen and (max-width: 1200px) {
 			align-items: center;
