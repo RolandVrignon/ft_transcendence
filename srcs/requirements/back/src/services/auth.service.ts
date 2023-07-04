@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import axios from 'axios'
 import * as qs from 'qs'
 import prisma from '../../prisma/prisma.client'
+import { User } from '@prisma/client'
 
 @Injectable()
 export default class AuthService {
@@ -33,8 +34,13 @@ export default class AuthService {
       const res = await axios.get(url, { headers: { 'Authorization' : `Bearer ${accessToken}` } })
       return res.data
     }
-    async	askDataBaseForCreation(userId: number) : Promise<object>	{
-      const	user = await prisma.user.findUnique({ where: { id: userId } })
+    async	askDataBaseForCreation(userId: number) : Promise<User | null>	{
+      const	user: User = await prisma.user.findUnique({ where: { id: userId } })
       return user
+    }
+    async updateConnectedStatus(userID: number) { 
+        try {
+          await prisma.user.update({ where: { id: userID }, data: { connected: true } })
+        } catch (err) { console.log(err) }
     }
 }

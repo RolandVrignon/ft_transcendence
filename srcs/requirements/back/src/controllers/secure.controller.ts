@@ -13,15 +13,23 @@ export class ConnectController {
 	constructor(private readonly jwtService: JwtService, private auth: AuthService) {}
 	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
 		try	{
+			const connected = true
 			const user = await prisma.user.create({
 				data: { id: req.body.apiData.id,
 					username: req.body.username, email: req.body.apiData.email,
 					login: req.body.apiData.login, lastName: req.body.apiData.last_name,
 					firstName: req.body.apiData.first_name, imageLink: req.body.apiData.image.link,
-					doubleAuth: req.body.doubleAuth }
+					doubleAuth: req.body.doubleAuth , connected: connected }
 			}); res.status(201).json(user)
 		}
 		catch (err)	{ console.log(err) }
+	}
+	@Post('logout')	async delogUserConnectedFalse(@Res() res: Response, @Req() req: Request) {
+		try	{
+			await prisma.user.update({ where: { id: req.body.id }, data: { connected: false } })
+			res.status(204)
+		}
+		catch (err)	{ console.log(err); res.status(401) }
 	}
 	@Post('update2FA')	async update2FAStatus(@Res() res: Response, @Req() req: Request) {
 		try {
@@ -48,10 +56,11 @@ export class ConnectController {
 		}
 		catch (err)	{ console.log(err) }
 	}
-	@Post('verify-secure')	async verifyDoubleAuthToken(@Res() res: Response, @Req() req: Request)	{
+	@Post('token')	async verifyDoubleAuthToken(@Res() res: Response, @Req() req: Request)	{
 		const	verif = await prisma.token2FA.findUnique({ where: { id: req.body.id } })
 		if (verif && verif.value === req.body.token)	{
 			await prisma.token2FA.delete({ where: { id: req.body.id } })
+			this.auth.updateConnectedStatus(req.body.id)
 			res.status(201).json('approved')
 		}
 		else { res.status(401) }

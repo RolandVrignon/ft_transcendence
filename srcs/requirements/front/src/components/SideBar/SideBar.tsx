@@ -2,10 +2,14 @@ import React from "react";
 import SolidFrame from '../SolidFrame/SolidFrame'
 import './SideBar.scss'
 import { Dispatch, SetStateAction } from 'react'
+import axios from 'axios'
 
-type SideBarProps = { statusLog: Dispatch<SetStateAction<boolean>> }
+type SideBarProps = { webToken: string, statusLog: Dispatch<SetStateAction<boolean>>, userID: number }
 const SideBar: React.FC<SideBarProps> = (control) => {
-	async function	sessionDestroyTrigger()	{ control.statusLog(false) }
+	async function	sessionDestroyTrigger()	{
+		control.statusLog(false)
+		await axios({ url: 'http://localhost:8080/secure/logout', method: 'POST', headers: { Authorization: `Bearer ${control.webToken}` }, data: { id: control.userID } })
+	}
 	return (
 		<SolidFrame frameClass="side-frame" >
 			<SolidFrame frameClass="logo-frame" txtClass="text-logo" txt1="Simple" txt2="Pong" />

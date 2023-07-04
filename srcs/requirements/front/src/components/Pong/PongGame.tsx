@@ -185,7 +185,7 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
                 let X = x / nbParticlesPerSide
                 let Y = y / nbParticlesPerSide
                 particles.push(p5.createVector(X, Y))
-                } 
+                }
             }
         }
         
@@ -201,7 +201,7 @@ export default function PongGame({webToken, userDbID, pongGameGuestIDref, pongGa
                     particles[i].x = 1 - particles[i].x
                 particles[i].y = particles[i].y % 1
                 if (particles[i].y < 0 || particles[i].y > 1)
-                    particles[i].y = 1 - particles[i].y 
+                    particles[i].y = 1 - particles[i].y
                 //Draw the particle
                 if (showParticles)
                     p5.circle(particles[i].x * getSideLength(), particles[i].y * getSideLength(), 0.005 * getSideLength())

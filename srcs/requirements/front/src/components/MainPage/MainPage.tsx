@@ -61,7 +61,7 @@ const MainPage: React.FC<MainPageProps> = (control) => {
   return (
     <Router>
       <SolidFrame frameClass="window-frame"> 
-        <SideBar statusLog={control.statusLog}/>
+        <SideBar webToken={control.webToken} statusLog={control.statusLog} userID={control.ID} />
         <Content ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken}/>
       </SolidFrame>
     </Router>

@@ -1,12 +1,10 @@
-import React from "react";
+import React from "react"
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AppContext } from '../Context'
 import { Dispatch, SetStateAction } from 'react'
-import SolidFrame from "../SolidFrame/SolidFrame";
+import SolidFrame from "../SolidFrame/SolidFrame"
+import GetAccess from '../GetAccess/GetAccess'
+import Login from '../Login/Login'
 import './HomePage.scss'
-
-import GetAccess from '../GetAccess/GetAccess';
-import Login from '../Login/Login';
 
 type HomePageProps = {
 	log: Dispatch<SetStateAction<boolean>>,

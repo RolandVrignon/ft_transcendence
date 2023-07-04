@@ -1,4 +1,3 @@
-import { AppContext } from './components/Context'
 import React, { useState, useContext } from 'react';
 import './App.scss';
 import MainPage from './components/MainPage/MainPage'

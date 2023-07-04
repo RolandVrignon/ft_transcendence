@@ -18,6 +18,7 @@ model User {
   username    String
   doubleAuth  String
   friends     String[]
+  connected   Boolean
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   wins        GameSessionOutcome[] @relation("userWins")

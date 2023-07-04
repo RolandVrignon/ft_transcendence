@@ -16,7 +16,8 @@ interface UserInfo {
 	last_name?: string,
 	imageLink?: string,
 	username?: string,
-	doubleAuth?: string
+	doubleAuth?: string,
+	connected?: boolean
 }
 
 type ProfilProps = {
@@ -41,7 +42,7 @@ const Profil: React.FC<ProfilProps> = ({
 		const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
 		const [searchTerm, setSearchTerm] = useState('')
 		const [uploadedFile, setUploadedFile] = useState<File>()
-		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: ''})
+		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: '', connected: true })
 
 	useEffect(() => {
 		const fetchUserInformationDisplay = async () => {
@@ -58,7 +59,9 @@ const Profil: React.FC<ProfilProps> = ({
 						first_name: res.data.firstName,
 						imageLink: res.data.imageLink,
 						username: res.data.username,
-						doubleAuth: res.data.doubleAuth
+						doubleAuth: res.data.doubleAuth,
+						connected: res.data.connected
+
 					}
 					setUserInfo(updatedUserInfo)
 				}
@@ -85,7 +88,8 @@ const Profil: React.FC<ProfilProps> = ({
 						first_name: res.data.firstName,
 						imageLink: res.data.imageLink,
 						username: res.data.username,
-						doubleAuth: res.data.doubleAuth
+						doubleAuth: res.data.doubleAuth,
+						connected: res.data.connected
 					}
 					setUserInfo(updatedUserInfo)
 				}
@@ -109,8 +113,7 @@ const Profil: React.FC<ProfilProps> = ({
 					method: 'POST',
 					data: formData
 				})
-				setNewID(ID)
-				triggerEffect()
+				setNewID(ID); triggerEffect()
 			}
 		}
 		catch (err) { console.log(err) }
@@ -123,11 +126,8 @@ const Profil: React.FC<ProfilProps> = ({
 			headers: { Authorization: `Bearer ${webToken}` },
 			data: { ID, status2FA }
 		})
-		// setNewID(ID)
 		const updatedUser = res.data
-		setUserInfo(updatedUser)
-		setNewID(ID)
-		triggerEffect()
+		setUserInfo(updatedUser); setNewID(ID); triggerEffect()
 	}
 
 	return (
@@ -136,28 +136,27 @@ const Profil: React.FC<ProfilProps> = ({
 				<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 			</div>
 			<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
-			{/* <ProfileUserButton webToken={webToken} newID={newID} ID={ID}/> */}
 			<div className='user-profil-frame'>
 				<div className='photo-frame'>
 					<div className='avatar-container-profil'>
 						<img src={userInfo.imageLink} />
 					</div>
-					{ newID === ID ?
+					{ newID === ID || newID === -1?
 						<div className='container-avatar-change'>
 						<label htmlFor='upload-file-input' className='custom-file-upload'>
 							<input id='upload-file-input' className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
-							<span>{ uploadedFile ? uploadedFile.name : 'Choose File' }</span>
+							<span>{ uploadedFile ? uploadedFile.name : 'Choose file' }</span>
 						</label>
 							<button className='change-avatar-button' onClick={changeAvatarProfil}>Change avatar</button>
 						</div>
-					: null }	
+					: null }
 				</div>
 				<div className='user-data-div-display'>
 					<div className='user-profile-info'>
 						<h1>User information</h1><br/>
-						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42</p>
+						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Connected: { userInfo.connected === true ? 'connected' : 'offline' }</p>
 					</div>
-					{ newID === ID ?
+					{ newID === ID || newID === -1 ?
 					<div className='display-2fa-option'>
 						<div className='switch-2fa'>
 							<label className='form-switch'>
@@ -167,7 +166,7 @@ const Profil: React.FC<ProfilProps> = ({
 							</label>
 						</div>
 					</div>
-					: 
+					:
 					<div className='container-social-button'>
 						<div className='social-button-add'><p>add<br/>friend</p></div>
 						<div className='social-button-remove'><p>remove<br/>friend</p></div>
@@ -188,7 +187,7 @@ const Profil: React.FC<ProfilProps> = ({
 					{ newID !== -1 && newID !== ID ? 
 					<div className='match-history-container'><MatchHistory userID={newID} token={webToken} /></div>
 					: 
-					<div className='match-history-container'><MatchHistory userID={newID} token={webToken} /></div> }
+					<div className='match-history-container'><MatchHistory userID={ID} token={webToken} /></div> }
 			</SolidFrame>
 		</SolidFrame>
 	)
