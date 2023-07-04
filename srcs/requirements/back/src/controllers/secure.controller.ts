@@ -30,14 +30,16 @@ export class ConnectController {
 		catch (err)	{ console.log(err) }
 	}
 	@Post('logout')
-	@UseGuards(JwtAuthGuard)
 	async delogUserConnectedFalse(@Res() res: Response, @Req() req: Request) {
 		try	{
 			console.log(`User ${req.body.id} logged out, setting its currentState to offline`)
-			await prisma.user.update({ where: { id: req.body.id }, data: { currentStatus: "offline" } })
+			const updatedUser = await prisma.user.update({ where: { id: req.body.ID }, data: { currentStatus: "offLine" }})
 			res.status(204)
 		}
-		catch (err)	{ console.log(err); res.status(401) }
+		catch (err)	{ 
+			console.error(`Caught an error while trying to set the user with ID ${req.body.id}.`)
+			res.status(401) 
+		}
 	}
 	@Post('update2FA')	async update2FAStatus(@Res() res: Response, @Req() req: Request) {
 		try {

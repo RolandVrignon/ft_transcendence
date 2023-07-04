@@ -10,11 +10,11 @@ const Login: React.FC<LoginProps> = (control) => {
   let renderer = null
   interface UserApiData { id: number, first_name: string, last_name: string }
 
-  const [userLogged, setUserLogged] = useState(false)
+  const [userLogged, setUserLogged] = useState(false) 
   const [userApiData, setUserApiData] = useState<UserApiData | null>(null)
   const [userDbData, setUserDbData] = useState(null)
   const [attemptLogin, setAttemptLogin] = useState(false)
-  const [doubleAuth, setDoubleAuth] = useState('')
+  const [doubleAuth, setDoubleAuth] = useState('') 
   const [dOptAuth, setDOptAuth] = useState('')
   const [userName, setUserName] = useState('')
   const [check2FA, setcheck2FA] = useState(false)
@@ -33,10 +33,13 @@ const Login: React.FC<LoginProps> = (control) => {
 
   async function askDataBaseForCreation(code: string) {
     const checkUserStateURL = 'http://localhost:8080/42Api/log'
+
     const res = await axios({
       url: checkUserStateURL,
       method: 'POST',
-      data: { code }
+      data: { 
+        code,
+      }
     })
     if (res.data.dbData)
       setDOptAuth(res.data.dbData.doubleAuth)

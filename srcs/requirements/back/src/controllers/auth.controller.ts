@@ -3,6 +3,7 @@ import { Response, Request } from 'express'
 import { JwtService } from '@nestjs/jwt'
 import AuthService from '../services/auth.service'
 import { User } from '@prisma/client'
+import prisma from '../../prisma/prisma.client'
 
 @Controller('42api')
 export class Api42ConnectController {
@@ -11,7 +12,7 @@ export class Api42ConnectController {
 
 	@Post('log')	async getUserInfo(@Res() res: Response, @Req() req: Request) {
 		try	{
-			const accessToken = await this.auth.exchangeCodeForToken(req.body.code)
+			const accessToken = await this.auth.exchangeCodeForToken(req.body.code) 
 			const userID = await this.auth.askUserID(accessToken)
 			const userData = await this.auth.fetchUserData42(accessToken, userID)
 			const userDataState: User | null = await this.auth.askDataBaseForCreation(userID)
@@ -19,6 +20,11 @@ export class Api42ConnectController {
 			const data = { jwtSecureToken: jwt, apiData: userData, dbData: userDataState }
 			if (userDataState && !userDataState.doubleAuth)	{ await this.auth.updateConnectedStatus(userDataState.id) }
 			res.status(200).json(data).json()
+			//set user's status to online
+			console.log('log, userID = ', req.body.id)
+			// const updatePromise = prisma.user.update({ where: { id: req.body.ID }, data: { currentStatus: "offLine" }})
+			// updatePromise.then(reason => console.log(`updatePromise.then, reason: `, reason))
+			// updatePromise.catch(reason => console.log(`updatePromise.catch, reason: `, reason))
 		}
 		catch (err)	{ console.log(err) }
 	}

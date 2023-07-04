@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import SolidFrame from '../SolidFrame/SolidFrame';
 import SideBar from "../SideBar/SideBar";
@@ -7,6 +7,7 @@ import './MainPage.scss';
 import ChatBox from '../ChatBox/ChatBox';
 import Pong from '../Pong/Pong';
 import { Dispatch, SetStateAction } from 'react'
+import axios from 'axios'
 import Profil from '../Profil/Profil';
 
 type MainPageProps = {
@@ -28,6 +29,8 @@ const Content: React.FC<ContentPageProps> = (control) => {
   //Properties for ponGameInvite
   const pongGameGuestIDref = useRef<number | null>(null)
   const pongGameHostIDref = useRef<number | null>(null)
+
+
 
   const getTitle = () => {
 	switch(location.pathname) { 
@@ -58,6 +61,23 @@ const Content: React.FC<ContentPageProps> = (control) => {
 };
 
 const MainPage: React.FC<MainPageProps> = (control) => {
+    useEffect(() => {
+
+      window.addEventListener('beforeunload', setCurrentStatusToOffline)
+
+      return () => {
+      // setCurrentStatusToOffline()
+      // window.removeEventListener('beforeunload', setCurrentStatusToOffline)
+        }
+    }, []);
+
+    function setCurrentStatusToOffline() {
+    console.log(`Sending post request to 'http://localhost:8080/secure/logout'.`)
+    const logoutPromise = axios({ url: 'http://localhost:8080/secure/logout', method: 'POST', headers: { Authorization: `Bearer ${ control.webToken }` }, data: { id: control.ID } })
+    logoutPromise.then(response => console.log(`Response from logout request: ${JSON.stringify(response, null, 2)}`))
+    logoutPromise.catch(error => console.error(`Caught error from logoutPromise: ${JSON.stringify(logoutPromise, null, 2)}`))
+    }
+
   return (
     <Router>
       <SolidFrame frameClass="window-frame"> 
