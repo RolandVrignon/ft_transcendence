@@ -10,25 +10,8 @@ import { debounce } from 'lodash'
 import { Dispatch, SetStateAction } from 'react'
 import MatchHistory from "../MatchHistory/MatchHistory";
 
-interface UserInfo {
-	id?: number,
-	first_name?: string,
-	last_name?: string,
-	imageLink?: string,
-	username?: string,
-	doubleAuth?: string,
-	connected?: boolean
-}
-
-type ProfilProps = {
-	ID: number,
-	refreshWebToken: Dispatch<SetStateAction<string>>,
-	webToken: string,
-	username?: string,
-	stats?: string,
-	matchHistory?: string,
-	children?: React.ReactNode
-}
+interface 	UserInfo { id?: number, first_name?: string, last_name?: string, imageLink?: string, username?: string, doubleAuth?: string, connected?: boolean }
+type 		ProfilProps = { ID: number, refreshWebToken: Dispatch<SetStateAction<string>>, webToken: string, username?: string, stats?: string, matchHistory?: string, children?: React.ReactNode }
 
 const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = "Some user stats", matchHistory = "Some match history data", children }) => {
 	const [newID, setNewID] = useState(-1)
@@ -37,7 +20,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 	const [friendList, setFriendList] = useState<string[]>([])
 	const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
 	const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: '', connected: true })
-		
+
 	async function fetchFriendList() {
 		try {
 			const res = await axios({ url: 'http://localhost:8080/friend/list', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { id: ID } })
@@ -58,13 +41,8 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 						data: { id: ID }
 					})
 					const updatedUserInfo: UserInfo = {
-						id: ID,
-						first_name: res.data.firstName,
-						imageLink: res.data.imageLink,
-						username: res.data.username,
-						doubleAuth: res.data.doubleAuth,
-						connected: res.data.connected
-
+						id: ID, first_name: res.data.firstName, imageLink: res.data.imageLink,
+						username: res.data.username, doubleAuth: res.data.doubleAuth, connected: res.data.connected
 					}
 					setUserInfo(updatedUserInfo)
 				}
@@ -76,7 +54,6 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 	useEffect(() => {
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
-				console.log(newID)
 				if (newID !== -1)	{
 					const res = await axios({
 						url: 'http://localhost:8080/search/info-user',
@@ -85,12 +62,8 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 						data: { id: newID }
 					})
 					const updatedUserInfo: UserInfo = {
-						id: newID,
-						first_name: res.data.firstName,
-						imageLink: res.data.imageLink,
-						username: res.data.username,
-						doubleAuth: res.data.doubleAuth,
-						connected: res.data.connected
+						id: newID, first_name: res.data.firstName, imageLink: res.data.imageLink,
+						username: res.data.username, doubleAuth: res.data.doubleAuth, connected: res.data.connected
 					}
 					setUserInfo(updatedUserInfo)
 				}
@@ -100,30 +73,23 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 		fetchOtherUserInformationDisplay()
 	}, [newID, triggerAvatarChange])
 
-
-
-	function	whichSendButton(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>): number	{
-		const target = e.target as HTMLButtonElement
-		console.log(target.className)
-		if (target.className === 'solid-frame text-content button-interface-actions-user button-add-friend')
-			return 0
-		else if (target.className === 'solid-frame text-content button-interface-actions-user button-remove-friend')
-			return 1
-		else if (target.className === 'solid-frame text-content button-interface-actions-user button-block-user')
-			return 2
-		return 3
+	function				whichSendButton(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>): number	{
+		const target = e.target as HTMLDivElement; const className = target.getAttribute('class')
+		if (target.className === 'add-friend') { return 0 }
+		else if (target.className === 'remove-friend') { return 1 }
+		else if (target.className === 'block-friend') { return 2 }
+		else { return 3 }
 	}
-
-	async function	handleSocialInteract(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>)	{
-		switch (whichSendButton(e))	{ case 0: await addUserFriend; break;  case 1: await removeUserFriend; break;  case 2: console.log('button-block-user'); break;  case 3: console.log('button-make-game') }
+	async		function	handleSocialInteract(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>)	{
+		switch (whichSendButton(e))	{ case 0: await addUserFriend(); break;  case 1: await removeUserFriend(); break;  case 2: console.log('button-block-user'); break;  case 3: console.log('button-make-game') }
 	}
-	const 					waitHandleSocialInteract = debounce(handleSocialInteract, 500)	
-	async 		function	addUserFriend()	{ await axios({ url: 'http://localhost:8080/friend/add', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }) }
-	async 		function	removeUserFriend()	{ await axios({ url: 'http://localhost:8080/friend/remove', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }) }
+	const 					waitHandleSocialInteract = debounce(handleSocialInteract, 500)
+	async 		function	addUserFriend()	{ const res = await axios({ url: 'http://localhost:8080/friend/add', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }); console.log(res) }
+	async 		function	removeUserFriend() { await axios({ url: 'http://localhost:8080/friend/remove', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }) }
 	function 				triggerEffect()	{ setTriggerAvatarChange((prevKey) => prevKey + 1) }
-	function				askDbForUsers(event: string)	{ setSearchTerm(event) }
-	async		function 	handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
-	async		function 	changeAvatarProfil()	{
+	function				askDbForUsers(event: string) { setSearchTerm(event) }
+	async		function 	handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>) { if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
+	async		function 	changeAvatarProfil() {
 		try {
 			if (uploadedFile)	{
 				const formData = new FormData()
@@ -173,16 +139,20 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 				</div>
 				<div className='user-data-div-display'>
 					<div className='user-profile-info'>
-						<h1>User information</h1><br/>
+					<h1>User information</h1><br/>
 						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Connected: { userInfo.connected === true ? 'connected' : 'offline' }</p>
 					</div>
-					<div className='container-friend-list-profile'>
-        				{friendList.map((friend, index) => (
-							<div key={index} className='friend-profile'>
-								{friend}
-							</div>
-						))}
-					</div>
+					{ newID === ID || newID === -1 ? 
+						<div className='container-friend-list-profile'>
+							<h2>Friends</h2><br/>
+							{friendList.map((friend, index) => (
+								<div key={index} className='display-friend-list-cell'>
+									{friend}
+								</div>
+							))}
+						</div>
+					: 
+					null }
 					{ newID === ID || newID === -1 ?
 						<div className='display-2fa-option'>
 							<div className='switch-2fa'>
@@ -195,8 +165,8 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 						</div>
 					:
 						<div className='container-social-button'>
-							<div onClick={waitHandleSocialInteract} className='social-button-add'><p>add<br/>friend</p></div>
-							<div onClick={waitHandleSocialInteract} className='social-button-remove'><p>remove<br/>friend</p></div>
+							<div onClick={waitHandleSocialInteract} className='social-button-add'><p className='add-friend'>add<br/>friend</p></div>
+							<div onClick={waitHandleSocialInteract} className='social-button-remove'><p className='remove-friend'>remove<br/>friend</p></div>
 							<div className='social-button-game'><p>make<br/>game</p></div>
 							<div className='social-button-block'><p>block<br/>user</p></div>
 						</div>
