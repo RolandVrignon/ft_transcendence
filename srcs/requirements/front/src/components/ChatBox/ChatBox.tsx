@@ -64,7 +64,7 @@ const ChatBox: React.FC<{
 
 
 	useEffect(() => {
-		const socketInstance = io('http://localhost:8080');
+		const socketInstance = io('http://localhost:8080', {query: { token: props.webToken }});
 		console.log(socketInstance)
 		setSocket(socketInstance);
 
@@ -658,7 +658,7 @@ const ChatBox: React.FC<{
 	else if (showProfile)
 		return (
 			<>
-				<Profil ID={selectedUserId} webToken={props.webToken} refreshWebToken={props.refreshWebToken} />
+				<Profil ID={selectedUserId} webToken={props.webToken} refreshWebToken={props.refreshWebToken} inChatBox={true}/>
 				{props.userDbID !== selectedUserId &&
 					<>
 						<button className="solid-frame button-frame-choice text-content text-button-choice"

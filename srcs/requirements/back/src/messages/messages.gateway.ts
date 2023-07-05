@@ -5,6 +5,8 @@ import { Server, Socket } from 'socket.io'
 import prisma from '../../prisma/prisma.client';
 import { DateTime } from 'luxon';
 import { type } from 'os';
+import { UseGuards } from '@nestjs/common'
+import { WebSocketJwtAuthGuard } from '../jwt/jwt.guard'
 
 //const COMMAND_HELPER: string = "to mute => /mute targetName durationInMinutes\n to block";
 import { saltOrRounds } from './messages.service';
@@ -65,6 +67,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('findChannel')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async findChannel(
 		@MessageBody('channelName') chatName:string,
 		@MessageBody('password') password:string,
@@ -81,6 +84,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('updateUserAllChatConnectionStatus')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async updateUserAllChatConnectionStatus(
 		@MessageBody('userId') userId:number,
 		@MessageBody('newStatus') newStatus: boolean,
@@ -97,6 +101,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('updateUserChatConnectionStatus')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async updateUserChatConnectionStatus(
 		@MessageBody('userId') userId:number,
 		@MessageBody('channelId') channelId: number,
@@ -115,6 +120,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('join')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async joinRoom(
 			@MessageBody('userId') userId:number,
 			@MessageBody('channelId') channelId: number,
@@ -145,6 +151,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('createMessageChannel')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async createMessage(
 		@MessageBody() createMessageDto: CreateMessageDto,
 		@ConnectedSocket() client: Socket,
@@ -183,6 +190,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('findAllChannels')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async findAllChannels(
 		@MessageBody('userId') userId:number,
 		@ConnectedSocket() client: Socket,
@@ -192,6 +200,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('findDirectMessageChannels')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async findDirectMessageChannels(
 		@MessageBody('userId') userId:number,
 		@ConnectedSocket() client: Socket,
@@ -201,6 +210,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('findUserInfo')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async findUserInfo(
 		@MessageBody('userName') userName:string,
 	){
@@ -209,6 +219,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('findAllInvitations')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async findAllInvitations(
 		@MessageBody('userId') userId:number,
 		@ConnectedSocket() client: Socket,
@@ -218,6 +229,7 @@ export class MessagesGateway {
 	}
   
 	@SubscribeMessage('joinInvitation')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async joinInvitation(
 		@MessageBody('userId') userId:number,
 		@MessageBody('invitationId') invitationId:number,
@@ -240,6 +252,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('findAllChannelMessages')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async findAllChanMsg(
 		@MessageBody('userId') userId:number,
 		@MessageBody('channelId') channelId: number,
@@ -262,6 +275,7 @@ export class MessagesGateway {
 
 
 	@SubscribeMessage('createChannel')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async createChannel(
 		@MessageBody('userId') userID:number,
 		@MessageBody('chatName') chatName:string,
@@ -282,6 +296,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('createDM')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async createDM(
 		@MessageBody('firstUser') firstUser:number,
 		@MessageBody('secondUser') secondUser:number,
@@ -316,6 +331,7 @@ export class MessagesGateway {
 	}
 
 	@SubscribeMessage('typing')
+	@UseGuards(WebSocketJwtAuthGuard)
 	async typing(
 		@MessageBody('userId') userID:number,
 		@MessageBody('isTyping') isTyping: boolean,
