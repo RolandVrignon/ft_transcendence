@@ -8,7 +8,7 @@ type SideBarProps = { webToken: string, statusLog: Dispatch<SetStateAction<boole
 const SideBar: React.FC<SideBarProps> = (control) => {
 	async function	sessionDestroyTrigger()	{
 		control.statusLog(false)
-		let res = await axios({ url: 'http://localhost:8080/secure/logout', method: 'POST', headers: { Authorization: `Bearer ${control.webToken}` }, data: { id: control.userID } })
+		let res = await axios({ url: 'http://localhost:8080/secure/logout', method: 'POST', headers: { Authorizationboolean: `Bearer ${control.webToken}` }, data: { id: control.userID } })
 		if (res.status === 204) { localStorage.removeItem('token'); window.location.href = '/' }
 	}
 	return (

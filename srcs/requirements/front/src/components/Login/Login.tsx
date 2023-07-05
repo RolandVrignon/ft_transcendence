@@ -20,27 +20,19 @@ const Login: React.FC<LoginProps> = (control) => {
   const [check2FA, setcheck2FA] = useState(false)
   const [token2FA, setToken2FA] = useState('')
   const [webToken, setWebToken] = useState('')
+  const [stateBadUsername, setStateBadUsername] = useState(false)
+
 
   function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
     const target = event.target as HTMLButtonElement
     target.style.fontSize = '20.7px'
   }
 
-  function MouseOut(event: React.MouseEvent<HTMLButtonElement>){
-    const target = event.target as HTMLButtonElement
-    target.style.fontSize = '20px'
-  }
-
+  function MouseOut(event: React.MouseEvent<HTMLButtonElement>){ const target = event.target as HTMLButtonElement; target.style.fontSize = '20px' }
+  function executeAlert(msg: string) { alert(msg); setStateBadUsername(false); return true }
   async function askDataBaseForCreation(code: string) {
     const checkUserStateURL = 'http://localhost:8080/42Api/log'
-
-    const res = await axios({
-      url: checkUserStateURL,
-      method: 'POST',
-      data: { 
-        code,
-      }
-    })
+    const res = await axios({ url: checkUserStateURL, method: 'POST', data: { code } })
     if (res.data.dbData)
       setDOptAuth(res.data.dbData.doubleAuth)
     setUserApiData(res.data.apiData)
@@ -73,21 +65,18 @@ const Login: React.FC<LoginProps> = (control) => {
 
   async function pushUserinDataBase(e: React.FormEvent<HTMLFormElement>)  {
     e.preventDefault()
-    const addUserURL = 'http://localhost:8080/secure/add'
-    const res = await axios({ url: addUserURL, method: 'POST',
-      headers: { Authorization: `Bearer ${webToken}` },
-      data: { apiData: userApiData, username: userName, doubleAuth: doubleAuth }
-    })
-    setUserDbData(res.data)
+    try {
+      const addUserURL = 'http://localhost:8080/secure/add'
+      const res = await axios({ url: addUserURL, method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { apiData: userApiData, username: userName, doubleAuth: doubleAuth } })
+      setUserDbData(res.data)
+    }
+    catch (err) { setStateBadUsername(true); console.log('409') }
   }
 
 	async function  handle2FA() {
     try {
       const handle2FAURL = 'http://localhost:8080/secure/secure'
-      const res = await axios({ url: handle2FAURL, method: 'POST',
-        headers: { Authorization: `Bearer ${webToken}` },
-        data : { info: userApiData }
-      })
+      const res = await axios({ url: handle2FAURL, method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data : { info: userApiData }})
       setcheck2FA(true)
     }
     catch (err) { console.log(err) }
@@ -95,10 +84,7 @@ const Login: React.FC<LoginProps> = (control) => {
 
   async function handle2FAVerif() {
     const check2FAURL = 'http://localhost:8080/secure/token'
-    const check = await axios({ method: 'POST', url: check2FAURL,
-      headers: { Authorization: `Bearer ${webToken}` },
-      data: { id: userApiData?.id, token: token2FA }
-    })
+    const check = await axios({ method: 'POST', url: check2FAURL, headers: { Authorization: `Bearer ${webToken}` }, data: { id: userApiData?.id, token: token2FA } })
     if (check.data === 'approved') { setcheck2FA(false); setDOptAuth('') }
     else { console.log('bad password') }
   }
@@ -132,9 +118,9 @@ const Login: React.FC<LoginProps> = (control) => {
           <input className="solid-frame input-frame text-content text-label" onChange={(event)=>{setUserName(event.target.value)}} type='text' required />
 						Choose username<br/>
           <input className="solid-frame checked-frame text-content text-input" onChange={(event)=>{setDoubleAuth(event.target.value)}} type='checkbox' />
-						Do you want double authentificiation '2FA' enabled?<br/>
           <button className="solid-frame button-frame text-content text-button" type='submit'>Submit</button>
         </form>
+        { stateBadUsername && executeAlert('This username already exists. Please retry.') ? null : null }
       </div>
     )
   }

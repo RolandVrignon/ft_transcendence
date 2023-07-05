@@ -13,17 +13,12 @@ export class ConnectController {
 	constructor(private readonly jwtService: JwtService, private auth: AuthService) {}
 	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
 		try	{
+			const username = await prisma.user.findFirst({ where: { username: req.body.username } })
+			if (username) { res.status(409).json(null); return; }
 			const user = await prisma.user.create({
-				data: { 
-					id: req.body.apiData.id,
-					username: req.body.username,
-					email: req.body.apiData.email,
-					login: req.body.apiData.login,
-					lastName: req.body.apiData.last_name,
-					firstName: req.body.apiData.first_name,
-					imageLink: req.body.apiData.image.link,
-					doubleAuth: req.body.doubleAuth,
-					currentStatus: "online"
+				data: { id: req.body.apiData.id, username: req.body.username, email: req.body.apiData.email,
+					login: req.body.apiData.login, lastName: req.body.apiData.last_name, firstName: req.body.apiData.first_name,
+					imageLink: req.body.apiData.image.link, doubleAuth: req.body.doubleAuth, currentStatus: "online"
 				}
 			}); res.status(201).json(user)
 		}
@@ -60,7 +55,7 @@ export class ConnectController {
 				to: req.body.info.email,
 				from: process.env.SENDER_SEND_GRID_MAIL,
 				subject: '2FA verification from transcendance.team',
-				text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn}`
+				text: `Hello ${req.body.info.first_name}, your authentification token is ${secureTkn} with love.`
 			})
 			await prisma.token2FA.create({ data: { id: req.body.info.id, value: secureTkn } })
 			res.status(200).json()

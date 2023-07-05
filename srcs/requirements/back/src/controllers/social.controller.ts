@@ -37,7 +37,7 @@ constructor(private auth: AuthService) {}
 	@Post('list') async returnListofUserFriends(@Res() res: Response, @Req() req: Request)	{
 		try {
 			const user = await this.auth.askDataBaseForCreation(req.body.id)
-			const friendList = user.friends.map((friend) => ({ friend, connected: user.connected, imageLink: user.imageLink }))
+			const friendList = user.friends.map((friend) => ({ friend, connected: user.currentStatus, imageLink: user.imageLink }))
 			console.log(friendList)
 			res.status(200).json(friendList)
 		  } 

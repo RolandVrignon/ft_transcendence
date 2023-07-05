@@ -10,12 +10,12 @@ generator client {
 
 model User {
   id          Int      @id @default(autoincrement())
-  email       String   @unique
+  email       String
   login       String
   lastName    String
   firstName   String
   imageLink   String
-  username    String
+  username    String   @unique
   doubleAuth  String
   friends     String[]
   currentStatus String @default("offline")
@@ -27,19 +27,12 @@ model User {
   games2      GameSessionOutcome[] @relation("userGames2")
   channelUsers  ChannelUser[]      @relation("user")
   invitations   invitation[]       @relation("invitedRelation")
-  // blockedBy       block[]    @relation("BlockedByRelation")
-  // blockedUser     block[]    @relation("BlockedUserRelation")
 }
 
 model block {
   id                Int          @id @default(autoincrement())
-  blocker     Int          @default(-1)
-  blocked     Int          @default(-1)
-
-  // blockerUserId  Int @default(-1)
-  // blockedUserId  Int @default(-1)
-  // blockedBy         User  @relation("BlockedByRelation", fields: [blockerUserId], references: [id])
-  // blockedUser       User  @relation("BlockedUserRelation", fields: [blockedUserId], references: [id])
+  blocker           Int          @default(-1)
+  blocked           Int          @default(-1)
 }
 
 model Token2FA {
