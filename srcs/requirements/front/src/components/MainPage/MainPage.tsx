@@ -63,7 +63,7 @@ const Content: React.FC<ContentPageProps> = (control) => {
 const MainPage: React.FC<MainPageProps> = (control) => {
     useEffect(() => {
 
-      window.addEventListener('beforeunload', setCurrentStatusToOffline)
+      window.addEventListener('beforeunload', setCurrentStatusToOffline, {once : true})
 
       return () => {
       // setCurrentStatusToOffline()
