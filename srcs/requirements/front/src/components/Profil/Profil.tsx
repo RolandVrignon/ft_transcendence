@@ -236,8 +236,6 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 						<div className='container-social-button'>
 							<div onClick={waitHandleSocialInteract} className='social-button-add'><p className='add-friend'>add<br/>friend</p></div>
 							<div onClick={waitHandleSocialInteract} className='social-button-remove'><p className='remove-friend'>remove<br/>friend</p></div>
-							<div className='social-button-game'><p>make<br/>game</p></div>
-							<div className='social-button-block'><p>block<br/>user</p></div>
 						</div>
 					}
 				</div>

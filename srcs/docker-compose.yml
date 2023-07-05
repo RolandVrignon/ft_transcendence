@@ -14,8 +14,6 @@ services:
       - "3000:3000"
     networks:
       - ft_transcendence
-    volumes:
-      - ./requirements/front/src/:/app/src
 
   backend:
     hostname: back
@@ -30,8 +28,6 @@ services:
       - "8080:8080"
     networks:
       - ft_transcendence
-    volumes:
-      - ./requirements/back/src:/app/src
 
   database:
     hostname: database
