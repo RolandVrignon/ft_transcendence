@@ -24,7 +24,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ userID, token }) => {
             headers: { 'Authorization': `Bearer ${token}` 
             }
         });
-        console.log(`Res of axios request: ${JSON.stringify(res, null, 2)}`)
         setGameSessionOutcome(res.data);
       } catch (err) {
         console.error(err);

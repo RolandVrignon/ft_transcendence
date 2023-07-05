@@ -22,14 +22,8 @@ const Login: React.FC<LoginProps> = (control) => {
   const [webToken, setWebToken] = useState('')
   const [stateBadUsername, setStateBadUsername] = useState(false)
 
-
-  function MouseOver(event: React.MouseEvent<HTMLButtonElement>) {
-    const target = event.target as HTMLButtonElement
-    target.style.fontSize = '20.7px'
-  }
-
-  function MouseOut(event: React.MouseEvent<HTMLButtonElement>){ const target = event.target as HTMLButtonElement; target.style.fontSize = '20px' }
   function executeAlert(msg: string) { alert(msg); setStateBadUsername(false); return true }
+
   async function askDataBaseForCreation(code: string) {
     const checkUserStateURL = 'http://localhost:8080/42Api/log'
     const res = await axios({ url: checkUserStateURL, method: 'POST', data: { code } })
@@ -49,7 +43,6 @@ const Login: React.FC<LoginProps> = (control) => {
         const queryParams = new URLSearchParams(window.location.search)
         const code = queryParams.get('code')
         if (code !== null)  { askDataBaseForCreation(code) }
-        else { console.log('login: useEffect triggered') }
       }
       catch (err) { console.log(err) }
   }, [attemptLogin])
@@ -57,7 +50,6 @@ const Login: React.FC<LoginProps> = (control) => {
   async function attemptConnect() {
     try {
       const logURL = 'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a672fd80ce2f029d5ff47b1c3f7f409fbe73cafcedb7f3b4cf7e8efc39f22a00&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2FLogin&response_type=code'
-      console.log(logURL)
       window.location.href = logURL; setAttemptLogin(true);
     }
     catch (err) { console.log(err) }
@@ -70,7 +62,7 @@ const Login: React.FC<LoginProps> = (control) => {
       const res = await axios({ url: addUserURL, method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { apiData: userApiData, username: userName, doubleAuth: doubleAuth } })
       setUserDbData(res.data)
     }
-    catch (err) { setStateBadUsername(true); console.log('409') }
+    catch (err) { setStateBadUsername(true); }
   }
 
 	async function  handle2FA() {
@@ -106,7 +98,7 @@ const Login: React.FC<LoginProps> = (control) => {
   else if (userLogged && userDbData && dOptAuth === 'on') {
     renderer = (
       <div className="solid-frame two-fa-frame">
-        <button className="solid-frame button-frame text-content text-button" onMouseOver={MouseOver} onMouseLeave={MouseOut} onClick={handle2FA}>To make 2FA, press here!</button>
+        <button className="solid-frame button-frame text-content text-button" onClick={handle2FA}>To make 2FA, press here!</button>
       </div>
     )
   }
@@ -124,6 +116,7 @@ const Login: React.FC<LoginProps> = (control) => {
       </div>
     )
   }
+  // else { control.log(true); window.history.replaceState(null, '', '/') }
   else { control.log(true); window.history.replaceState(null, '', '/') }
   return renderer
 }

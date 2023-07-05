@@ -11,6 +11,14 @@ import { JwtAuthGuard } from '../jwt/jwt.guard'
 @UseGuards(JwtAuthGuard)
 export class ConnectController {
 	constructor(private readonly jwtService: JwtService, private auth: AuthService) {}
+	@Post('user')	async userExists(@Res() res: Response, @Req() req: Request) {
+		try {
+			const user = await prisma.user.findFirst( { where: { id: req.body.info.id }} )
+			if (user)	{ res.status(200).json(user) }
+			else { res.status(404).json(req.body) }
+		}
+		catch (err) { console.log(err) }
+	}
 	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
 		try	{
 			const username = await prisma.user.findFirst({ where: { username: req.body.username } })
@@ -30,7 +38,7 @@ export class ConnectController {
 		try	{
 			console.log(`USER ${req.body.id} => OFFLINE`)
 			const updatedUser = await prisma.user.update({ where: { id: req.body.id }, data: { currentStatus: "offLine" }})
-			res.status(204)
+			res.status(204).json(updatedUser)
 		}
 		catch (err)	{ 
 			console.error(`Error caught trying to set user with ID ${req.body.id} "offline".`)

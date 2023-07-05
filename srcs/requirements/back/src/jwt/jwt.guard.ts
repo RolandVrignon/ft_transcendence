@@ -5,6 +5,8 @@ import { Observable } from 'rxjs'
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+
+  
   constructor(private readonly jwtService: JwtService) {}
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
@@ -13,13 +15,13 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   async validateRequest(request: any): Promise<boolean> {
-    const token = this.extractTokenFromRequest(request)
+    const token = this.extractTokenFromRequest(request)   
     try {
       const payload = await this.jwtService.verifyAsync(token)
       request.user = payload
       return true
     }
-    catch (err) {
+    catch (err) {    
       console.log(err)
       return false
     }

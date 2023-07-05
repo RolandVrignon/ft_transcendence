@@ -6,11 +6,17 @@ import axios from 'axios'
 
 type SideBarProps = { webToken: string, statusLog: Dispatch<SetStateAction<boolean>>, userID: number }
 const SideBar: React.FC<SideBarProps> = (control) => {
+
 	async function	sessionDestroyTrigger()	{
 		control.statusLog(false)
-		let res = await axios({ url: 'http://localhost:8080/secure/logout', method: 'POST', headers: { Authorizationboolean: `Bearer ${control.webToken}` }, data: { id: control.userID } })
-		if (res.status === 204) { localStorage.removeItem('token'); window.location.href = '/' }
+		let res = await axios({ url: 'http://localhost:8080/secure/logout', method: 'POST', headers: { Authorization: `Bearer ${control.webToken}` }, data: { id: control.userID } })
+		if (res.status === 204) {
+			console.log("20444444");	
+			localStorage.removeItem('token'); 
+			window.location.href = '/'; 
+		}
 	}
+
 	return (
 		<SolidFrame frameClass="side-frame" >
 			<SolidFrame frameClass="logo-frame" txtClass="text-logo" txt1="Simple" txt2="Pong" />

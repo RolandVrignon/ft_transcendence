@@ -63,7 +63,7 @@ const Content: React.FC<ContentPageProps> = (control) => {
 const MainPage: React.FC<MainPageProps> = (control) => {
     useEffect(() => {
 
-      window.addEventListener('beforeunload', setCurrentStatusToOffline)
+      // window.addEventListener('beforeunload', setCurrentStatusToOffline)
 
       return () => {
       // setCurrentStatusToOffline()
@@ -72,7 +72,6 @@ const MainPage: React.FC<MainPageProps> = (control) => {
     }, []);
 
     function setCurrentStatusToOffline() {
-    console.log(`Sending post request to 'http://localhost:8080/secure/logout'.`)
     const logoutPromise = axios({ url: 'http://localhost:8080/secure/logout', method: 'POST', headers: { Authorization: `Bearer ${ control.webToken }` }, data: { id: control.ID } })
     logoutPromise.then(response => console.log(`Response from logout request: ${JSON.stringify(response, null, 2)}`))
     logoutPromise.catch(error => console.error(`Caught error from logoutPromise: ${JSON.stringify(logoutPromise, null, 2)}`))

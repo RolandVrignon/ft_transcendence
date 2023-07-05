@@ -34,13 +34,21 @@ constructor(private auth: AuthService) {}
 		}
 		catch (err)	{ console.log(err); res.status(404) }
 	}
-	@Post('list') async returnListofUserFriends(@Res() res: Response, @Req() req: Request)	{
-		try {
-			const user = await this.auth.askDataBaseForCreation(req.body.id)
-			const friendList = user.friends.map((friend) => ({ friend, connected: user.currentStatus, imageLink: user.imageLink }))
-			console.log(friendList)
-			res.status(200).json(friendList)
-		  } 
-		  catch (err) { console.log(err); res.status(404) }
-	}
+	@Post('list')
+	async returnListofUserFriends(@Res() res: Response, @Req() req: Request) {
+	  try {
+		const user = await this.auth.askDataBaseForCreation(req.body.id);
+		const arr = await Promise.all(
+		  user.friends.map(async (friend) => {
+			const objFriend = await prisma.user.findFirst({ where: { username: friend } });
+			const obj = { friend, connected: objFriend.currentStatus, imageLink: objFriend.imageLink };
+			return obj;
+		  })
+		);
+		res.status(200).json(arr);
+	  } catch (err) {
+		console.log(err);
+		res.status(404);
+	  }
+	}	
 }
