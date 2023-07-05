@@ -14,8 +14,11 @@ export class ConnectController {
 	@Post('user')	async userExists(@Res() res: Response, @Req() req: Request) {
 		try {
 			const user = await prisma.user.findFirst( { where: { id: req.body.info.id }} )
-			if (user)	{ res.status(200).json(user) }
-			else { res.status(404).json(req.body) }
+			if (user) {
+				res.status(200).json(user) 
+				const updateUserSatus = await prisma.user.update({ where: {id: req.body.info.id}, data: { currentStatus: 'online'}})
+				console.log(`USER ${req.body.info.id} => ONLINE`)
+			} else { res.status(404).json(req.body) }
 		}
 		catch (err)	{ console.log(err); res.status(404) }
 	}
