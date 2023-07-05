@@ -15,7 +15,7 @@ import { MulterModule } from '@nestjs/platform-express'
 @Module({
     imports: [MessagesModule, AuthModule, UploadModule,
       MulterModule.register({ dest: './uploads' }),
-      // JwtModule.register({ secret: jwtConstants.secret, signOptions: { expiresIn: '1h' }})
+      JwtModule.register({ secret: jwtConstants.secret, signOptions: { expiresIn: '1h' }})
     ],
     controllers: [Api42ConnectController, SearchController, ConnectController, SocialInteractController, UploadController],
     providers: [PongGateway]

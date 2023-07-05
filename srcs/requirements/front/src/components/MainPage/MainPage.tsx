@@ -50,7 +50,7 @@ const Content: React.FC<ContentPageProps> = (control) => {
       <Title frameClass="main-title-frame" txtClass="text-main-title" txt2={getTitle()} />
       <SolidFrame frameClass="content-frame">
         <Routes>
-          <Route path="*" element={<ChatBox userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref} refreshWebToken={control.refreshWebToken} webToken={control.webToken}/>} />
+          <Route path="*" element={<Profil ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken} inChatBox={false}/>} />
           <Route path="/Profil" element={<Profil ID={control.ID} webToken={control.webToken} refreshWebToken={control.refreshWebToken} inChatBox={false}/>} />
           <Route path="/Pong" element={<Pong webToken={control.webToken} userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref}/>} />
           <Route path="/Chat" element={<ChatBox userDbID={control.ID} pongGameGuestIDref={pongGameGuestIDref}  pongGameHostIDref={pongGameHostIDref} refreshWebToken={control.refreshWebToken} webToken={control.webToken}/>} />
