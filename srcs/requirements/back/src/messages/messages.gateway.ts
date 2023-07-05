@@ -339,6 +339,9 @@ export class MessagesGateway {
 		@ConnectedSocket() client: Socket,
 		) {
 		try {
+			const channelExists = await prisma.channel.findUnique({where: {id: channelId}})
+			if (!channelExists)
+				return true
 			this.updateSocketUserIDpairs(client, userID);
 			const userInfo = await this.messagesService.findUserInfo(userID, null);
 			if (!userInfo)
@@ -469,7 +472,7 @@ export class MessagesGateway {
 	async invite(target:string, executorId: number, channelId: number) {
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. in invite, channel is null"
 		}
 		else if ( channel.status == "dm") {
 			throw  "You cannot invite someone in a dm channel."
@@ -516,7 +519,7 @@ export class MessagesGateway {
 	async changeChannelStatus(newStatus: string, executorId: number, channelId: number) {
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. in changeChannelStatus, channel is null"
 		}
 		else if ( channel.status == "dm") {
 			throw  "You cannot execute this command in dm channel."
@@ -552,7 +555,7 @@ export class MessagesGateway {
 	async changeChannelPass(newPass:string, executorId: number, channelId: number) {
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. in changeChannelPass, channel is null"
 		}
 		else if ( channel.status == "dm") {
 			throw  "You cannot execute this command in dm channel."
@@ -580,7 +583,7 @@ export class MessagesGateway {
 	async changeChannelName(newName:string, executorId: number, channelId: number) {
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. in changeChannelName,  channel is null"
 		}
 		else if ( channel.status == "dm") {
 			throw  "You cannot execute this command in dm channel."
@@ -614,7 +617,7 @@ export class MessagesGateway {
 	async assignAdminRole(targetUser: string, executorId: number, channelId: number) {
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. in assignAdminRole, channel is null"
 		}
 		else if ( channel.status == "dm") {
 			throw  "You cannot execute this command in dm channel."
@@ -656,7 +659,7 @@ export class MessagesGateway {
 	async block(targetUser: string, executorId: number, channelId: number){
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. in block, channel is null"
 		}
 		else {
 			const executor = await prisma.channelUser.findFirst({
@@ -715,7 +718,7 @@ export class MessagesGateway {
 	async leave(executorId: number, channelId: number){
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  `We experiencing issues. We will get back to you as soon as possible.`
+			throw  `We experiencing issues. We will get back to you as soon as possible. leave, channel is null`
 		}
 		else {
 			const target = await prisma.channelUser.findFirst({
@@ -751,7 +754,7 @@ export class MessagesGateway {
 		}
 		const channel = await this.messagesService.findChannelById(channelId);
 		if (!channel){
-			throw  `We experiencing issues. We will get back to you as soon as possible.`
+			throw  `We experiencing issues. We will get back to you as soon as possible. in punish, channel is null`
 		}
 		else if (channel.status == "dm") {
 			throw  "You cannot execute this command in dm channel."

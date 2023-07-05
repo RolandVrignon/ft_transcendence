@@ -18,7 +18,7 @@ export class MessagesService {
 			}
 		})
 		if (!channelUsers)
-			throw "We experiencing issues. We will get back to you as soon as possible."
+			throw "We experiencing issues. We will get back to you as soon as possible. in updateUserAllChatConnectionStatus, channelUsers are null "
 		await prisma.channelUser.updateMany({
 			where: {userID: {in: channelUsers.map(channelUser => channelUser.userID)}},
 			data: {
@@ -35,7 +35,7 @@ export class MessagesService {
 			}
 		})
 		if (!channelUser)
-			throw "We experiencing issues. We will get back to you as soon as possible."
+			throw "We experiencing issues. We will get back to you as soon as possible. in updateUserChatConnectionStatus, channelUsers is null"
 		await prisma.channelUser.update({
 			where: {id: channelUser.id},
 			data: {
@@ -249,7 +249,7 @@ export class MessagesService {
 	{
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. in findWhodDontBlockme, channel is null"
 		}
 		const user = await this.findUserInfo(userId, null);
 		if (!user)
@@ -296,7 +296,7 @@ export class MessagesService {
 	{
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. in findwhoIDontBlocked, channel is null"
 		}
 		const user = await this.findUserInfo(userId, null);
 		if (!user)
@@ -344,7 +344,7 @@ export class MessagesService {
 	{
 		const channel = await this.findChannelById(channelId);
 		if (!channel) {
-			throw  "We experiencing issues. We will get back to you as soon as possible."
+			throw  "We experiencing issues. We will get back to you as soon as possible. findChannelUsers, channel is null"
 		}
 		const user = await this.findUserInfo(userId, null);
 		if (!user)
