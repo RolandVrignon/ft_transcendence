@@ -42,7 +42,7 @@ export default class AuthService {
         try {
           if (userID !== undefined) {
             await prisma.user.update({ where: { id: userID }, data: { currentStatus: "online" } })
-            console.log(`Set user with id ${userID} to 'online'`)
+            console.log(`USER ${userID} => ONLINE`)
           }
         } catch (err) { console.log(err) } 
     }

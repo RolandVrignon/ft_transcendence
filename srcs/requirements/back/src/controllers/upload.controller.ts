@@ -16,6 +16,7 @@ constructor(private readonly uploader: UploadService) {}
         try {
             const stream = fs.createReadStream(file.path)
             const uploadedURL = await this.uploader.uploadFileToS3(process.env.AWS_S3_BUCKET_NAME, file.originalname, stream)
+            console.log(`AVATAR UPDATE => ${uploadedURL}`)
             const user: any = req.user
             const updateUser = await prisma.user.update({ where: { id: user.id }, data: { imageLink: uploadedURL } })
             fs.unlinkSync(file.path)

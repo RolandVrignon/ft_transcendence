@@ -21,18 +21,19 @@ export class ConnectController {
 					imageLink: req.body.apiData.image.link, doubleAuth: req.body.doubleAuth, currentStatus: "online"
 				}
 			}); res.status(201).json(user)
+			console.log(`USER ${req.body.id} => ONLINE`)
 		}
 		catch (err)	{ console.log(err) }
 	}
 	@Post('logout')
 	async delogUserConnectedFalse(@Res() res: Response, @Req() req: Request) {
 		try	{
-			console.log(`User ${req.body.id} logged out, setting its currentState to offline`)
+			console.log(`USER ${req.body.id} => OFFLINE`)
 			const updatedUser = await prisma.user.update({ where: { id: req.body.id }, data: { currentStatus: "offLine" }})
 			res.status(204)
 		}
 		catch (err)	{ 
-			console.error(`Caught an error while trying to set the user with ID ${req.body.id}.`)
+			console.error(`Error caught trying to set user with ID ${req.body.id} "offline".`)
 			console.error(`err: `, err)
 			res.status(401) 
 		}
