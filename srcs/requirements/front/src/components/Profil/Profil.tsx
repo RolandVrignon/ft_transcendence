@@ -31,11 +31,21 @@ type ProfilProps = {
 	inChatBox: boolean
 }
 
+interface GameSession {
+	Player1Name: string;
+	Player2Name: string;
+	winnerName: string;
+	loserName: string;
+  }  
+
 const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = "Some user stats", matchHistory = "Some match history data", inChatBox = false, children }) => {
 	const [newID, setNewID] = useState(-1)
 	const [searchTerm, setSearchTerm] = useState('')
 	const [uploadedFile, setUploadedFile] = useState<File>()
 	// const [friendList, setFriendList] = useState<string[]>([])
+	const [gameSessionOutcome, setGameSessionOutcome] = useState<{ Player1Name: string; Player2Name: string; loserName: string, winnerName: string }[]>([]);
+	const [wins, setWins] = useState(0);
+	const [loose, setLoose] = useState(0);
 	const [friendList, setFriendList] = useState<{ friend: string; connected: string; imageLink: string }[]>([])
 	const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
 	const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: '', currentStatus: "" })
@@ -74,6 +84,35 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 		}
 		fetchUserInformationDisplay()
 	}, [ID])
+
+	useEffect(() => {
+		if (userInfo.id !== -1 && localStorage.getItem("token")) {
+			const fetchMatchHistory = async () => {
+				try {
+				  const res = await axios.post('http://localhost:8080/search/user-match-history', { id: userInfo.id }, { 
+					  headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` 
+					  }
+				  });
+				  let winCount = 0;
+				  let looseCount = 0;
+				  res.data.forEach((gameSession: GameSession) => {
+					if (gameSession.winnerName === userInfo.username) {
+					  winCount++;
+					} else if (gameSession.loserName === userInfo.username) {
+					  looseCount++;
+					}
+				  });
+				  setWins(winCount);
+				  setLoose(looseCount);
+				  setGameSessionOutcome(res.data);
+				} catch (err) {
+				  console.error(err);
+				}
+			  };
+			  fetchMatchHistory();
+		}
+	  }, [userInfo]);
+
 	useEffect(() => {
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
@@ -149,7 +188,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 				<SearchBar searchTerm={searchTerm} onChange={(event) => askDbForUsers(event)} />
 			</div>
 			<SearchList webToken={webToken} setNewID={setNewID} searchTerm={searchTerm} />
-			<div className='user-profil-frame'>
+			<div className='user-profil-frame element'>
 				<div className='photo-frame'>
 					<div className='avatar-container-profil'>
 						<img src={userInfo.imageLink} />
@@ -167,7 +206,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 				<div className='user-data-div-display'>
 					<div className='user-profile-info'>
 					<h1>User information</h1><br/>
-						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Connected: {userInfo.currentStatus} </p>
+						<p>Username: {userInfo.username}<br/><br/>Total Games: {gameSessionOutcome.length}<br/><br/>Connected: {userInfo.currentStatus} </p>
 					</div>
 					{ (newID === ID || newID === -1) && !inChatBox ? 
 						<div className='container-friend-list-profile'>
@@ -203,12 +242,25 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 					}
 				</div>
 			</div>
-			<SolidFrame frameClass='info-frame'>
-				<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Stats' />  
-				<SolidFrame frameClass='history-frame' txtClass='text-data-profil' txt1={stats} />
+			<SolidFrame frameClass='info-frame element'>
+				<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Stats' />
+				{ !gameSessionOutcome.length ? (
+					<SolidFrame frameClass='history-frame' txtClass='text-data-profil' txt1={stats} />
+				) : (
+					<div className="stats">
+						<div className="wins">
+							<div className="title">Wins</div>
+							<div className="count">{wins}</div>
+						</div>
+						<div className="looses">
+							<div className="title">Losses</div>
+							<div className="count">{loose}</div>
+						</div>
+					</div>
+				)}  
 				{children}
 			</SolidFrame>
-			<SolidFrame frameClass='info-frame'>
+			<SolidFrame frameClass='info-frame history element'>
 				<Title frameClass='profil-title-frame' txtClass='text-profil-title' txt2='Match history' />
 					{ newID !== -1 && newID !== ID ? 
 					<div className='match-history-container'><MatchHistory userID={newID} token={webToken} /></div>

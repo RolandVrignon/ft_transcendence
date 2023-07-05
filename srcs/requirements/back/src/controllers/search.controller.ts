@@ -22,6 +22,7 @@ export class SearchController	{
 	@Post('info-user')	async returnUserInformation(@Res() res: Response, @Req() req: Request) {
 		try	{
 			const info = await this.auth.askDataBaseForCreation(req.body.id)
+			console.log(info);
 			res.status(200).json(info)
 		}
 		catch (err)	{ console.log(err); res.status(404) }

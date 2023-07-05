@@ -35,4 +35,4 @@ RUN npm install -g serve
 EXPOSE 3000
 
 # Run the start script with hot-reload enabled (substitute "start:dev" with the actual script in your package.json that starts the dev server)
-CMD ["npm", "run", "serve"]
+CMD ["npm", "run", "start"]
