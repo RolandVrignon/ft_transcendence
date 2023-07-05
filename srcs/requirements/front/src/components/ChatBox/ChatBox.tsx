@@ -64,7 +64,8 @@ const ChatBox: React.FC<{
 
 
 	useEffect(() => {
-		const socketInstance = io('http://localhost:8080');
+		console.log(`Token in chatBox: ${props.webToken}`)
+		const socketInstance = io('http://localhost:8080', {query: { token: props.webToken }});
 		console.log(socketInstance)
 		setSocket(socketInstance);
 
