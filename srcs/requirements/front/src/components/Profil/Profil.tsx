@@ -154,7 +154,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 					<div className='avatar-container-profil'>
 						<img src={userInfo.imageLink} />
 					</div>
-					{ (newID === ID || newID === -1) && inChatBox ?
+					{ (newID === ID || newID === -1) && !inChatBox ?
 						<div className='container-avatar-change'>
 						<label htmlFor='upload-file-input' className='custom-file-upload'>
 							<input id='upload-file-input' className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
@@ -169,7 +169,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 					<h1>User information</h1><br/>
 						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Connected: {userInfo.currentStatus} </p>
 					</div>
-					{ (newID === ID || newID === -1) && inChatBox ? 
+					{ (newID === ID || newID === -1) && !inChatBox ? 
 						<div className='container-friend-list-profile'>
 							<h2>Friends</h2><br/>
 							{friendList.map((friend, index) => (
@@ -180,7 +180,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 						</div>
 					: 
 					null }
-					{ (newID === ID || newID === -1) && inChatBox ?
+					{ (newID === ID || newID === -1) && !inChatBox ?
 						<div className='display-2fa-option'>
 							<div className='switch-2fa'>
 								<label className='form-switch'>
