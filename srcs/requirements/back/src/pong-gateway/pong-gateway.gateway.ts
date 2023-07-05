@@ -85,7 +85,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return true
       })
       if (this.playerSocketInQueue){ // if there is already a user waiting in the queue create a game session
-        console.log(`EMPTYING QUEUE`)
+        // console.log(`EMPTYING QUEUE`)
         this.createNewGameSession(this.playerSocketInQueue, clientSocket, this.playerIDinQueue, userID)
         this.playerSocketInQueue = null
         this.playerIDinQueue = null
@@ -129,12 +129,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.handleEnterQueueRequest(hostSocket, hostID)
       return
     }
-    //If there is already a pending invite with the same host, ignore the request to avoid duplicate pending invites.
-    const pendingInviteIndexWithSameHost = this.pendingInvites.findIndex(pendingInvite => pendingInvite.hostID === hostID)
-    if (pendingInviteIndexWithSameHost !== -1) {
+    //If there is already a pending invite with the same host or with the same guest, ignore the request to avoid duplicate pending invites.
+    const pendingInviteIndexWithSameHost = this.pendingInvites.findIndex(pendingInvite => pendingInvite.hostID === hostID || pendingInvite.guestID === guestID)
+    if (pendingInviteIndexWithSameHost !== -1) { 
       const otherInvite = this.pendingInvites[pendingInviteIndexWithSameHost]
       console.log(`\nINVITE REQUEST (host: ${hostID}, guest: ${guestID}) IGNORED:`)
-      console.log(`DUPLICATE invitation ${otherInvite.pendingInviteID} with same host as: (host: ${otherInvite.hostID}, guest: ${otherInvite.guestID} )`)
+      console.log(`DUPLICATE invitation ${otherInvite.pendingInviteID} with same host or guest as: (host: ${otherInvite.hostID}, guest: ${otherInvite.guestID} )`)
+      console.log(`REDIRECTING TO QUEUE...`)
+      this.handleEnterQueueRequest(hostSocket, hostID)
       return
     }
     //If there is already a pending invite for the same users BUT the host and guest are switched, handle the invite request as a join request.
