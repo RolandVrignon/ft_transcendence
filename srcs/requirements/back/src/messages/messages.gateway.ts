@@ -135,12 +135,12 @@ export class MessagesGateway {
 				return false;
 			}
 			//Code for pong game
-			try {
-				console.log(`Added user with ID ${userId} and socket ${client.id} in socketUserIDpairs.`)
-				this.socketUserIDpairs.push({socket: client, userID: userId})
-			} catch (err) {
-				console.error(`Error caught while adding user and socket to userSocketMap: `, err)
-			}
+			// try {
+			// 	console.log(`Added user with ID ${userId} and socket ${client.id} in socketUserIDpairs.`)
+			// 	this.socketUserIDpairs.push({socket: client, userID: userId})
+			// } catch (err) {
+			// 	console.error(`Error caught while adding user and socket to userSocketMap: `, err)
+			// }
 			return true;
 	}
 
@@ -799,30 +799,34 @@ export class MessagesGateway {
 					throw `Server: ${targetUser} has been ${type}.`
 			}
 		}
-	}
+	} 
 	
 	//methods for pong game invites
 	async handleDisconnect(disconnectedSocket: Socket) {
-		console.log(`\nHandling disconnection from chat: Going to remove user with socket ${disconnectedSocket.id} from socketUserIDpairs....`)
+		// console.log(`\nHandling disconnection from chat: Going to remove user with socket ${disconnectedSocket.id} from socketUserIDpairs....`)
 		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.socket === disconnectedSocket)
 		if (socketUserIdPairIndex === -1) {
-			console.error(`Error: Could not found an socketUserIdPairIndex with the socket ${disconnectedSocket.id}!`)
+			console.error(`Error: Could not found an socketUserIdPairIndex with the socket ${disconnectedSocket.id} in handle disconnection!`)
 			return
 		}
 		await this.messagesService.updateUserAllChatConnectionStatus(this.socketUserIDpairs[socketUserIdPairIndex].userID, false)
+		console.log(`\nCHAT DISCONNECTION: removed pair {userID: ${this.socketUserIDpairs[socketUserIdPairIndex].userID}, socket ${this.socketUserIDpairs[socketUserIdPairIndex].socket.id}}, pairs length before removing: ${this.socketUserIDpairs.length}.`)
 		this.socketUserIDpairs.splice(socketUserIdPairIndex, 1)
+		console.log(`socketUserIDpairs.length after removal: ${this.socketUserIDpairs.length}, socketUserIDpairs: [${this.socketUserIDpairs.map(pair => `{user:${pair.userID}, socker:${pair.socket.id}}, `)}]`)
 	}
 	//returns true if the invite was succesfully transmitted
 	//returns false otherwise
 	transmitPongGameInviteProposal(hostID: number, guestID: number, inviteDebugID: number, inviteRefusalCallback: () => void): boolean {
-		console.log(`Transmitting invite proposal hostID: ${hostID}, guestID: ${guestID}, inviteDebugID: ${inviteDebugID}...`)
+		// console.log(`Transmitting invite proposal hostID: ${hostID}, guestID: ${guestID}, inviteDebugID: ${inviteDebugID}...`)
 		const socketUserIdPairIndex = this.socketUserIDpairs.findIndex(element => element.userID === guestID)
-		console.log(`socket/user pairs: ${JSON.stringify(this.socketUserIDpairs.map(pair => {pair.socket.id, pair.userID}))}`)
+		// console.log(`socket/user pairs: ${JSON.stringify(this.socketUserIDpairs.map(pair => {pair.socket.id, pair.userID}))}`)
 		if (socketUserIdPairIndex === -1) {
-			console.error(`Error: Could not found an socketUserIdPairIndex with the userID ${guestID}!`)
+			console.error(`Error: Could not found an socketUserIdPairIndex with the userID ${guestID} to transmit pong game invite!`)
 			return false
 		}
-		console.log(`socket: ${this.socketUserIDpairs[socketUserIdPairIndex].socket.id}`)
+
+		console.log(`\nTRANSMITTING INVITE: {host:${hostID}, guest:${guestID}}`)
+		console.log(`AVAILABLE SOCKETS: [${this.socketUserIDpairs.map(pair => `{user:${pair.userID}, socker:${pair.socket.id}}, `)}]`)
 		this.socketUserIDpairs[socketUserIdPairIndex].socket.emit('pong-game-invite', hostID, () => inviteRefusalCallback())
 		return true
 	}

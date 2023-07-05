@@ -319,7 +319,7 @@ export class MessagesService {
 			// },
 		});
 		if (blockedByUsers){
-			console.log(`users blocked by user ${userId}: ${JSON.stringify(blockedByUsers)}`)
+			// console.log(`users blocked by user ${userId}: ${JSON.stringify(blockedByUsers)}`)
 			const channelUsers = await prisma.channelUser.findMany({
 				where: {
 					channelId: channel.id,
@@ -427,7 +427,7 @@ export class MessagesService {
 	async findChannelByNameAndPass(ChannelName: string, Channelpass: string)
 	{
 		const hashedChannelPassword = await bcrypt.hash(Channelpass, saltOrRounds);
-		console.log(`\nSearching for channel with name [${ChannelName}] and password [${hashedChannelPassword}].`)
+		// console.log(`\nSearching for channel with name [${ChannelName}] and password [${hashedChannelPassword}].`)
 		//First find the channel by name
 		const channel = await prisma.channel.findFirst({
 			where: {
@@ -440,7 +440,7 @@ export class MessagesService {
 			throw ` (${ChannelName}) channel does not exist.`
 		//Then check if the provided password matches the hashed password
 		const passwordsMatch = await bcrypt.compare(Channelpass, channel.password)
-		console.log(`passwordsMatch is ${passwordsMatch}`)
+		// console.log(`passwordsMatch is ${passwordsMatch}`)
 		if (passwordsMatch === false)
 			throw `Provided password does not match ${ChannelName}'s password.`
 		return channel;

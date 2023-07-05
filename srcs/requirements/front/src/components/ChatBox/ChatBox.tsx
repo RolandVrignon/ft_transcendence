@@ -160,6 +160,7 @@ const ChatBox: React.FC<{
 			socket.off('formFailed');
 			socket.off('message');
 			socket.off('typing');
+			socket.disconnect();
 		};
 	}, [socket]);
 
@@ -631,6 +632,7 @@ const ChatBox: React.FC<{
 							<div className="modal-content">
 								<h2>You received an invite to the play a pong game!</h2>
 								<button onClick={() => {
+									socket.disconnect()
 									navigate('/Pong')
 									setShowModal(false)
 								}}>
@@ -670,6 +672,7 @@ const ChatBox: React.FC<{
 							onClick={() => {
 								props.pongGameGuestIDref.current = selectedUserId
 								console.log('props.pongGameGuestIDref.current set to ', selectedUserId)
+								socket.disconnect()
 								navigate("/Pong");
 							}}
 						>
@@ -687,6 +690,7 @@ const ChatBox: React.FC<{
 								<div className="modal-content">
 									<h2>You received an invite to the play a pong game!</h2>
 									<button onClick={() => {
+										socket.disconnect()
 										navigate('/Pong')
 										setShowModal(false)
 									}}>
@@ -784,6 +788,7 @@ const ChatBox: React.FC<{
 						<div className="modal-content">
 							<h2>You received an invite to the play a pong game!</h2>
 							<button onClick={() => {
+								socket.disconnect()
 								navigate('/Pong')
 								setShowModal(false)
 							}}>

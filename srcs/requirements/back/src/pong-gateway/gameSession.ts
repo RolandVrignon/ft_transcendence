@@ -101,8 +101,12 @@ export class GameSession {
     this.clientSockets.forEach(cs => cs.on('disconnect', () => this.handleDisconnect(cs)))
     this.clientSockets.forEach(cs => cs.on('player-move', (payload) => this.handlePlayerMove(cs, payload)))
     //update users status in db 
-    prisma.user.update({ where: { id: userID1 }, data: { currentStatus: "inGame" }}).then(() => console.log(`Set user ${userID1} to inGame.`))
-    prisma.user.update({ where: { id: userID2 }, data: { currentStatus: "inGame" }}).then(() => console.log(`Set user ${userID2} to inGame.`))
+    prisma.user.update({ where: { id: userID1 }, data: { currentStatus: "inGame" }}).then(() => console.log(``))
+    prisma.user.update({ where: { id: userID2 }, data: { currentStatus: "inGame" }}).then(() => console.log(``))
+    //debug
+    console.log(`GAME SESSION ${debugId}:`)
+    console.log(`\t\t PLAYER1: socket: ${clientSocket1}, id: ${userID1}`)
+    console.log(`\t\t PLAYER2: socket: ${clientSocket2}, id: ${userID2}`)
   }
  
   handleDisconnect(disconnectedClientSocket: Socket) {
@@ -111,8 +115,8 @@ export class GameSession {
       let winnerIndex = this.clientSockets.findIndex(cs => cs !== disconnectedClientSocket)
       let reason = `Game ${this.debugId} is over: player ${1 - winnerIndex} disconnected.`
       this.handleGameOver(winnerIndex, reason)
-      prisma.user.update({ where: { id: this.userIDs[winnerIndex] }, data: { currentStatus: "online" }}).then(() => console.log(`Set user ${winnerIndex} to 'online'.`))
-      prisma.user.update({ where: { id: this.userIDs[1 - winnerIndex] }, data: { currentStatus: "online" }}).then(() => console.log(`Set user ${1 - winnerIndex} to 'online'.`))
+      prisma.user.update({ where: { id: this.userIDs[winnerIndex] }, data: { currentStatus: "online" }}).then(() => console.log(``))
+      prisma.user.update({ where: { id: this.userIDs[1 - winnerIndex] }, data: { currentStatus: "online" }}).then(() => console.log(``))
     } 
   }
   update()  {
@@ -120,8 +124,8 @@ export class GameSession {
     let WinnerIndex = this.gameState.players.findIndex(player => player.points >= 3)
     if (WinnerIndex !== -1) {
       this.handleGameOver(WinnerIndex, `Game ${this.debugId} is over: player ${WinnerIndex} has ${this.gameState.players[WinnerIndex].points} points.`)
-      prisma.user.update({ where: { id: this.userIDs[0] }, data: { currentStatus: "online" }}).then(() => console.log(`Set user ${this.userIDs[0]} to 'online'.`))
-      prisma.user.update({ where: { id: this.userIDs[1] }, data: { currentStatus: "online" }}).then(() => console.log(`Set user ${this.userIDs[1]} to 'online'.`))
+      prisma.user.update({ where: { id: this.userIDs[0] }, data: { currentStatus: "online" }}).then(() => console.log(``))
+      prisma.user.update({ where: { id: this.userIDs[1] }, data: { currentStatus: "online" }}).then(() => console.log(``))
     }
     else
       this.clientSockets.forEach(cs => cs.emit('update-game', this.gameState));
@@ -145,7 +149,7 @@ export class GameSession {
     };
     let promise = prisma.gameSessionOutcome.create(recoredData)
     promise.catch(err => console.error(`Caught game session outcome prisma record creation error: ${err}`))
-    promise.then(() => console.log('Game session outcome prisma record created.'))
+    // promise.then(() => console.log('Game session outcome prisma record created.'))
   }
 
   // Method to handle player move events
