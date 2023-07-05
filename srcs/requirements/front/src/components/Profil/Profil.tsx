@@ -77,7 +77,6 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 	useEffect(() => {
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
-				console.log(newID)
 				if (newID !== -1)	{
 					const res = await axios({
 						url: 'http://localhost:8080/search/info-user',
@@ -101,30 +100,23 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 		fetchOtherUserInformationDisplay()
 	}, [newID, triggerAvatarChange])
 
-
-
-	function	whichSendButton(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>): number	{
-		const target = e.target as HTMLButtonElement
-		console.log(target.className)
-		if (target.className === 'solid-frame text-content button-interface-actions-user button-add-friend')
-			return 0
-		else if (target.className === 'solid-frame text-content button-interface-actions-user button-remove-friend')
-			return 1
-		else if (target.className === 'solid-frame text-content button-interface-actions-user button-block-user')
-			return 2
-		return 3
+	function				whichSendButton(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>): number	{
+		const target = e.target as HTMLDivElement; const className = target.getAttribute('class')
+		if (target.className === 'add-friend') { return 0 }
+		else if (target.className === 'remove-friend') { return 1 }
+		else if (target.className === 'block-friend') { return 2 }
+		else { return 3 }
 	}
-
-	async function	handleSocialInteract(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>)	{
-		switch (whichSendButton(e))	{ case 0: await addUserFriend; break;  case 1: await removeUserFriend; break;  case 2: console.log('button-block-user'); break;  case 3: console.log('button-make-game') }
+	async		function	handleSocialInteract(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>)	{
+		switch (whichSendButton(e))	{ case 0: await addUserFriend(); break;  case 1: await removeUserFriend(); break;  case 2: console.log('button-block-user'); break;  case 3: console.log('button-make-game') }
 	}
-	const 					waitHandleSocialInteract = debounce(handleSocialInteract, 500)	
-	async 		function	addUserFriend()	{ await axios({ url: 'http://localhost:8080/friend/add', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }) }
-	async 		function	removeUserFriend()	{ await axios({ url: 'http://localhost:8080/friend/remove', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }) }
+	const 					waitHandleSocialInteract = debounce(handleSocialInteract, 500)
+	async 		function	addUserFriend()	{ const res = await axios({ url: 'http://localhost:8080/friend/add', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }); console.log(res) }
+	async 		function	removeUserFriend() { await axios({ url: 'http://localhost:8080/friend/remove', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }) }
 	function 				triggerEffect()	{ setTriggerAvatarChange((prevKey) => prevKey + 1) }
-	function				askDbForUsers(event: string)	{ setSearchTerm(event) }
-	async		function 	handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
-	async		function 	changeAvatarProfil()	{
+	function				askDbForUsers(event: string) { setSearchTerm(event) }
+	async		function 	handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>) { if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
+	async		function 	changeAvatarProfil() {
 		try {
 			if (uploadedFile)	{
 				const formData = new FormData()
@@ -162,7 +154,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 					<div className='avatar-container-profil'>
 						<img src={userInfo.imageLink} />
 					</div>
-					{ newID === ID || newID === -1 ?
+					{ (newID === ID || newID === -1) && inChatBox ?
 						<div className='container-avatar-change'>
 						<label htmlFor='upload-file-input' className='custom-file-upload'>
 							<input id='upload-file-input' className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
@@ -174,17 +166,21 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 				</div>
 				<div className='user-data-div-display'>
 					<div className='user-profile-info'>
-						<h1>User information</h1><br/>
-						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Satus: {userInfo.currentStatus} </p>
+					<h1>User information</h1><br/>
+						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Connected: {userInfo.currentStatus} </p>
 					</div>
-					<div className='container-friend-list-profile'>
-        				{friendList.map((friend, index) => (
-							<div key={index} className='friend-profile'>
-								{friend}
-							</div>
-						))}
-					</div>
-					{ (newID === ID || newID === -1) && inChatBox === false?
+					{ (newID === ID || newID === -1) && inChatBox ? 
+						<div className='container-friend-list-profile'>
+							<h2>Friends</h2><br/>
+							{friendList.map((friend, index) => (
+								<div key={index} className='display-friend-list-cell'>
+									{friend}
+								</div>
+							))}
+						</div>
+					: 
+					null }
+					{ (newID === ID || newID === -1) && inChatBox ?
 						<div className='display-2fa-option'>
 							<div className='switch-2fa'>
 								<label className='form-switch'>
@@ -196,8 +192,8 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 						</div>
 					:
 						<div className='container-social-button'>
-							<div onClick={waitHandleSocialInteract} className='social-button-add'><p>add<br/>friend</p></div>
-							<div onClick={waitHandleSocialInteract} className='social-button-remove'><p>remove<br/>friend</p></div>
+							<div onClick={waitHandleSocialInteract} className='social-button-add'><p className='add-friend'>add<br/>friend</p></div>
+							<div onClick={waitHandleSocialInteract} className='social-button-remove'><p className='remove-friend'>remove<br/>friend</p></div>
 							<div className='social-button-game'><p>make<br/>game</p></div>
 							<div className='social-button-block'><p>block<br/>user</p></div>
 						</div>

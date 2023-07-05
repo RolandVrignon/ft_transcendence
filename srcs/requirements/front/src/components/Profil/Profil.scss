@@ -75,11 +75,14 @@ $border-width: 2px;
 		display: flex;
 		flex-direction: row;
 		.container-friend-list-profile {
-			width: 50%;
-			height: 100%;
+			width: 60%;
+			height: 80%;
 			margin-right: 2vh;
 			border: 1px solid red;
 			color: white;
+			margin-left: 3vh;
+			h2	{ text-align: center; }
+			.display-friend-list-cell	{ margin-bottom: 1vh; }
 		}
 		.display-2fa-option	{
 			display: flex;

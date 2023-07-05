@@ -24,7 +24,7 @@ function App() {
 
 	return (
 		<div className="App">
-			{ authChecked || localStorage.getItem('token') ?
+			{ authChecked ?
 				( <MainPage statusLog={setAuthChecked} ID={userID} refreshWebToken={setSessionToken} webToken={sessionToken} /> )
 					:
 				( <HomePage log={setAuthChecked} user={setUserID} controlJwtToken={setSessionToken}/> )

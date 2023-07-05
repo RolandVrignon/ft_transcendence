@@ -13,6 +13,7 @@ export class SocialInteractController	{
 			const	alreadyFriend = user.friends.find(friend => friend === newFriend.username)
 			if (alreadyFriend) { res.status(304); return }
 			await prisma.user.update({ where: { id: user.id }, data: { friends: { push: newFriend.username } }})
+			await prisma.user.update({ where: { id: newFriend.id }, data: { friends: { push: user.username } }})
 			res.status(201)
 		}
 		catch (err)	{ console.log(err) }
@@ -23,8 +24,10 @@ export class SocialInteractController	{
 			const	removeFriend = await prisma.user.findUnique({where: { id: req.body.newID }})
 			const	friendExists = user.friends.find(friend => friend === removeFriend.username)
 			if (!friendExists)	{ res.status(204); return }
-			const updatedFriends = user.friends.filter(friend => friend !== removeFriend.username)
-			await prisma.user.update({ where: { id: user.id }, data: { friends: updatedFriends } })
+			const updatedUserFriends = user.friends.filter(friend => friend !== removeFriend.username)
+			await prisma.user.update({ where: { id: user.id }, data: { friends: updatedUserFriends } })
+			const updatedRemovedUserFriends = removeFriend.friends.filter(friend => friend !== user.username)
+			await prisma.user.update({ where: { id: removeFriend.id }, data: { friends: updatedRemovedUserFriends } })
 			res.status(202)
 		}
 		catch (err)	{ console.log(err) }
@@ -32,6 +35,8 @@ export class SocialInteractController	{
 	@Post('list') async returnListofUserFriends(@Res() res: Response, @Req() req: Request)	{
 		try {
 			const user = await prisma.user.findUnique({ where: { id: req.body.id }, select: { friends: true } })
+			
+
 			res.status(200).json(user.friends)
 		  } 
 		  catch (err) { console.log(err) }
