@@ -23,6 +23,8 @@ COPY . .
 RUN npm install -g speakeasy qrcode axios python3
 RUN apk add --update --no-cache openssl
 
+RUN npm run build
+RUN npm install -g serve
 # Set the working directory
 # WORKDIR /app
 
@@ -33,4 +35,4 @@ RUN apk add --update --no-cache openssl
 EXPOSE 3000
 
 # Run the start script with hot-reload enabled (substitute "start:dev" with the actual script in your package.json that starts the dev server)
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "serve"]

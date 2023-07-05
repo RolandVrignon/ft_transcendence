@@ -47,7 +47,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 		}
 		catch (err) { console.log(err) }
 	}
-	useEffect(() => { fetchFriendList() }, [])
+	useEffect(() => { fetchFriendList(); }, [])
 
 	useEffect(() => {
 		const fetchUserInformationDisplay = async () => {
@@ -66,7 +66,6 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 						username: res.data.username,
 						doubleAuth: res.data.doubleAuth,
 						currentStatus: res.data.currentStatus
-
 					}
 					setUserInfo(updatedUserInfo)
 				}
@@ -177,7 +176,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 							{friendList.map((friend, index) => (
 								<div key={index} className='display-friend-list-cell'>
 									<img className='image-cell-friend' src={friend.imageLink}></img>
-									<span className={`status-circle ${friend.connected  !== 'offline' ? 'online' : 'offline'}`}>&nbsp;{friend.friend}</span>
+									<span className={`status-circle ${friend.connected  !== 'offLine' ? 'online' : 'offline'}`}>&nbsp;{friend.friend}</span>
 								</div>
 							))}
 							</div>
@@ -189,7 +188,7 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 							<div className='switch-2fa'>
 								<label className='form-switch'>
 									2FA&nbsp;
-									<input type='checkbox' onClick={(e)=>change2FAUserStatus(e)} checked={ userInfo.doubleAuth && userInfo.doubleAuth.length ? true : false }/>
+									<input readOnly type='checkbox' onClick={(e)=>change2FAUserStatus(e)} checked={ userInfo.doubleAuth && userInfo.doubleAuth.length ? true : false }/>
 									<i></i>
 								</label>
 							</div>

@@ -75,17 +75,19 @@ $border-width: 2px;
 		display: flex;
 		flex-direction: row;
 		.container-friend-list-profile {
-			width: 60%;
-			height: 300px;
+			width: 40%;
+			max-height: 300px;
+			min-height: 20px;
 			overflow: hidden;
 			margin-right: 2vh;
 			color: white;
 			margin-left: 3vh;
 			h2	{ top: 0; z-index: 1; position: sticky; text-align: center; }
 			.friend-list-scroll {
+				box-sizing: border-box;
 				height: 100%;
 				overflow-y: auto;
-				padding-top: 30px;
+				padding-bottom: 75px;
 				.display-friend-list-cell	{
 					margin-bottom: 1vh;
 					.status-circle { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-left: 5px; }
@@ -94,6 +96,7 @@ $border-width: 2px;
 				}
 				.image-cell-friend { max-width: 25px; max-height: 25px; }
 			}
+			@media screen and (max-width: 1200px) { height: 50%; margin-bottom: 1vh; }
 		}
 		.display-2fa-option	{
 			display: flex;
