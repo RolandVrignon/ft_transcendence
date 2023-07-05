@@ -21,7 +21,7 @@ $margin: 10px;
 .main-frame {
 	height: calc(100% - 2 * #{$margin});
 	min-height: 600px;
-	min-width: 640px;
+ 		min-width: 640px;
 	margin: #{$margin};
 	flex-grow: 1;
 

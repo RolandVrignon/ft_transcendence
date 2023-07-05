@@ -40,7 +40,7 @@ down:
 
 clean:
 	docker compose -f $(COMPOSE_PATH) down
-	docker system prune -af
+	docker system prune -af --volumes
 
 fclean:
 	make clean

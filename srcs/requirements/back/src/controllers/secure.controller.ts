@@ -26,8 +26,8 @@ export class ConnectController {
 	}
 	@Post('logout')	async delogUserConnectedFalse(@Res() res: Response, @Req() req: Request) {
 		try	{
-			await prisma.user.update({ where: { id: req.body.id }, data: { connected: false } })
-			res.status(204)
+			const userUpdate = await prisma.user.update({ where: { id: req.body.id }, data: { connected: false } })
+			res.status(204).json(userUpdate);
 		}
 		catch (err)	{ console.log(err); res.status(401) }
 	}
