@@ -17,7 +17,7 @@ export class ConnectController {
 			if (user)	{ res.status(200).json(user) }
 			else { res.status(404).json(req.body) }
 		}
-		catch (err) { console.log(err) }
+		catch (err)	{ console.log(err); res.status(404) }
 	}
 	@Post('add')	async addUserInDataBase(@Res() res: Response, @Req() req: Request) {
 		try	{
@@ -31,7 +31,7 @@ export class ConnectController {
 			}); res.status(201).json(user)
 			console.log(`USER ${req.body.id} => ONLINE`)
 		}
-		catch (err)	{ console.log(err) }
+		catch (err)	{ console.log(err); res.status(404) }
 	}
 	@Post('logout')
 	async delogUserConnectedFalse(@Res() res: Response, @Req() req: Request) {
@@ -40,11 +40,7 @@ export class ConnectController {
 			const updatedUser = await prisma.user.update({ where: { id: req.body.id }, data: { currentStatus: "offLine" }})
 			res.status(204).json(updatedUser)
 		}
-		catch (err)	{ 
-			console.error(`Error caught trying to set user with ID ${req.body.id} "offline".`)
-			console.error(`err: `, err)
-			res.status(401) 
-		}
+		catch (err)	{ console.log(err); res.status(401) }
 	}
 	@Post('update2FA')	async update2FAStatus(@Res() res: Response, @Req() req: Request) {
 		try {
@@ -54,7 +50,7 @@ export class ConnectController {
 			const updatedUser = await prisma.user.update({ where: { id: req.body.ID }, data: { doubleAuth: updater }})
 			res.status(204).json(updatedUser)
 		}
-		catch (err)	{ console.log(err) }
+		catch (err) { console.log(err); res.status(404) }
 	}
 	@Post('secure')	async	makeDoubleAuth(@Res() res: Response, @Req() req: Request)	{
 		try	{
@@ -69,15 +65,18 @@ export class ConnectController {
 			await prisma.token2FA.create({ data: { id: req.body.info.id, value: secureTkn } })
 			res.status(200).json()
 		}
-		catch (err)	{ console.log(err) }
+		catch (err) { console.log(err); res.status(404) }
 	}
 	@Post('token')	async verifyDoubleAuthToken(@Res() res: Response, @Req() req: Request)	{
-		const	verif = await prisma.token2FA.findUnique({ where: { id: req.body.id } })
-		if (verif && verif.value === req.body.token)	{
-			await prisma.token2FA.delete({ where: { id: req.body.id } })
-			this.auth.updateConnectedStatus(req.body.id)
-			res.status(201).json('approved')
+		try	{
+			const	verif = await prisma.token2FA.findUnique({ where: { id: req.body.id } })
+			if (verif && verif.value === req.body.token)	{
+				await prisma.token2FA.delete({ where: { id: req.body.id } })
+				this.auth.updateConnectedStatus(req.body.id)
+				res.status(201).json('approved')
+			}
+			else { res.status(401) }
 		}
-		else { res.status(401) }
+		catch (err) { console.log(err); res.status(404) }
 	}
 }

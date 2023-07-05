@@ -46,9 +46,7 @@ constructor(private auth: AuthService) {}
 		  })
 		);
 		res.status(200).json(arr);
-	  } catch (err) {
-		console.log(err);
-		res.status(404);
-	  }
+	  } 
+	  catch (err) { console.log(err); res.status(404) }
 	}	
 }
