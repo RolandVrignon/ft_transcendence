@@ -47,6 +47,7 @@ const Login: React.FC<LoginProps> = (control) => {
     setUserDbData(res.data.dbData)
     setUserLogged(true)
     control.controlJwtToken(res.data.jwtSecureToken)
+    localStorage.setItem('token', res.data.jwtSecureToken)
     setWebToken(res.data.jwtSecureToken)
     control.ID(res.data.apiData.id)
   }

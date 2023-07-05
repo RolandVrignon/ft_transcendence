@@ -27,22 +27,26 @@ type ProfilProps = {
 	username?: string,
 	stats?: string,
 	matchHistory?: string,
-	children?: React.ReactNode
+	children?: React.ReactNode,
+	inChatBox: boolean
 }
 
-const Profil: React.FC<ProfilProps> = ({
-	ID,
-	webToken,
-	refreshWebToken,
-	stats = "Some user stats",
-	matchHistory = "Some match history data",
-	children
-	}) => {
-		const [newID, setNewID] = useState(-1)
-		const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
-		const [searchTerm, setSearchTerm] = useState('')
-		const [uploadedFile, setUploadedFile] = useState<File>()
-		const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: '', currentStatus: "" })
+const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = "Some user stats", matchHistory = "Some match history data", inChatBox = false, children }) => {
+	const [newID, setNewID] = useState(-1)
+	const [searchTerm, setSearchTerm] = useState('')
+	const [uploadedFile, setUploadedFile] = useState<File>()
+	const [friendList, setFriendList] = useState<string[]>([])
+	const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
+	const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: '', currentStatus: "" })
+		
+	async function fetchFriendList() {
+		try {
+			const res = await axios({ url: 'http://localhost:8080/friend/list', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { id: ID } })
+			setFriendList(res.data)
+		}
+		catch (err) { console.log(err) }
+	}
+	useEffect(() => { fetchFriendList() }, [])
 
 	useEffect(() => {
 		const fetchUserInformationDisplay = async () => {
@@ -70,8 +74,6 @@ const Profil: React.FC<ProfilProps> = ({
 		}
 		fetchUserInformationDisplay()
 	}, [ID])
-
-	
 	useEffect(() => {
 		const fetchOtherUserInformationDisplay = async () => {
 			try {
@@ -98,8 +100,27 @@ const Profil: React.FC<ProfilProps> = ({
 		}
 		fetchOtherUserInformationDisplay()
 	}, [newID, triggerAvatarChange])
-	
-	function				check2FABox()	{  }
+
+
+
+	function	whichSendButton(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>): number	{
+		const target = e.target as HTMLButtonElement
+		console.log(target.className)
+		if (target.className === 'solid-frame text-content button-interface-actions-user button-add-friend')
+			return 0
+		else if (target.className === 'solid-frame text-content button-interface-actions-user button-remove-friend')
+			return 1
+		else if (target.className === 'solid-frame text-content button-interface-actions-user button-block-user')
+			return 2
+		return 3
+	}
+
+	async function	handleSocialInteract(e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>)	{
+		switch (whichSendButton(e))	{ case 0: await addUserFriend; break;  case 1: await removeUserFriend; break;  case 2: console.log('button-block-user'); break;  case 3: console.log('button-make-game') }
+	}
+	const 					waitHandleSocialInteract = debounce(handleSocialInteract, 500)	
+	async 		function	addUserFriend()	{ await axios({ url: 'http://localhost:8080/friend/add', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }) }
+	async 		function	removeUserFriend()	{ await axios({ url: 'http://localhost:8080/friend/remove', method: 'POST', headers: { Authorization: `Bearer ${webToken}` }, data: { ID, newID } }) }
 	function 				triggerEffect()	{ setTriggerAvatarChange((prevKey) => prevKey + 1) }
 	function				askDbForUsers(event: string)	{ setSearchTerm(event) }
 	async		function 	handleUploadedFile(e: React.ChangeEvent<HTMLInputElement>)	{ if (e.target.files) {const file = e.target.files[0]; setUploadedFile(file)} }
@@ -141,7 +162,7 @@ const Profil: React.FC<ProfilProps> = ({
 					<div className='avatar-container-profil'>
 						<img src={userInfo.imageLink} />
 					</div>
-					{ newID === ID || newID === -1?
+					{ newID === ID || newID === -1 ?
 						<div className='container-avatar-change'>
 						<label htmlFor='upload-file-input' className='custom-file-upload'>
 							<input id='upload-file-input' className='upload-file-input' accept='image/*' type='file' onChange={handleUploadedFile}/>
@@ -156,7 +177,14 @@ const Profil: React.FC<ProfilProps> = ({
 						<h1>User information</h1><br/>
 						<p>Username: {userInfo.username}<br/><br/>Rank: 1<br/><br/>Total Games: 42<br/><br/>Satus: {userInfo.currentStatus} </p>
 					</div>
-					{ newID === ID || newID === -1 ?
+					<div className='container-friend-list-profile'>
+        				{friendList.map((friend, index) => (
+							<div key={index} className='friend-profile'>
+								{friend}
+							</div>
+						))}
+					</div>
+					{ (newID === ID || newID === -1) && inChatBox === false?
 						<div className='display-2fa-option'>
 							<div className='switch-2fa'>
 								<label className='form-switch'>
@@ -168,8 +196,8 @@ const Profil: React.FC<ProfilProps> = ({
 						</div>
 					:
 						<div className='container-social-button'>
-							<div className='social-button-add'><p>add<br/>friend</p></div>
-							<div className='social-button-remove'><p>remove<br/>friend</p></div>
+							<div onClick={waitHandleSocialInteract} className='social-button-add'><p>add<br/>friend</p></div>
+							<div onClick={waitHandleSocialInteract} className='social-button-remove'><p>remove<br/>friend</p></div>
 							<div className='social-button-game'><p>make<br/>game</p></div>
 							<div className='social-button-block'><p>block<br/>user</p></div>
 						</div>

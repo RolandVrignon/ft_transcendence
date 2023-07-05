@@ -74,9 +74,16 @@ $border-width: 2px;
 		height: 100%;
 		display: flex;
 		flex-direction: row;
+		.container-friend-list-profile {
+			width: 50%;
+			height: 100%;
+			margin-right: 2vh;
+			border: 1px solid red;
+			color: white;
+		}
 		.display-2fa-option	{
-			flex-grow: 1;
 			display: flex;
+			width: 15%;
 			flex-direction: row;
 			align-items: center;
 			.switch-2fa	{ width: 100%; color: white; }
@@ -92,7 +99,7 @@ $border-width: 2px;
 			margin-top: 2vh;
 			margin-left: 5vh;
 			text-align: left;
-			width: 80%;
+			flex-grow: 1;
 			color: white;
 			@media screen and (max-width: 1200px) { text-align: center; margin-bottom: 1vh; }
 		}

@@ -29,4 +29,11 @@ export class SocialInteractController	{
 		}
 		catch (err)	{ console.log(err) }
 	}
+	@Post('list') async returnListofUserFriends(@Res() res: Response, @Req() req: Request)	{
+		try {
+			const user = await prisma.user.findUnique({ where: { id: req.body.id }, select: { friends: true } })
+			res.status(200).json(user.friends)
+		  } 
+		  catch (err) { console.log(err) }
+	}
 }
