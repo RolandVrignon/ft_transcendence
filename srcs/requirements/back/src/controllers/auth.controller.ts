@@ -21,6 +21,6 @@ export class Api42ConnectController {
 			if (userDataState && !userDataState.doubleAuth)	{ await this.auth.updateConnectedStatus(userDataState.id) }
 			res.status(200).json(data).json()
 		}
-		catch (err)	{ console.log(err) }
+		catch (err)	{ console.log(err); res.status(404) }
 	}
 }

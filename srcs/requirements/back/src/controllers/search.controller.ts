@@ -17,19 +17,19 @@ export class SearchController	{
 			const users = await prisma.user.findMany({ where: { username: { startsWith: req.body.searched } } })
 			res.status(200).json(users)
 		}
-		catch (err)	{ console.log(err) }
+		catch (err)	{ console.log(err); res.status(404) }
 	}
 	@Post('info-user')	async returnUserInformation(@Res() res: Response, @Req() req: Request) {
 		try	{
 			const info = await this.auth.askDataBaseForCreation(req.body.id)
 			res.status(200).json(info)
 		}
-		catch (err)	{ console.log(err) }
+		catch (err)	{ console.log(err); res.status(404) }
 	}
 	@Post('user-match-history')
 	async getUserMatchHistory(@Res() res: Response, @Req() req: Request) {
-	  const userId = req.body.id;
-	  try {
+		try {
+		const userId = req.body.id;
 		const games = await prisma.gameSessionOutcome.findMany({
 		  where: {
 			OR: [
@@ -49,16 +49,10 @@ export class SearchController	{
 		  },
 		});
   
-		const gameSessionsHistory = games.map((game) => ({
-		  Player1Name: game.userID1.username,
-		  Player2Name: game.userID2.username,
-		  winnerName: game.winner.username,
-		  loserName: game.loser.username,
-		}));
-		return res.json(gameSessionsHistory);
-	  } catch (error) {
-		console.error(`Something went wrong....`)
-		// return res.status(500).json({ error: 'Something went wrong' });
-	  }
+		const gameSessionsHistory = games.map((game) => ({ Player1Name: game.userID1.username, Player2Name: game.userID2.username,
+		  winnerName: game.winner.username, loserName: game.loser.username }))
+		res.status(200).json(gameSessionsHistory)
+	  } 
+	  catch (err) { console.log(err); res.status(404) }
 	}
 }
