@@ -76,13 +76,24 @@ $border-width: 2px;
 		flex-direction: row;
 		.container-friend-list-profile {
 			width: 60%;
-			height: 80%;
+			height: 300px;
+			overflow: hidden;
 			margin-right: 2vh;
-			border: 1px solid red;
 			color: white;
 			margin-left: 3vh;
-			h2	{ text-align: center; }
-			.display-friend-list-cell	{ margin-bottom: 1vh; }
+			h2	{ top: 0; z-index: 1; position: sticky; text-align: center; }
+			.friend-list-scroll {
+				height: 100%;
+				overflow-y: auto;
+				padding-top: 30px;
+				.display-friend-list-cell	{
+					margin-bottom: 1vh;
+					.status-circle { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-left: 5px; }
+					.status-circle.online { background-color: green; }
+					.status-circle.offline { background-color: red; }
+				}
+				.image-cell-friend { max-width: 25px; max-height: 25px; }
+			}
 		}
 		.display-2fa-option	{
 			display: flex;

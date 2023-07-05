@@ -2,10 +2,12 @@ import { Controller, Post, Get, Res, Req, UseGuards } from '@nestjs/common'
 import { Response, Request } from 'express'
 import prisma from '../../prisma/prisma.client'
 import { JwtAuthGuard } from '../jwt/jwt.guard'
+import AuthService from 'src/services/auth.service'
 
 @Controller('friend')
 @UseGuards(JwtAuthGuard)
 export class SocialInteractController	{
+constructor(private auth: AuthService) {}
 	@Post('add')	async addFriendOfUser(@Res() res: Response, @Req() req: Request)	{
 		try	{
 			const	user = await prisma.user.findUnique({where: { id: req.body.ID }})
@@ -16,7 +18,7 @@ export class SocialInteractController	{
 			await prisma.user.update({ where: { id: newFriend.id }, data: { friends: { push: user.username } }})
 			res.status(201)
 		}
-		catch (err)	{ console.log(err) }
+		catch (err)	{ console.log(err); res.status(404) }
 	}
 	@Post('remove')	async removeFriendOfUser(@Res() res: Response, @Req() req: Request)	{
 		try	{
@@ -30,15 +32,15 @@ export class SocialInteractController	{
 			await prisma.user.update({ where: { id: removeFriend.id }, data: { friends: updatedRemovedUserFriends } })
 			res.status(202)
 		}
-		catch (err)	{ console.log(err) }
+		catch (err)	{ console.log(err); res.status(404) }
 	}
 	@Post('list') async returnListofUserFriends(@Res() res: Response, @Req() req: Request)	{
 		try {
-			const user = await prisma.user.findUnique({ where: { id: req.body.id }, select: { friends: true } })
-			
-
-			res.status(200).json(user.friends)
+			const user = await this.auth.askDataBaseForCreation(req.body.id)
+			const friendList = user.friends.map((friend) => ({ friend, connected: user.connected, imageLink: user.imageLink }))
+			console.log(friendList)
+			res.status(200).json(friendList)
 		  } 
-		  catch (err) { console.log(err) }
+		  catch (err) { console.log(err); res.status(404) }
 	}
 }

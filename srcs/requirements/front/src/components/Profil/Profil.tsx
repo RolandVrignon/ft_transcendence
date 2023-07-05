@@ -35,7 +35,8 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 	const [newID, setNewID] = useState(-1)
 	const [searchTerm, setSearchTerm] = useState('')
 	const [uploadedFile, setUploadedFile] = useState<File>()
-	const [friendList, setFriendList] = useState<string[]>([])
+	// const [friendList, setFriendList] = useState<string[]>([])
+	const [friendList, setFriendList] = useState<{ friend: string; connected: boolean; imageLink: string }[]>([])
 	const [triggerAvatarChange, setTriggerAvatarChange] = useState(0)
 	const [userInfo, setUserInfo] = useState<UserInfo>({ id: -1, first_name: '', last_name: '', imageLink: '', username: '', currentStatus: "" })
 		
@@ -172,11 +173,14 @@ const Profil: React.FC<ProfilProps> = ({ ID, webToken, refreshWebToken, stats = 
 					{ (newID === ID || newID === -1) && !inChatBox ? 
 						<div className='container-friend-list-profile'>
 							<h2>Friends</h2><br/>
+							<div className='friend-list-scroll'>
 							{friendList.map((friend, index) => (
 								<div key={index} className='display-friend-list-cell'>
-									{friend}
+									<img className='image-cell-friend' src={friend.imageLink}></img>
+									<span className={`status-circle ${friend.connected ? 'online' : 'offline'}`}>&nbsp;{friend.friend}</span>
 								</div>
 							))}
+							</div>
 						</div>
 					: 
 					null }
